@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ka-BOHR! · Bohr model catch (iBond sandbox)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bungee&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ece7f6; --panel:#ffffff; --ink:#221a3a; --muted:#5f5680; --line:#d5cde8;
+  --violet:#5a3d8f; --gold:#e8a91c; --good:#2f9e5b; --bad:#d6334a; --cyan:#1f8fb8;
+  --title:'Bungee', 'Arial Black', Impact, sans-serif;
+  --body:'Atkinson Hyperlegible', 'Noto Sans TC', 'Noto Sans Arabic', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16112a; --panel:#221a3d; --ink:#f1ecff; --muted:#aca3cf; --line:#3a3060;
+    --violet:#8a68d0; --gold:#ffc845; --good:#4fd68a; --bad:#ff6b80; --cyan:#5fd0f5;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16112a; --panel:#221a3d; --ink:#f1ecff; --muted:#aca3cf; --line:#3a3060;
+  --violet:#8a68d0; --gold:#ffc845; --good:#4fd68a; --bad:#ff6b80; --cyan:#5fd0f5;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.4;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+[dir="rtl"] .ltr{direction:ltr;text-align:right}
+
+#app{height:100%;max-width:1120px;margin:0 auto;padding:8px;display:flex;flex-direction:column;gap:8px}
+
+#topbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#brand{font-family:var(--title);font-size:20px;color:var(--violet)}
+#pips{display:flex;gap:4px;flex:1;min-width:60px}
+#pips i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+#pips i.done{background:var(--good)}#pips i.now{background:var(--gold)}
+.stat{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:2px 10px;text-align:center;min-width:58px}
+.stat b{display:block;font-family:var(--title);font-size:16px;font-weight:400;line-height:1.25}
+.stat span{font-size:11px;color:var(--muted)}
+.iconbtn{background:var(--panel);border:2px solid var(--line);border-radius:12px;min-width:40px;height:40px;font-size:17px;display:grid;place-items:center;padding:0 6px}
+.iconbtn[aria-pressed="false"]{opacity:.45}
+#btnLang{font-size:13px;font-weight:700}
+
+#stage{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center}
+#board{position:relative;--s:1}
+canvas#cv{display:block;border-radius:16px;touch-action:none;user-select:none;-webkit-user-select:none}
+
+#dock{position:absolute;left:0;right:0;bottom:0;height:calc(64px * var(--s));display:flex;align-items:center;gap:12px;padding:0 calc(16px * var(--s));pointer-events:none;color:#fff}
+#dockQ{font-weight:700;font-size:clamp(14px, calc(23px * var(--s)), 24px);line-height:1.15;text-shadow:0 2px 0 rgba(0,0,0,.35);flex:1;min-width:0}
+#dockC{font-weight:700;font-size:clamp(12px, calc(17px * var(--s)), 18px);color:#ffe27a;text-shadow:0 2px 0 rgba(0,0,0,.35);white-space:nowrap}
+#dock .ptable{background:rgba(20,10,40,.55);border-color:transparent;padding:3px}
+#dock .ptable .c{background:rgba(255,255,255,.12);color:#fff}
+#dock .ptable .h,#dock .ptable .r{color:#d8ccff}
+#dock .ptable .h b{color:#fff}
+
+#btnJump{display:none;position:absolute;right:10px;bottom:calc(74px * var(--s));z-index:5;width:64px;height:64px;border-radius:50%;border:3px solid #fff;background:rgba(232,169,28,.9);color:#221a3a;font-weight:700;font-size:14px;place-items:center;touch-action:none;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+@media (pointer:coarse){ #btnJump{display:grid} }
+
+.anchor{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(206px * var(--s));width:min(580px, 94%);z-index:6}
+#card{background:var(--panel);border:3px solid var(--violet);border-radius:18px;padding:12px 16px 14px;display:flex;gap:14px;align-items:center;overflow:hidden;box-shadow:0 8px 0 rgba(40,20,80,.25)}
+#cardText{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+#qtag{align-self:flex-start;font-weight:700;font-size:13px;padding:2px 10px;border-radius:999px;color:#fff;background:#5a3d8f}
+#qtag.shells{background:#7a4fc4}#qtag.valence{background:#a06f00}#qtag.fill{background:#1b7fa6}#qtag.core{background:#3a5fcf}#qtag.total{background:#b8456a}#qtag.reverse{background:#2f8a52}
+#qtext{font-size:clamp(17px,2.6vw,23px);font-weight:700;line-height:1.3}
+#qtextEn,#fbEn{font-size:14px;color:var(--muted)}
+#qtextEn:empty,#fbEn:empty{display:none}
+#qhint{font-size:15px;color:var(--muted)}
+#qhint:empty{display:none}
+#qcount{font-size:15px;font-weight:700;color:var(--cyan)}
+#qcount:empty{display:none}
+#qready{font-size:13px;color:var(--muted);font-style:italic}
+#card{cursor:pointer}
+#thinkbar{position:absolute;left:0;bottom:0;height:5px;background:var(--gold);width:0}
+
+.ptable{border:2px solid var(--line);border-radius:10px;padding:5px;display:grid;grid-template-columns:14px repeat(9,20px);gap:2px;align-content:start;flex:none;direction:ltr}
+.ptable .h{text-align:center;color:var(--muted);line-height:1;font-size:9px;padding-bottom:1px}
+.ptable .h b{display:block;font-size:10px;color:var(--ink)}
+.ptable .r{color:var(--muted);display:grid;place-items:center;font-weight:700;font-size:10px}
+.ptable .c{height:18px;border-radius:4px;display:grid;place-items:center;background:var(--bg);font-weight:700;font-size:10px}
+.ptable .c.empty,.ptable .c.gap{background:transparent !important}
+.ptable .c.gap{color:var(--muted)}
+.ptable .c.hl{background:var(--gold) !important;color:#221a3a !important;box-shadow:0 0 0 2px #fff}
+.ptable .h.hl b,.ptable .r.hl{color:var(--gold) !important}
+#dock .ptable{grid-template-columns:11px repeat(9,15px);gap:1px}
+#dock .ptable .c{height:11px;font-size:8px;border-radius:2px}
+#dock .ptable .h{font-size:7px}#dock .ptable .h b{font-size:8px}#dock .ptable .r{font-size:8px}
+
+#feedback{background:var(--panel);border:3px solid var(--bad);border-radius:18px;padding:14px 16px;box-shadow:0 10px 0 rgba(120,20,40,.25)}
+#fbHead{font-weight:700;color:var(--bad);font-size:18px;margin-bottom:4px}
+#fbBody{font-size:17px;line-height:1.45}
+#fbEn{margin-top:6px}
+.btn{margin-top:10px;width:100%;border:none;background:var(--violet);color:#fff;font-weight:700;padding:10px;border-radius:12px;font-size:16px}
+.btn:disabled{opacity:.5}
+
+#banner{pointer-events:none;text-align:center;background:var(--panel);border:3px solid var(--good);border-radius:18px;padding:10px 20px;width:auto;max-width:94%}
+#banner .t{font-family:var(--title);font-size:clamp(20px,3.6vw,32px);color:var(--good);line-height:1.15}
+:root[lang="zh-Hant"] #banner .t,:root[lang="ar"] #banner .t{font-family:var(--body);font-weight:700}
+#banner .c{font-size:19px;font-weight:700}
+#banner .s{font-size:14px;color:var(--muted)}
+
+#lesson{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:10px;z-index:7;background:rgba(20,10,40,.5);border-radius:16px}
+#lesson .sheet{max-width:560px;padding:16px 18px}
+#lesson p{margin:0 0 8px}
+.lsModels{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0 4px}
+.lsModels figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.lsModels canvas{width:132px;height:132px;border-radius:12px;background:#2a1d52}
+.lsModels figcaption{font-weight:700;text-align:center}
+.lsRows{display:grid;gap:1px;font-size:14px;direction:ltr}
+.lsRow{display:flex;align-items:center;gap:6px;justify-content:space-between;min-width:96px}
+.lsRow i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.lsRow b{font-size:16px}
+.lsRow.big{background:color-mix(in srgb, var(--gold) 30%, transparent);border-radius:6px;padding:0 4px}
+.lsArrow{font-size:13px;color:var(--muted);text-align:center;max-width:90px;line-height:1.25}
+.lsArrow b{display:block;font-size:24px;color:var(--gold)}
+.lsGold{font-size:13px;color:var(--muted)}
+
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;z-index:9}
+.hidden{display:none !important}
+.sheet{background:var(--panel);color:var(--ink);border:3px solid var(--violet);border-radius:20px;padding:20px 22px;max-width:540px;width:100%;max-height:100%;overflow:auto;box-shadow:0 12px 0 rgba(40,20,80,.25)}
+h1{font-family:var(--title);font-weight:400;font-size:clamp(34px,7vw,56px);line-height:1;margin:0 0 6px;color:var(--violet);letter-spacing:.5px}
+h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--violet)}
+.lede{margin:0 0 14px;color:var(--muted)}
+.label{font-weight:700;font-size:14px;margin:12px 0 6px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg.four{grid-template-columns:repeat(4,1fr)}
+.seg button{border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:8px 6px;text-align:center;line-height:1.2}
+.seg button small{display:block;color:var(--muted);font-size:12px}
+.seg button[aria-pressed="true"]{border-color:var(--violet);background:var(--violet);color:#fff}
+.seg button[aria-pressed="true"] small{color:#e6dcff}
+.toggle{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:15px;border-radius:10px}
+.toggle input{width:20px;height:20px;accent-color:var(--violet)}
+.toggle small{color:var(--muted);display:block;font-size:12px}
+.go{margin-top:16px;width:100%;border:none;background:var(--gold);color:#221a3a;font-family:var(--title);font-size:22px;padding:12px;border-radius:14px;box-shadow:0 5px 0 #a8770c}
+:root[lang="zh-Hant"] .go,:root[lang="ar"] .go{font-family:var(--body);font-weight:700}
+.go:active{transform:translateY(3px);box-shadow:0 2px 0 #a8770c}
+.ghost{margin-top:8px;width:100%;border:2px solid var(--line);background:transparent;padding:9px;border-radius:12px}
+.fine{font-size:12px;color:var(--muted);margin:12px 0 0;text-align:center}
+
+.sumgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.sumgrid div{background:var(--bg);border-radius:12px;padding:8px 4px;text-align:center}
+.sumgrid b{display:block;font-family:var(--title);font-weight:400;font-size:20px}
+.sumgrid span{font-size:12px;color:var(--muted)}
+#misList{margin:4px 0 0;padding-inline-start:20px}
+#misList li{margin:3px 0}
+#chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+#chips span{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:1px 7px;font-weight:700;font-size:13px}
+
+.acct{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 4px}
+.acrow{display:flex;align-items:center;gap:10px}
+.acwho{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.acwho small{color:var(--muted)}
+.acct input{flex:1;min-width:0;font:inherit;font-size:20px;letter-spacing:3px;padding:7px 10px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--ink)}
+.acct .btn.slim,.acct .ghost.slim{width:auto;margin:0;padding:8px 14px}
+.acpick{display:flex;flex-direction:column;gap:6px}
+.acpick .ghost.slim{width:100%;text-align:start}
+.acerr{color:var(--bad);font-size:14px;margin:6px 0 0;min-height:1em}
+.linkbtn{background:none;border:none;color:var(--violet);text-decoration:underline;padding:6px 0;font-size:14px}
+.saveline{margin:4px 0 0;font-size:15px}
+.saveline span{color:var(--muted)}
+.sprite{flex:none}
+@media (max-width:680px){
+  #brand{display:none}
+  .stat{min-width:46px;padding:2px 5px}
+  .stat b{font-size:14px}
+  .iconbtn{min-width:34px;height:36px}
+  #card{flex-direction:column;align-items:stretch}
+  #card .ptable{align-self:center}
+  .sumgrid{grid-template-columns:repeat(2,1fr)}
+  .seg.four{grid-template-columns:repeat(2,1fr)}
+  .lsModels canvas{width:108px;height:108px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <span id="brand">Ka-BOHR!</span>
+    <span id="pips" aria-hidden="true"></span>
+    <div class="stat"><b id="sScore">0</b><span data-k="ui.score"></span></div>
+    <div class="stat"><b id="sStreak">0</b><span data-k="ui.streak"></span></div>
+    <div class="stat"><b id="sAtoms">0</b><span data-k="ui.rounds"></span></div>
+    <button class="iconbtn" id="btnLang" aria-label="Language">EN</button>
+    <button class="iconbtn" id="btnMusic" aria-pressed="true" aria-label="Music">🎵</button>
+    <button class="iconbtn" id="btnMute" aria-pressed="true" aria-label="Sound effects">🔊</button>
+    <button class="iconbtn" id="btnPause" aria-label="Pause">⏸</button>
+  </header>
+
+  <main id="stage">
+    <div id="board">
+      <canvas id="cv" aria-label="Game area"></canvas>
+
+      <div id="dock" aria-live="polite"><div id="dockQ"></div><div id="dockC"></div><div id="dockTable" class="ptable hidden"></div></div>
+      <button id="btnJump" data-k="ui.jump"></button>
+
+      <section id="card" class="anchor hidden" aria-live="polite">
+        <div id="cardText">
+          <span id="qtag"></span>
+          <div id="qtext"></div>
+          <div id="qtextEn" class="ltr" dir="ltr" lang="en"></div>
+          <div id="qhint"></div>
+          <div id="qcount"></div>
+          <div id="qready" data-k="ui.ready"></div>
+        </div>
+        <div id="cardTable" class="ptable hidden"></div>
+        <div id="thinkbar"></div>
+      </section>
+
+      <div id="banner" class="anchor hidden"><div class="t"></div><div class="c"></div><div class="s"></div></div>
+
+      <div id="feedback" class="anchor hidden" role="alertdialog" aria-labelledby="fbHead">
+        <div id="fbHead"></div>
+        <div id="fbBody"></div>
+        <div id="fbEn" class="ltr" dir="ltr" lang="en"></div>
+        <button class="btn" id="fbNext"></button>
+      </div>
+
+      <div id="lesson" class="hidden" role="dialog" aria-labelledby="lsHead">
+        <div class="sheet">
+          <h2 id="lsHead" data-k="lesson.title"></h2>
+          <p data-k="lesson.p1"></p>
+          <div class="lsModels">
+            <figure><canvas id="lsCa" width="264" height="264"></canvas><figcaption><span data-name="Ca"></span> (20)<div class="lsRows" id="rowsCa"></div></figcaption></figure>
+            <div class="lsArrow"><b id="lsArrowGlyph">→</b><span data-k="lesson.arrow"></span></div>
+            <figure><canvas id="lsGa" width="264" height="264"></canvas><figcaption><span data-name="Ga"></span> (31)<div class="lsRows" id="rowsGa"></div></figcaption></figure>
+          </div>
+          <p class="lsGold" data-k="lesson.gold"></p>
+          <p data-k="lesson.p2"></p>
+          <button class="go" id="lsGo" data-k="lesson.gotIt" style="margin-top:6px"></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="menu" class="overlay">
+      <div class="sheet">
+        <h1>Ka-BOHR!</h1>
+        <p class="lede" data-k="ui.lede"></p>
+        <div id="acct" class="acct hidden" aria-live="polite"></div>
+        <div class="label" data-k="ui.language"></div>
+        <div class="seg four" id="langSeg">
+          <button data-lang="en" aria-pressed="true" lang="en">English</button>
+          <button data-lang="es" aria-pressed="false" lang="es">Español</button>
+          <button data-lang="zh" aria-pressed="false" lang="zh-Hant">中文（繁體）</button>
+          <button data-lang="ar" aria-pressed="false" lang="ar">العربية</button>
+        </div>
+        <div class="label" data-k="ui.elements"></div>
+        <div class="seg" id="modeSeg">
+          <button data-mode="core" aria-pressed="true"><span data-k="ui.mCore"></span><small>H – Ca</small></button>
+          <button data-mode="adv" aria-pressed="false"><span data-k="ui.mAdv"></span><small>Ga – Kr</small></button>
+          <button data-mode="mixed" aria-pressed="false"><span data-k="ui.mMixed"></span><small data-k="ui.mMixedSub"></small></button>
+        </div>
+        <label class="toggle"><input type="checkbox" id="extraTime"><span><span data-k="ui.extra"></span><small data-k="ui.extraSub"></small></span></label>
+        <button class="go" id="btnStart" data-k="ui.start"></button>
+        <p class="fine"><span data-k="ui.controls"></span><br><span data-k="ui.sandbox"></span></p>
+      </div>
+    </div>
+
+    <div id="pauseOv" class="overlay hidden">
+      <div class="sheet" style="text-align:center;max-width:340px">
+        <h2 style="font-size:30px" data-k="ui.paused"></h2>
+        <button class="go" id="btnResume" data-k="ui.resume"></button>
+        <button class="ghost" id="btnQuit" data-k="ui.quit"></button>
+      </div>
+    </div>
+
+    <div id="over" class="overlay hidden">
+      <div class="sheet">
+        <h2 style="font-size:30px" data-k="ui.over"></h2>
+        <div class="sumgrid">
+          <div><b id="oScore">0</b><span data-k="ui.score"></span></div>
+          <div><b id="oAtoms">0</b><span data-k="ui.rounds"></span></div>
+          <div><b id="oAcc">0%</b><span data-k="ui.firstTry"></span></div>
+          <div><b id="oStreak">0</b><span data-k="ui.best"></span></div>
+        </div>
+        <p class="saveline"><b id="oEarned"></b> <span id="oSave"></span></p>
+        <div class="label" data-k="ui.tripped"></div>
+        <ul id="misList"></ul>
+        <div class="label" data-k="ui.finished"></div>
+        <div id="chips"></div>
+        <button class="go" id="btnAgain" data-k="ui.again"></button>
+        <button class="ghost" id="btnMenu" data-k="ui.settings"></button>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(() => {
+'use strict';
+
+/* ================= Tunables ================= */
+const CFG = {
+  LIVES: 3, ITEMS_PER_WAVE: 4,
+  FALL_BASE: 85, FALL_PER_ROUND: 6, FALL_MAX_ROUNDS: 16,       // logical px/s (screen is 600 tall)
+  DROP_INT_BASE: 1.0, DROP_INT_MIN: 0.55, DROP_INT_PER_ROUND: 0.025, POUR: 0.42,
+  THINK: 3.5, THINK_RETRY: 2.2, THINK_SCAFFOLD_BONUS: 1.8,      // seconds the question card shows before drops (Enter / tap skips)
+  EXTRA_FALL: 0.65, EXTRA_DROP: 1.35, EXTRA_THINK: 2.0, EXTRA_POINTS: 0.5,   // Extra time earns half, same as iBond
+  // points are ⚛, the same currency as iBond (a right answer there is worth roughly 15–50)
+  PTS_FIRST: 25, PTS_STREAK: 5, STREAK_CAP: 10, PTS_RETRY: 8,
+  PTS_BUILD: 50, PTS_BUILD_CLEAN: 25, PTS_SHORT: 25, PTS_SHORT_CLEAN: 12,
+  SCAFFOLD_FULL_UNTIL: 2,   // first-try correct answers of a question type before the written hint fades
+  SCAFFOLD_TABLE_UNTIL: 5,  // ...before the periodic table and counters fade too
+  ROUND_PATTERN: ['build','build','quick','reverse'],
+  FIVE_FROM_ROUND: 6,        // from this round on, 5 choices drop instead of 4
+  ASSISTANT_FROM_ROUND: 12,  // from this round on, a tie-dye lab assistant mole drops half of them
+  TRANSITION_CALLOUT: 'first',  // 'first' = once per session, 'always' = every Ga–Kr atom, 'off'
+  CATCH_HALF: 42, KEY_SPEED: 520, PTR_SPEED: 950, MOLE_SPEED: 340,
+  JUMP_V: 780, GRAVITY: 2300,
+  BPM: 138, BPM_PER_ROUND: 3, BPM_MAX: 174
+};
+
+/* ================= Chemistry data ================= */
+const AG = {1:'1A',2:'2A',13:'3A',14:'4A',15:'5A',16:'6A',17:'7A',18:'8A'};
+/* ================= Languages =================
+   English is the source. Spanish, Traditional Chinese and Arabic are first-pass translations:
+   have a native-speaking colleague check the chemistry vocabulary before classroom use.
+   Key vocabulary lives in each language's templates, so a term swap is a find/replace. */
+const iso = s => '\u2066' + s + '\u2069';           // keeps "n = 3" and equations left-to-right inside Arabic text
+const lv = n => iso(`n = ${n}`);
+const arForm = (n, one, few, many) => (n===1||n===2) ? one : (n>=3&&n<=10) ? few : many;
+const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+const LANGS = {
+en: {
+  code:'en', html:'en', dir:'ltr', short:'EN',
+  names:{H:'Hydrogen',He:'Helium',Li:'Lithium',Be:'Beryllium',B:'Boron',C:'Carbon',N:'Nitrogen',O:'Oxygen',F:'Fluorine',Ne:'Neon',Na:'Sodium',Mg:'Magnesium',Al:'Aluminum',Si:'Silicon',P:'Phosphorus',S:'Sulfur',Cl:'Chlorine',Ar:'Argon',K:'Potassium',Ca:'Calcium',Ga:'Gallium',Ge:'Germanium',As:'Arsenic',Se:'Selenium',Br:'Bromine',Kr:'Krypton'},
+  gl: g => `Group ${g} (${AG[g]})`,
+  E: n => `${n} electron${n===1?'':'s'}`, EL: n => `${n} energy level${n===1?'':'s'}`, V: n => `${n} valence electron${n===1?'':'s'}`,
+  ui:{ logIn:'Log in', logOut:'Log out', guest:'Playing as guest', idLabel:'Last 5 digits of your student ID', next:'Next', isYou:'Is this you?', notMe:"That's not me",
+    enter5:'Enter all 5 digits.', noMatch:'No match for that number. Check it, or ask your teacher.', checkAgain:"Check your number and try again. If it still isn't you, tell your teacher.",
+    busy:'The class list is busy. Try again in a minute.', badCode:'This link is missing the class code. Use the game link your teacher shared.', network:'Couldn’t reach the class list. Check the internet and try again.',
+    period:n=>`Period ${n}`, total:n=>`${n} ⚛ total`, saving:'Saving…', saved:n=>`Saved! You have ${n} ⚛ in all.`, saveFail:'Couldn’t save yet. It will try again.',
+    guestSave:'Log in to keep your ⚛.', earned:n=>`+${n} ⚛ this game`,
+    score:'Score', streak:'Streak', rounds:'Rounds', jump:'Jump', ready:'Ready? Press Enter or tap here to start the drop.', lvl5:'Level up: 5 choices now!', helper:'A lab assistant joins the mole!',
+    lede:'The mole drops numbers. Catch the right one to build each Bohr model, name mystery atoms, and answer rapid-fire questions. A wrong catch costs a basket.',
+    language:'Language', elements:'Elements', mCore:'Core', mAdv:'Advanced', mMixed:'Mixed', mMixedSub:'Core, then advanced',
+    extra:'Extra time', extraSub:'Slower drops and a longer think pause. Points are scaled.', start:'Start',
+    controls:'Move with ← → or A / D, or drag. Jump with Space or ↑ (on a phone, swipe up or tap Jump). P pauses.',
+    sandbox:'Sandbox demo · guest mode, nothing is saved.', paused:'Paused', resume:'Resume', quit:'Quit to menu',
+    over:'Out of baskets!', firstTry:'First-try', best:'Best streak', tripped:'What tripped you up', finished:'Atoms you finished',
+    none:'None yet. You were close!', nothing:'Nothing yet!', again:'Play again', settings:'Change settings',
+    tryAgain: n => `Try again (Enter) · ${n} basket${n===1?'':'s'} left`, results:'See results (Enter)' },
+  cv:{ valence:'valence', core:'core', total:'total', legend:'Energy levels', gotAway:'It got away! Here it comes again.' },
+  tag:{ shells:()=> 'Energy levels', valence:()=> 'Valence', fill:x=> `Fill ${x.lvn}`, core:()=> 'Core', total:()=> 'Total', reverse:()=> 'Name it' },
+  q:{
+    shells: x=>[`How many energy levels does ${x.name} (${x.s}) have?`, `Energy levels in ${x.s}?`],
+    valence:x=>[`How many valence electrons does ${x.name} (${x.s}) have?`, `Valence electrons in ${x.s}?`],
+    fill:   x=>[`How many electrons go in energy level ${x.lvn} of ${x.name} (${x.s})?`, `${x.s}: electrons in ${x.lvn}?`],
+    core:   x=>[`How many core electrons does ${x.name} (${x.s}) have?`, `Core electrons in ${x.s}?`],
+    total:  x=>[`How many electrons does a neutral ${x.name} (${x.s}) atom have?`, `Total electrons in ${x.s}?`],
+    reverse:()=>['Which element does this Bohr model show?', 'Which element is this?'] },
+  hint:{
+    shells:()=> 'The period (row) number tells you how many energy levels an atom has.',
+    valence:x=> x.He ? 'Helium is special: its only energy level is full with just 2.' : 'The A group number is the number of valence electrons (3A has 3).',
+    fill:x=> x.big3 ? `Past calcium, energy level ${x.lv3} holds up to 18.` : `Energy level ${x.lvn} holds up to ${x.cp}.`,
+    core:()=> 'Core electrons are in all the inner energy levels: everything except valence.',
+    total:()=> 'A neutral atom has as many electrons as protons (the atomic number).',
+    reverse:()=> 'Count the energy levels to find the period. Count the outer electrons to find the A group.' },
+  count:{ fill:x=> `${x.rem} of ${x.Z} electrons left to place`, coreBuild:x=> `Total electrons: ${x.Z}`, coreQuick:x=> `Atomic number: ${x.Z}` },
+  fbHead: x=> `You caught ${x.v}. The answer is ${x.c}.`,
+  ex:{
+    shells:{
+      group:x=> `${x.v} is ${x.s}'s group number (its column). The number of energy levels comes from the period (its row). ${x.s} is in Period ${x.P}, so it has ${x.T.EL(x.P)}.`,
+      atomicNumber:x=> `${x.v} is ${x.s}'s atomic number, which counts all of its electrons. The number of energy levels matches the period: Period ${x.P} means ${x.T.EL(x.P)}.`,
+      valence:x=> `${x.v} is how many valence electrons ${x.s} has. For energy levels, use the row instead: Period ${x.P} means ${x.T.EL(x.P)}.`,
+      offByOne:x=> `Close! ${x.s} is in Period ${x.P}, so it has exactly ${x.T.EL(x.P)}.`,
+      _:x=> `${x.s} is in Period ${x.P}, so it has ${x.T.EL(x.P)}.` },
+    valence:{
+      groupNot10:x=> `${x.v} is the 1–18 group number. For groups 13–18, subtract 10 (${x.eq10}), or use the A group: ${x.A} means ${x.val}.`,
+      period:x=> `${x.v} is ${x.s}'s period number, which tells you the number of energy levels, not valence electrons. ${x.gl} means ${x.T.V(x.val)}.`,
+      atomicNumber:x=> `${x.v} is the atomic number, which counts every electron. Valence electrons are only the ones in the outer energy level: ${x.val}.`,
+      toFull:x=> `${x.v} is how many more electrons ${x.s} would need to fill its outer energy level. Valence counts the electrons already there: ${x.val}.`,
+      octet:x=> `8 would be a full outer energy level. ${x.s} is in ${x.gl}, so it has ${x.T.V(x.val)}.`,
+      he:x=> `Helium is the exception! It sits in Group 18 (8A), but its only energy level holds 2, so it has 2 valence electrons, not ${x.v}.`,
+      _:x=> `${x.s} is in ${x.gl}, so it has ${x.T.V(x.val)}.` },
+    fill:{
+      capacity:x=> `Energy level ${x.lvn} can hold up to ${x.cp}, but ${x.s} only has ${x.T.E(x.rem)} left to place.`,
+      always8:x=> x.n===1 ? `Energy level ${x.lvn} is small. It holds at most 2${x.c<2?`, and ${x.s} only has ${x.c}`:''}.` : `Not every energy level gets 8. ${x.s} has ${x.rem} left to place, and energy level ${x.lvn} gets ${x.c}.`,
+      eightNot18:x=> `Past calcium, energy level ${x.lv3} stretches to hold 18. So ${x.s}'s energy level ${x.lv3} gets 18, not 8.`,
+      allRemaining:x=> `${x.v} is every electron ${x.s} has left, but energy level ${x.lvn} only holds ${x.cp}. Put ${x.c} here; the rest go to the next energy level.`,
+      atomicNumber:x=> `${x.v} is ${x.s}'s total number of electrons. Energy level ${x.lvn} gets just ${x.c} of them.`,
+      period:x=> `${x.v} is the period number. Energy level ${x.lvn} of ${x.s} gets ${x.T.E(x.c)}.`,
+      groupNot10:x=> `${x.v} is the 1–18 group number. ${x.s} is ${x.A}, so its outer energy level gets ${x.c}.`,
+      _:x=> `Energy level ${x.lvn} of ${x.s} gets ${x.T.E(x.c)}.` },
+    core:{
+      noInner:x=> `${x.name} has only one energy level, so all of its electrons are valence electrons. It has 0 core electrons.`,
+      firstOnly:x=> `Core electrons are in ALL the inner energy levels, not just ${x.lv1}: ${x.eq}.`,
+      justBelow:x=> `Not just the energy level under the valence electrons. Every inner energy level is core: ${x.eq}.`,
+      atomicNumber:x=> `${x.v} counts every electron. Core leaves out the ${x.val} valence: ${x.eqZ}.`,
+      valence:x=> `${x.v} is the number of valence electrons in the outer energy level. Core is everything inside it: ${x.c}.`,
+      eightNot18:x=> `Past calcium, energy level ${x.lv3} holds 18. Core = ${x.eq}.`,
+      _:x=> `Core = every electron except the ${x.val} valence: ${x.eqZ}.` },
+    total:{
+      valence:x=> `${x.v} is just the valence electrons. A neutral atom has as many electrons as protons, so ${x.s} has ${x.Z} in all.`,
+      coreOnly:x=> `${x.v} is just the core electrons. Add the ${x.val} valence and you get ${x.Z}, the atomic number.`,
+      period:x=> `${x.v} is the period number. Total electrons = atomic number = ${x.Z}.`,
+      group:x=> `${x.v} is the group number. Total electrons = atomic number = ${x.Z}.`,
+      offByOne:x=> `Close! A neutral atom has exactly as many electrons as protons: ${x.s}'s atomic number is ${x.Z}.`,
+      _:x=> `A neutral atom has as many electrons as protons. ${x.s}'s atomic number is ${x.Z}, so it has ${x.Z} electrons.` },
+    reverse:{
+      wrongPeriod:x=> `${x.r.name} has the same number of outer electrons (${x.val}), but ${x.T.EL(x.r.P)}. This model has ${x.T.EL(x.P)}, so it is in Period ${x.P}: ${x.name}.`,
+      wrongGroup:x=> `${x.r.name} is in the right period, but it has ${x.T.V(x.r.val)}. This model's outer energy level has ${x.val}${x.He?' (helium is the 8A exception)':`, so it is in ${x.gl}`}: ${x.name}.`,
+      _:x=> `Count the energy levels for the period (${x.P}) and the outer electrons for the group: this model is ${x.name} (${x.s}).` } },
+  tags:{ group:'Used the group number by mistake', atomicNumber:'Grabbed the atomic number (total electrons)', valence:'Used the valence count by mistake',
+    offByOne:'Off by one', coreOnly:'Gave core instead of total electrons', groupNot10:'Used the group 13–18 number without subtracting 10',
+    period:'Used the period number by mistake', toFull:'Counted electrons needed instead of electrons present', octet:'Assumed 8 valence electrons',
+    he:'Missed the helium exception', capacity:'Filled an energy level to capacity without enough electrons left', always8:'Assumed every energy level holds 8',
+    eightNot18:'Used 8 for n = 3 past calcium (it holds 18)', allRemaining:'Put all remaining electrons in one energy level',
+    firstOnly:'Counted only n = 1 as core', justBelow:'Counted only the energy level under valence as core',
+    wrongPeriod:'Misread the number of energy levels (period)', wrongGroup:'Misread the outer electrons (group)', random:'Other guesses' },
+  banner:{ build:x=> `${x.name} built!`, reverse:x=> `That's ${x.name}!`, quick:x=> `${x.name}: all three!`,
+    quickC:x=> `${x.Z} total · ${x.val} valence · ${x.core} core`, revS:x=> `Period ${x.P}, ${x.gl}.`, clean:' clean round' },
+  lesson:{ title:'Energy level n = 3 grows to 18',
+    p1:'You just jumped past the transition metals. Between calcium and gallium, ten transition metals (Sc to Zn) add their new electrons to energy level n = 3, not the outer energy level.',
+    arrow:'+10 electrons go into n = 3', gold:'Gold dots = the 10 electrons added by the transition metals.',
+    p2:'From gallium to krypton, energy level n = 3 holds 18. The outer energy level still matches the A group: gallium is 3A, so it has 3 valence electrons.',
+    gotIt:'Got it' }
+},
+
+es: {
+  code:'es', html:'es', dir:'ltr', short:'ES',
+  names:{H:'Hidrógeno',He:'Helio',Li:'Litio',Be:'Berilio',B:'Boro',C:'Carbono',N:'Nitrógeno',O:'Oxígeno',F:'Flúor',Ne:'Neón',Na:'Sodio',Mg:'Magnesio',Al:'Aluminio',Si:'Silicio',P:'Fósforo',S:'Azufre',Cl:'Cloro',Ar:'Argón',K:'Potasio',Ca:'Calcio',Ga:'Galio',Ge:'Germanio',As:'Arsénico',Se:'Selenio',Br:'Bromo',Kr:'Kriptón'},
+  gl: g => `grupo ${g} (${AG[g]})`,
+  E: n => `${n} ${n===1?'electrón':'electrones'}`, EL: n => `${n} ${n===1?'nivel de energía':'niveles de energía'}`, V: n => `${n} ${n===1?'electrón de valencia':'electrones de valencia'}`,
+  ui:{ logIn:'Iniciar sesión', logOut:'Cerrar sesión', guest:'Jugando como invitado', idLabel:'Últimos 5 dígitos de tu número de estudiante', next:'Siguiente', isYou:'¿Eres tú?', notMe:'No soy yo',
+    enter5:'Escribe los 5 dígitos.', noMatch:'No hay nadie con ese número. Revísalo o pregúntale a tu maestro.', checkAgain:'Revisa tu número e inténtalo de nuevo. Si todavía no eres tú, avísale a tu maestro.',
+    busy:'La lista de la clase está ocupada. Inténtalo en un minuto.', badCode:'A este enlace le falta el código de la clase. Usa el enlace que compartió tu maestro.', network:'No se pudo conectar con la lista de la clase. Revisa el internet e inténtalo de nuevo.',
+    period:n=>`Periodo ${n}`, total:n=>`${n} ⚛ en total`, saving:'Guardando…', saved:n=>`¡Guardado! Tienes ${n} ⚛ en total.`, saveFail:'Todavía no se pudo guardar. Se intentará de nuevo.',
+    guestSave:'Inicia sesión para guardar tus ⚛.', earned:n=>`+${n} ⚛ en esta partida`,
+    score:'Puntos', streak:'Racha', rounds:'Rondas', jump:'Saltar', ready:'¿Listo? Presiona Enter o toca aquí para empezar.', lvl5:'¡Subes de nivel: ahora hay 5 opciones!', helper:'¡Un asistente de laboratorio ayuda al topo!',
+    lede:'El topo deja caer números. Atrapa el correcto para construir cada modelo de Bohr, identificar átomos misteriosos y responder preguntas rápidas. Atrapar uno incorrecto te cuesta una canasta.',
+    language:'Idioma', elements:'Elementos', mCore:'Básico', mAdv:'Avanzado', mMixed:'Mixto', mMixedSub:'Básico y luego avanzado',
+    extra:'Tiempo extra', extraSub:'Caídas más lentas y más tiempo para pensar. Los puntos se ajustan.', start:'Empezar',
+    controls:'Muévete con ← → o A / D, o arrastra. Salta con Espacio o ↑ (en el teléfono, desliza hacia arriba o toca Saltar). P pausa.',
+    sandbox:'Demo de prueba · modo invitado, no se guarda nada.', paused:'En pausa', resume:'Continuar', quit:'Salir al menú',
+    over:'¡Sin canastas!', firstTry:'Al primer intento', best:'Mejor racha', tripped:'Lo que te costó trabajo', finished:'Átomos completados',
+    none:'Ninguno todavía. ¡Casi!', nothing:'¡Nada todavía!', again:'Jugar otra vez', settings:'Cambiar ajustes',
+    tryAgain: n => `Intentar de nuevo (Enter) · ${n===1?'te queda 1 canasta':`te quedan ${n} canastas`}`, results:'Ver resultados (Enter)' },
+  cv:{ valence:'valencia', core:'internos', total:'total', legend:'Niveles de energía', gotAway:'¡Se escapó! Ahí viene otra vez.' },
+  tag:{ shells:()=> 'Niveles de energía', valence:()=> 'Valencia', fill:x=> `Llenar ${x.lvn}`, core:()=> 'Internos', total:()=> 'Total', reverse:()=> '¿Cuál es?' },
+  q:{
+    shells: x=>[`¿Cuántos niveles de energía tiene el ${x.nm} (${x.s})?`, `¿Niveles de energía en ${x.s}?`],
+    valence:x=>[`¿Cuántos electrones de valencia tiene el ${x.nm} (${x.s})?`, `¿Electrones de valencia en ${x.s}?`],
+    fill:   x=>[`¿Cuántos electrones van en el nivel de energía ${x.lvn} del ${x.nm} (${x.s})?`, `${x.s}: ¿electrones en ${x.lvn}?`],
+    core:   x=>[`¿Cuántos electrones internos tiene el ${x.nm} (${x.s})?`, `¿Electrones internos en ${x.s}?`],
+    total:  x=>[`¿Cuántos electrones tiene un átomo neutro de ${x.nm} (${x.s})?`, `¿Electrones totales en ${x.s}?`],
+    reverse:()=>['¿Qué elemento muestra este modelo de Bohr?', '¿Qué elemento es?'] },
+  hint:{
+    shells:()=> 'El número del periodo (fila) indica cuántos niveles de energía tiene un átomo.',
+    valence:x=> x.He ? 'El helio es especial: su único nivel de energía se llena con solo 2.' : 'El número del grupo A es el número de electrones de valencia (3A tiene 3).',
+    fill:x=> x.big3 ? `Después del calcio, el nivel de energía ${x.lv3} tiene capacidad para 18.` : `El nivel de energía ${x.lvn} tiene capacidad para ${x.cp} como máximo.`,
+    core:()=> 'Los electrones internos están en todos los niveles de energía interiores: todos menos los de valencia.',
+    total:()=> 'Un átomo neutro tiene tantos electrones como protones (el número atómico).',
+    reverse:()=> 'Cuenta los niveles de energía para hallar el periodo. Cuenta los electrones externos para hallar el grupo A.' },
+  count:{ fill:x=> `Quedan ${x.rem} de ${x.Z} electrones por colocar`, coreBuild:x=> `Electrones totales: ${x.Z}`, coreQuick:x=> `Número atómico: ${x.Z}` },
+  fbHead: x=> `Atrapaste ${x.v}. La respuesta es ${x.c}.`,
+  ex:{
+    shells:{
+      group:x=> `${x.v} es el número de grupo del ${x.s} (su columna). El número de niveles de energía viene del periodo (su fila). El ${x.s} está en el periodo ${x.P}, así que tiene ${x.T.EL(x.P)}.`,
+      atomicNumber:x=> `${x.v} es el número atómico del ${x.s}, que cuenta todos sus electrones. El número de niveles de energía coincide con el periodo: periodo ${x.P} significa ${x.T.EL(x.P)}.`,
+      valence:x=> `${x.v} es el número de electrones de valencia del ${x.s}. Para los niveles de energía, usa la fila: periodo ${x.P} significa ${x.T.EL(x.P)}.`,
+      offByOne:x=> `¡Casi! El ${x.s} está en el periodo ${x.P}, así que tiene exactamente ${x.T.EL(x.P)}.`,
+      _:x=> `El ${x.s} está en el periodo ${x.P}, así que tiene ${x.T.EL(x.P)}.` },
+    valence:{
+      groupNot10:x=> `${x.v} es el número de grupo del 1 al 18. Para los grupos 13 a 18, resta 10 (${x.eq10}), o usa el grupo A: ${x.A} significa ${x.val}.`,
+      period:x=> `${x.v} es el número de periodo del ${x.s}, que indica cuántos niveles de energía tiene, no sus electrones de valencia. El ${x.gl} significa ${x.T.V(x.val)}.`,
+      atomicNumber:x=> `${x.v} es el número atómico, que cuenta todos los electrones. Los electrones de valencia son solo los del nivel de energía externo: ${x.val}.`,
+      toFull:x=> `${x.v} es cuántos electrones más necesitaría el ${x.s} para llenar su nivel de energía externo. La valencia cuenta los electrones que ya están allí: ${x.val}.`,
+      octet:x=> `8 sería un nivel de energía externo lleno. El ${x.s} está en el ${x.gl}, así que tiene ${x.T.V(x.val)}.`,
+      he:x=> `¡El helio es la excepción! Está en el grupo 18 (8A), pero su único nivel de energía tiene capacidad para 2, así que tiene 2 electrones de valencia, no ${x.v}.`,
+      _:x=> `El ${x.s} está en el ${x.gl}, así que tiene ${x.T.V(x.val)}.` },
+    fill:{
+      capacity:x=> `El nivel de energía ${x.lvn} puede tener hasta ${x.cp}, pero al ${x.s} solo le quedan ${x.T.E(x.rem)} por colocar.`,
+      always8:x=> x.n===1 ? `El nivel de energía ${x.lvn} es pequeño: tiene como máximo 2${x.c<2?`, y el ${x.s} solo tiene ${x.c}`:''}.` : `No todos los niveles de energía reciben 8. Al ${x.s} le quedan ${x.rem} por colocar, y el nivel de energía ${x.lvn} recibe ${x.c}.`,
+      eightNot18:x=> `Después del calcio, el nivel de energía ${x.lv3} se amplía para tener 18. Así que el nivel de energía ${x.lv3} del ${x.s} recibe 18, no 8.`,
+      allRemaining:x=> `${x.v} son todos los electrones que le quedan al ${x.s}, pero el nivel de energía ${x.lvn} solo tiene capacidad para ${x.cp}. Pon ${x.c} aquí; el resto va al siguiente nivel de energía.`,
+      atomicNumber:x=> `${x.v} es el número total de electrones del ${x.s}. El nivel de energía ${x.lvn} recibe solo ${x.c} de ellos.`,
+      period:x=> `${x.v} es el número de periodo. El nivel de energía ${x.lvn} del ${x.s} recibe ${x.T.E(x.c)}.`,
+      groupNot10:x=> `${x.v} es el número de grupo del 1 al 18. El ${x.s} es ${x.A}, así que su nivel de energía externo recibe ${x.c}.`,
+      _:x=> `El nivel de energía ${x.lvn} del ${x.s} recibe ${x.T.E(x.c)}.` },
+    core:{
+      noInner:x=> `El ${x.nm} tiene un solo nivel de energía, así que todos sus electrones son de valencia. Tiene 0 electrones internos.`,
+      firstOnly:x=> `Los electrones internos están en TODOS los niveles de energía interiores, no solo en ${x.lv1}: ${x.eq}.`,
+      justBelow:x=> `No solo el nivel de energía debajo de los electrones de valencia. Todos los niveles de energía interiores cuentan: ${x.eq}.`,
+      atomicNumber:x=> `${x.v} cuenta todos los electrones. Los internos excluyen los ${x.val} de valencia: ${x.eqZ}.`,
+      valence:x=> `${x.v} es el número de electrones de valencia del nivel de energía externo. Los internos son todos los de adentro: ${x.c}.`,
+      eightNot18:x=> `Después del calcio, el nivel de energía ${x.lv3} tiene 18. Internos = ${x.eq}.`,
+      _:x=> `Internos = todos los electrones menos los ${x.val} de valencia: ${x.eqZ}.` },
+    total:{
+      valence:x=> `${x.v} son solo los electrones de valencia. Un átomo neutro tiene tantos electrones como protones, así que el ${x.s} tiene ${x.Z} en total.`,
+      coreOnly:x=> `${x.v} son solo los electrones internos. Suma los ${x.val} de valencia y obtienes ${x.Z}, el número atómico.`,
+      period:x=> `${x.v} es el número de periodo. Electrones totales = número atómico = ${x.Z}.`,
+      group:x=> `${x.v} es el número de grupo. Electrones totales = número atómico = ${x.Z}.`,
+      offByOne:x=> `¡Casi! Un átomo neutro tiene exactamente tantos electrones como protones: el número atómico del ${x.s} es ${x.Z}.`,
+      _:x=> `Un átomo neutro tiene tantos electrones como protones. El número atómico del ${x.s} es ${x.Z}, así que tiene ${x.Z} electrones.` },
+    reverse:{
+      wrongPeriod:x=> `El ${x.r.nm} tiene el mismo número de electrones externos (${x.val}), pero ${x.T.EL(x.r.P)}. Este modelo tiene ${x.T.EL(x.P)}, así que está en el periodo ${x.P}: es el ${x.nm}.`,
+      wrongGroup:x=> `El ${x.r.nm} está en el periodo correcto, pero tiene ${x.T.V(x.r.val)}. El nivel de energía externo de este modelo tiene ${x.val}${x.He?' (el helio es la excepción del 8A)':`, así que está en el ${x.gl}`}: es el ${x.nm}.`,
+      _:x=> `Cuenta los niveles de energía para el periodo (${x.P}) y los electrones externos para el grupo: este modelo es el ${x.nm} (${x.s}).` } },
+  tags:{ group:'Usaste el número de grupo por error', atomicNumber:'Tomaste el número atómico (electrones totales)', valence:'Usaste el número de valencia por error',
+    offByOne:'Te equivocaste por uno', coreOnly:'Diste los internos en vez del total', groupNot10:'Usaste el número de grupo 13–18 sin restar 10',
+    period:'Usaste el número de periodo por error', toFull:'Contaste los electrones que faltan, no los que hay', octet:'Supusiste 8 electrones de valencia',
+    he:'Olvidaste la excepción del helio', capacity:'Llenaste un nivel de energía a su capacidad sin electrones suficientes', always8:'Supusiste que todo nivel de energía tiene 8',
+    eightNot18:'Usaste 8 para n = 3 después del calcio (tiene 18)', allRemaining:'Pusiste todos los electrones restantes en un solo nivel de energía',
+    firstOnly:'Contaste solo n = 1 como internos', justBelow:'Contaste solo el nivel de energía debajo de la valencia como internos',
+    wrongPeriod:'Leíste mal el número de niveles de energía (periodo)', wrongGroup:'Leíste mal los electrones externos (grupo)', random:'Otras respuestas' },
+  banner:{ build:x=> `¡${x.name} construido!`, reverse:x=> `¡Es el ${x.nm}!`, quick:x=> `${x.name}: ¡las tres!`,
+    quickC:x=> `${x.Z} en total · ${x.val} de valencia · ${x.core} internos`, revS:x=> `Periodo ${x.P}, ${x.gl}.`, clean:' ronda perfecta' },
+  lesson:{ title:'El nivel de energía n = 3 crece a 18',
+    p1:'Acabas de pasar los metales de transición. Entre el calcio y el galio, diez metales de transición (del Sc al Zn) agregan sus electrones nuevos al nivel de energía n = 3, no al nivel de energía externo.',
+    arrow:'+10 electrones van al nivel n = 3', gold:'Puntos dorados = los 10 electrones que agregan los metales de transición.',
+    p2:'Del galio al kriptón, el nivel de energía n = 3 tiene 18. El nivel de energía externo sigue coincidiendo con el grupo A: el galio es 3A, así que tiene 3 electrones de valencia.',
+    gotIt:'Entendido' }
+},
+
+zh: {
+  code:'zh', html:'zh-Hant', dir:'ltr', short:'中',
+  names:{H:'氫',He:'氦',Li:'鋰',Be:'鈹',B:'硼',C:'碳',N:'氮',O:'氧',F:'氟',Ne:'氖',Na:'鈉',Mg:'鎂',Al:'鋁',Si:'矽',P:'磷',S:'硫',Cl:'氯',Ar:'氬',K:'鉀',Ca:'鈣',Ga:'鎵',Ge:'鍺',As:'砷',Se:'硒',Br:'溴',Kr:'氪'},
+  gl: g => `第 ${g} 族（${AG[g]}）`,
+  E: n => `${n} 個電子`, EL: n => `${n} 個能階`, V: n => `${n} 個價電子`,
+  ui:{ logIn:'登入', logOut:'登出', guest:'以訪客身分遊玩', idLabel:'學號的最後 5 位數字', next:'下一步', isYou:'這是你嗎？', notMe:'這不是我',
+    enter5:'請輸入全部 5 位數字。', noMatch:'找不到這個號碼。請檢查一下，或問老師。', checkAgain:'請檢查號碼再試一次。如果還是不對，請告訴老師。',
+    busy:'班級名單忙碌中，請一分鐘後再試。', badCode:'這個連結缺少班級代碼。請使用老師分享的連結。', network:'無法連到班級名單。請檢查網路後再試。',
+    period:n=>`第 ${n} 節`, total:n=>`共 ${n} ⚛`, saving:'儲存中…', saved:n=>`已儲存！你現在共有 ${n} ⚛。`, saveFail:'還沒存好，稍後會再試。',
+    guestSave:'登入才能保存你的 ⚛。', earned:n=>`這局 +${n} ⚛`,
+    score:'分數', streak:'連續答對', rounds:'回合', jump:'跳', ready:'準備好了？按 Enter 或點這裡開始。', lvl5:'升級：現在有 5 個選項！', helper:'實驗室助手來幫鼴鼠了！',
+    lede:'鼴鼠會丟下數字。接住正確的數字來建立每個波耳模型、猜出神秘原子，並回答快問快答。接錯一次就會失去一個籃子。',
+    language:'語言', elements:'元素', mCore:'基礎', mAdv:'進階', mMixed:'混合', mMixedSub:'先基礎，再進階',
+    extra:'延長時間', extraSub:'掉得比較慢，思考時間比較長。分數會調整。', start:'開始',
+    controls:'用 ← → 或 A / D 移動，或用手指拖曳。按空白鍵或 ↑ 跳躍（手機上往上滑或點「跳」）。按 P 暫停。',
+    sandbox:'測試版 · 訪客模式，不會儲存。', paused:'暫停', resume:'繼續', quit:'回到選單',
+    over:'籃子用完了！', firstTry:'一次答對', best:'最長連對', tripped:'容易出錯的地方', finished:'完成的原子',
+    none:'還沒有，差一點！', nothing:'還沒有！', again:'再玩一次', settings:'更改設定',
+    tryAgain: n => `再試一次（Enter）· 還剩 ${n} 個籃子`, results:'看結果（Enter）' },
+  cv:{ valence:'價電子', core:'內層', total:'總數', legend:'能階', gotAway:'跑掉了！再來一次。' },
+  tag:{ shells:()=> '能階數', valence:()=> '價電子', fill:x=> `填入 ${x.lvn}`, core:()=> '內層電子', total:()=> '電子總數', reverse:()=> '猜元素' },
+  q:{
+    shells: x=>[`${x.name}（${x.s}）有幾個能階？`, `${x.s} 有幾個能階？`],
+    valence:x=>[`${x.name}（${x.s}）有幾個價電子？`, `${x.s} 有幾個價電子？`],
+    fill:   x=>[`${x.name}（${x.s}）的能階 ${x.lvn} 有幾個電子？`, `${x.s}：${x.lvn} 有幾個電子？`],
+    core:   x=>[`${x.name}（${x.s}）有幾個內層電子？`, `${x.s} 有幾個內層電子？`],
+    total:  x=>[`中性的${x.name}（${x.s}）原子有幾個電子？`, `${x.s} 共有幾個電子？`],
+    reverse:()=>['這個波耳模型是哪一個元素？', '這是哪一個元素？'] },
+  hint:{
+    shells:()=> '週期（橫列）的數字就是原子的能階數。',
+    valence:x=> x.He ? '氦很特別：它唯一的能階只要 2 個電子就填滿了。' : 'A 族的數字就是價電子數（3A 有 3 個）。',
+    fill:x=> x.big3 ? `鈣之後，能階 ${x.lv3} 最多可容納 18 個電子。` : `能階 ${x.lvn} 最多可容納 ${x.cp} 個電子。`,
+    core:()=> '內層電子是所有內層能階中的電子，也就是價電子以外的所有電子。',
+    total:()=> '中性原子的電子數等於質子數（原子序）。',
+    reverse:()=> '數能階數可以知道週期；數最外層的電子可以知道 A 族。' },
+  count:{ fill:x=> `還剩 ${x.rem} 個電子要放（共 ${x.Z} 個）`, coreBuild:x=> `電子總數：${x.Z}`, coreQuick:x=> `原子序：${x.Z}` },
+  fbHead: x=> `你接到了 ${x.v}。正確答案是 ${x.c}。`,
+  ex:{
+    shells:{
+      group:x=> `${x.v} 是 ${x.s} 的族數（直行）。能階數要看週期（橫列）。${x.s} 在第 ${x.P} 週期，所以有 ${x.T.EL(x.P)}。`,
+      atomicNumber:x=> `${x.v} 是 ${x.s} 的原子序，代表它全部的電子數。能階數和週期相同：第 ${x.P} 週期就有 ${x.T.EL(x.P)}。`,
+      valence:x=> `${x.v} 是 ${x.s} 的價電子數。能階數要看橫列：第 ${x.P} 週期就有 ${x.T.EL(x.P)}。`,
+      offByOne:x=> `差一點！${x.s} 在第 ${x.P} 週期，所以剛好有 ${x.T.EL(x.P)}。`,
+      _:x=> `${x.s} 在第 ${x.P} 週期，所以有 ${x.T.EL(x.P)}。` },
+    valence:{
+      groupNot10:x=> `${x.v} 是 1–18 的族數。第 13–18 族要減 10（${x.eq10}），或直接看 A 族：${x.A} 就是 ${x.val} 個。`,
+      period:x=> `${x.v} 是 ${x.s} 的週期數，它代表能階數，不是價電子數。${x.gl}代表有 ${x.T.V(x.val)}。`,
+      atomicNumber:x=> `${x.v} 是原子序，代表全部的電子數。價電子只算最外層能階的電子：${x.val} 個。`,
+      toFull:x=> `${x.v} 是 ${x.s} 還需要幾個電子才能填滿最外層能階。價電子算的是已經在那裡的電子：${x.val} 個。`,
+      octet:x=> `8 個表示最外層能階已經填滿。${x.s} 在${x.gl}，所以有 ${x.T.V(x.val)}。`,
+      he:x=> `氦是例外！它在第 18 族（8A），但它唯一的能階只能容納 2 個電子，所以它有 2 個價電子，不是 ${x.v} 個。`,
+      _:x=> `${x.s} 在${x.gl}，所以有 ${x.T.V(x.val)}。` },
+    fill:{
+      capacity:x=> `能階 ${x.lvn} 最多可容納 ${x.cp} 個，但 ${x.s} 只剩 ${x.T.E(x.rem)}要放。`,
+      always8:x=> x.n===1 ? `能階 ${x.lvn} 很小，最多只能容納 2 個${x.c<2?`，而 ${x.s} 只有 ${x.c} 個`:''}。` : `不是每個能階都放 8 個。${x.s} 還剩 ${x.rem} 個電子，能階 ${x.lvn} 放 ${x.c} 個。`,
+      eightNot18:x=> `鈣之後，能階 ${x.lv3} 可以容納 18 個。所以 ${x.s} 的能階 ${x.lv3} 放 18 個，不是 8 個。`,
+      allRemaining:x=> `${x.v} 是 ${x.s} 剩下的全部電子，但能階 ${x.lvn} 最多只能容納 ${x.cp} 個。這裡放 ${x.c} 個，其餘的放到下一個能階。`,
+      atomicNumber:x=> `${x.v} 是 ${x.s} 的電子總數。能階 ${x.lvn} 只放其中 ${x.c} 個。`,
+      period:x=> `${x.v} 是週期數。${x.s} 的能階 ${x.lvn} 放 ${x.T.E(x.c)}。`,
+      groupNot10:x=> `${x.v} 是 1–18 的族數。${x.s} 是 ${x.A}，所以最外層能階放 ${x.c} 個。`,
+      _:x=> `${x.s} 的能階 ${x.lvn} 放 ${x.T.E(x.c)}。` },
+    core:{
+      noInner:x=> `${x.name}只有一個能階，所以它所有的電子都是價電子，內層電子是 0 個。`,
+      firstOnly:x=> `內層電子包括所有內層能階，不只是 ${x.lv1}：${x.eq}。`,
+      justBelow:x=> `不只是價電子下面那一個能階，所有內層能階都算：${x.eq}。`,
+      atomicNumber:x=> `${x.v} 是全部的電子。內層電子要扣掉 ${x.val} 個價電子：${x.eqZ}。`,
+      valence:x=> `${x.v} 是最外層能階的價電子數。內層電子是裡面所有的電子：${x.c} 個。`,
+      eightNot18:x=> `鈣之後，能階 ${x.lv3} 有 18 個。內層電子 = ${x.eq}。`,
+      _:x=> `內層電子 = 全部電子扣掉 ${x.val} 個價電子：${x.eqZ}。` },
+    total:{
+      valence:x=> `${x.v} 只是價電子。中性原子的電子數等於質子數，所以 ${x.s} 共有 ${x.Z} 個電子。`,
+      coreOnly:x=> `${x.v} 只是內層電子。加上 ${x.val} 個價電子就是 ${x.Z}，也就是原子序。`,
+      period:x=> `${x.v} 是週期數。電子總數 = 原子序 = ${x.Z}。`,
+      group:x=> `${x.v} 是族數。電子總數 = 原子序 = ${x.Z}。`,
+      offByOne:x=> `差一點！中性原子的電子數剛好等於質子數：${x.s} 的原子序是 ${x.Z}。`,
+      _:x=> `中性原子的電子數等於質子數。${x.s} 的原子序是 ${x.Z}，所以有 ${x.Z} 個電子。` },
+    reverse:{
+      wrongPeriod:x=> `${x.r.name}的最外層電子數相同（${x.val} 個），但它有 ${x.T.EL(x.r.P)}。這個模型有 ${x.T.EL(x.P)}，所以在第 ${x.P} 週期：是${x.name}。`,
+      wrongGroup:x=> `${x.r.name}在同一個週期，但它有 ${x.T.V(x.r.val)}。這個模型的最外層能階有 ${x.val} 個${x.He?'（氦是 8A 的例外）':`，所以在${x.gl}`}：是${x.name}。`,
+      _:x=> `數能階數找週期（${x.P}），數最外層電子找族：這個模型是${x.name}（${x.s}）。` } },
+  tags:{ group:'誤用了族數', atomicNumber:'選了原子序（電子總數）', valence:'誤用了價電子數', offByOne:'差了一個',
+    coreOnly:'給了內層電子數而不是總數', groupNot10:'第 13–18 族沒有減 10', period:'誤用了週期數',
+    toFull:'算成還缺的電子數，而不是已有的電子數', octet:'以為有 8 個價電子', he:'忘了氦的例外',
+    capacity:'電子不夠卻把能階填到最大容量', always8:'以為每個能階都放 8 個', eightNot18:'鈣之後的 n = 3 用了 8（應該是 18）',
+    allRemaining:'把剩下的電子全放進一個能階', firstOnly:'只把 n = 1 算成內層電子', justBelow:'只把價電子下面那一個能階算成內層電子',
+    wrongPeriod:'看錯能階數（週期）', wrongGroup:'看錯最外層電子（族）', random:'其他猜測' },
+  banner:{ build:x=> `${x.name}完成了！`, reverse:x=> `是${x.name}！`, quick:x=> `${x.name}：三題全對！`,
+    quickC:x=> `共 ${x.Z} 個 · 價電子 ${x.val} · 內層 ${x.core}`, revS:x=> `第 ${x.P} 週期，${x.gl}。`, clean:' 全對' },
+  lesson:{ title:'能階 n = 3 增加到 18',
+    p1:'你剛剛跨過了過渡金屬。從鈣到鎵之間，十個過渡金屬（Sc 到 Zn）把新的電子加到能階 n = 3，而不是最外層能階。',
+    arrow:'+10 個電子進入 n = 3', gold:'金色的點 = 過渡金屬加入的 10 個電子。',
+    p2:'從鎵到氪，能階 n = 3 有 18 個電子。最外層能階仍然和 A 族一致：鎵是 3A，所以有 3 個價電子。',
+    gotIt:'我懂了' }
+},
+
+ar: {
+  code:'ar', html:'ar', dir:'rtl', short:'ع',
+  names:{H:'الهيدروجين',He:'الهيليوم',Li:'الليثيوم',Be:'البيريليوم',B:'البورون',C:'الكربون',N:'النيتروجين',O:'الأكسجين',F:'الفلور',Ne:'النيون',Na:'الصوديوم',Mg:'المغنيسيوم',Al:'الألومنيوم',Si:'السيليكون',P:'الفوسفور',S:'الكبريت',Cl:'الكلور',Ar:'الأرغون',K:'البوتاسيوم',Ca:'الكالسيوم',Ga:'الغاليوم',Ge:'الجرمانيوم',As:'الزرنيخ',Se:'السيلينيوم',Br:'البروم',Kr:'الكريبتون'},
+  gl: g => `المجموعة ${g} (${AG[g]})`,
+  E: n => `${n} ${arForm(n,'إلكترون','إلكترونات','إلكترونًا')}`,
+  EL: n => `${n} ${arForm(n,'مستوى طاقة','مستويات طاقة','مستوى طاقة')}`,
+  V: n => `${n} ${arForm(n,'إلكترون تكافؤ','إلكترونات تكافؤ','إلكترون تكافؤ')}`,
+  ui:{ logIn:'تسجيل الدخول', logOut:'تسجيل الخروج', guest:'تلعب كضيف', idLabel:'آخر 5 أرقام من رقم الطالب', next:'التالي', isYou:'هل هذا أنت؟', notMe:'هذا ليس أنا',
+    enter5:'أدخل الأرقام الخمسة كلها.', noMatch:'لا يوجد طالب بهذا الرقم. تحقق منه أو اسأل معلمك.', checkAgain:'تحقق من رقمك وحاول مرة أخرى. إذا لم يكن هذا أنت، أخبر معلمك.',
+    busy:'قائمة الصف مشغولة. حاول بعد دقيقة.', badCode:'هذا الرابط ينقصه رمز الصف. استخدم الرابط الذي شاركه معلمك.', network:'تعذّر الوصول إلى قائمة الصف. تحقق من الإنترنت وحاول مرة أخرى.',
+    period:n=>`الحصة ${n}`, total:n=>`المجموع ${n} ⚛`, saving:'جارٍ الحفظ…', saved:n=>`تم الحفظ! لديك الآن ${n} ⚛.`, saveFail:'لم يتم الحفظ بعد. ستتم المحاولة مرة أخرى.',
+    guestSave:'سجّل الدخول لتحتفظ بـ ⚛.', earned:n=>`+${n} ⚛ في هذه اللعبة`,
+    score:'النقاط', streak:'التتابع', rounds:'الجولات', jump:'اقفز', ready:'جاهز؟ اضغط Enter أو المس هنا لتبدأ.', lvl5:'مستوى جديد: الآن 5 خيارات!', helper:'مساعد مختبر ينضم إلى الخُلد!',
+    lede:'الخُلد يُسقط أرقامًا. التقط الرقم الصحيح لتبني نموذج بور لكل ذرة، وتتعرّف على الذرات الغامضة، وتجيب عن أسئلة سريعة. كل التقاط خاطئ يكلّفك سلة.',
+    language:'اللغة', elements:'العناصر', mCore:'أساسي', mAdv:'متقدم', mMixed:'مختلط', mMixedSub:'الأساسي ثم المتقدم',
+    extra:'وقت إضافي', extraSub:'سقوط أبطأ ووقت أطول للتفكير. تُعدَّل النقاط.', start:'ابدأ',
+    controls:'تحرّك بـ ← → أو A / D، أو اسحب بإصبعك. اقفز بالمسافة أو ↑ (على الهاتف اسحب لأعلى أو اضغط «اقفز»). P للإيقاف المؤقت.',
+    sandbox:'نسخة تجريبية · وضع الضيف، لا يُحفظ شيء.', paused:'متوقف مؤقتًا', resume:'استئناف', quit:'العودة إلى القائمة',
+    over:'نفدت السلال!', firstTry:'من أول محاولة', best:'أفضل تتابع', tripped:'ما الذي أربكك', finished:'الذرات التي أكملتها',
+    none:'لا شيء بعد. كنت قريبًا!', nothing:'لا شيء بعد!', again:'العب مرة أخرى', settings:'تغيير الإعدادات',
+    tryAgain: n => `حاول مرة أخرى (Enter) · السلال المتبقية: ${n}`, results:'عرض النتائج (Enter)' },
+  cv:{ valence:'تكافؤ', core:'داخلية', total:'المجموع', legend:'مستويات الطاقة', gotAway:'هربت! ها هي تأتي مرة أخرى.' },
+  tag:{ shells:()=> 'مستويات الطاقة', valence:()=> 'التكافؤ', fill:x=> `املأ ${x.lvn}`, core:()=> 'الإلكترونات الداخلية', total:()=> 'المجموع', reverse:()=> 'ما العنصر؟' },
+  q:{
+    shells: x=>[`كم مستوى طاقة في ذرة ${x.name} (${x.s})؟`, `مستويات الطاقة في ${x.s}؟`],
+    valence:x=>[`كم إلكترون تكافؤ في ذرة ${x.name} (${x.s})؟`, `إلكترونات التكافؤ في ${x.s}؟`],
+    fill:   x=>[`كم إلكترونًا في مستوى الطاقة ${x.lvn} في ذرة ${x.name} (${x.s})؟`, `${x.s}: إلكترونات ${x.lvn}؟`],
+    core:   x=>[`كم إلكترونًا داخليًا في ذرة ${x.name} (${x.s})؟`, `الإلكترونات الداخلية في ${x.s}؟`],
+    total:  x=>[`كم إلكترونًا في ذرة ${x.name} (${x.s}) المتعادلة؟`, `مجموع إلكترونات ${x.s}؟`],
+    reverse:()=>['أي عنصر يمثّله نموذج بور هذا؟', 'ما هذا العنصر؟'] },
+  hint:{
+    shells:()=> 'رقم الدورة (الصف) يخبرك بعدد مستويات الطاقة في الذرة.',
+    valence:x=> x.He ? 'الهيليوم حالة خاصة: مستوى طاقته الوحيد يمتلئ بإلكترونين فقط.' : 'رقم المجموعة A هو عدد إلكترونات التكافؤ (3A فيها 3).',
+    fill:x=> x.big3 ? `بعد الكالسيوم، يتّسع مستوى الطاقة ${x.lv3} حتى 18 إلكترونًا.` : `يتّسع مستوى الطاقة ${x.lvn} حتى ${x.T.E(x.cp)}.`,
+    core:()=> 'الإلكترونات الداخلية هي كل الإلكترونات في مستويات الطاقة الداخلية: كل الإلكترونات ما عدا إلكترونات التكافؤ.',
+    total:()=> 'عدد الإلكترونات في الذرة المتعادلة يساوي عدد البروتونات (العدد الذري).',
+    reverse:()=> 'عُدّ مستويات الطاقة لتعرف الدورة، وعُدّ الإلكترونات الخارجية لتعرف المجموعة A.' },
+  count:{ fill:x=> `الإلكترونات المتبقية: ${x.rem} من ${x.Z}`, coreBuild:x=> `مجموع الإلكترونات: ${x.Z}`, coreQuick:x=> `العدد الذري: ${x.Z}` },
+  fbHead: x=> `التقطت ${x.v}. الإجابة الصحيحة ${x.c}.`,
+  ex:{
+    shells:{
+      group:x=> `${x.v} هو رقم مجموعة ${x.s} (العمود). عدد مستويات الطاقة يأتي من الدورة (الصف). يقع ${x.s} في الدورة ${x.P}، إذن فيه ${x.T.EL(x.P)}.`,
+      atomicNumber:x=> `${x.v} هو العدد الذري لـ ${x.s}، وهو عدد كل إلكتروناته. عدد مستويات الطاقة يساوي رقم الدورة: الدورة ${x.P} تعني ${x.T.EL(x.P)}.`,
+      valence:x=> `${x.v} هو عدد إلكترونات التكافؤ في ${x.s}. لمعرفة مستويات الطاقة استخدم الصف: الدورة ${x.P} تعني ${x.T.EL(x.P)}.`,
+      offByOne:x=> `قريب! يقع ${x.s} في الدورة ${x.P}، إذن فيه ${x.T.EL(x.P)} بالضبط.`,
+      _:x=> `يقع ${x.s} في الدورة ${x.P}، إذن فيه ${x.T.EL(x.P)}.` },
+    valence:{
+      groupNot10:x=> `${x.v} هو رقم المجموعة من 1 إلى 18. في المجموعات 13–18 اطرح 10 (${x.eq10})، أو استخدم المجموعة A: ${x.A} تعني ${x.val}.`,
+      period:x=> `${x.v} هو رقم دورة ${x.s}، وهو يدل على عدد مستويات الطاقة وليس إلكترونات التكافؤ. ${x.gl} تعني ${x.T.V(x.val)}.`,
+      atomicNumber:x=> `${x.v} هو العدد الذري، وهو عدد كل الإلكترونات. إلكترونات التكافؤ هي فقط الإلكترونات في مستوى الطاقة الخارجي: ${x.val}.`,
+      toFull:x=> `${x.v} هو عدد الإلكترونات التي يحتاجها ${x.s} ليملأ مستوى الطاقة الخارجي. التكافؤ يعدّ الإلكترونات الموجودة فعلًا: ${x.val}.`,
+      octet:x=> `8 تعني مستوى طاقة خارجيًا ممتلئًا. يقع ${x.s} في ${x.gl}، إذن فيه ${x.T.V(x.val)}.`,
+      he:x=> `الهيليوم هو الاستثناء! يقع في المجموعة 18 (8A)، لكن مستوى طاقته الوحيد يتّسع لإلكترونين فقط، إذن فيه 2 إلكترون تكافؤ وليس ${x.v}.`,
+      _:x=> `يقع ${x.s} في ${x.gl}، إذن فيه ${x.T.V(x.val)}.` },
+    fill:{
+      capacity:x=> `يتّسع مستوى الطاقة ${x.lvn} حتى ${x.cp}، لكن بقي لـ ${x.s} ${x.T.E(x.rem)} فقط لوضعها.`,
+      always8:x=> x.n===1 ? `مستوى الطاقة ${x.lvn} صغير: يتّسع لإلكترونين على الأكثر${x.c<2?`، و${x.s} فيه ${x.c} فقط`:''}.` : `ليس كل مستوى طاقة يأخذ 8. بقي لـ ${x.s} ${x.rem}، ومستوى الطاقة ${x.lvn} يأخذ ${x.c}.`,
+      eightNot18:x=> `بعد الكالسيوم، يتّسع مستوى الطاقة ${x.lv3} لـ 18. إذن مستوى الطاقة ${x.lv3} في ${x.s} يأخذ 18 وليس 8.`,
+      allRemaining:x=> `${x.v} هو كل ما بقي من إلكترونات ${x.s}، لكن مستوى الطاقة ${x.lvn} يتّسع لـ ${x.cp} فقط. ضع ${x.c} هنا، والباقي يذهب إلى مستوى الطاقة التالي.`,
+      atomicNumber:x=> `${x.v} هو العدد الكلي لإلكترونات ${x.s}. مستوى الطاقة ${x.lvn} يأخذ ${x.c} منها فقط.`,
+      period:x=> `${x.v} هو رقم الدورة. مستوى الطاقة ${x.lvn} في ${x.s} يأخذ ${x.T.E(x.c)}.`,
+      groupNot10:x=> `${x.v} هو رقم المجموعة من 1 إلى 18. ${x.s} في ${x.A}، إذن مستوى الطاقة الخارجي يأخذ ${x.c}.`,
+      _:x=> `مستوى الطاقة ${x.lvn} في ${x.s} يأخذ ${x.T.E(x.c)}.` },
+    core:{
+      noInner:x=> `في ${x.name} مستوى طاقة واحد فقط، إذن كل إلكتروناته إلكترونات تكافؤ. عدد الإلكترونات الداخلية 0.`,
+      firstOnly:x=> `الإلكترونات الداخلية موجودة في كل مستويات الطاقة الداخلية، وليس في ${x.lv1} فقط: ${x.eq}.`,
+      justBelow:x=> `ليس فقط مستوى الطاقة الذي تحت إلكترونات التكافؤ. كل مستويات الطاقة الداخلية تُحسب: ${x.eq}.`,
+      atomicNumber:x=> `${x.v} يعدّ كل الإلكترونات. الإلكترونات الداخلية لا تشمل إلكترونات التكافؤ (${x.val}): ${x.eqZ}.`,
+      valence:x=> `${x.v} هو عدد إلكترونات التكافؤ في مستوى الطاقة الخارجي. الإلكترونات الداخلية هي كل ما بداخله: ${x.c}.`,
+      eightNot18:x=> `بعد الكالسيوم، يتّسع مستوى الطاقة ${x.lv3} لـ 18. الداخلية = ${x.eq}.`,
+      _:x=> `الإلكترونات الداخلية = كل الإلكترونات ما عدا إلكترونات التكافؤ (${x.val}): ${x.eqZ}.` },
+    total:{
+      valence:x=> `${x.v} هي إلكترونات التكافؤ فقط. في الذرة المتعادلة عدد الإلكترونات يساوي عدد البروتونات، إذن مجموع إلكترونات ${x.s} هو ${x.Z}.`,
+      coreOnly:x=> `${x.v} هي الإلكترونات الداخلية فقط. أضف إلكترونات التكافؤ (${x.val}) تحصل على ${x.Z}، وهو العدد الذري.`,
+      period:x=> `${x.v} هو رقم الدورة. مجموع الإلكترونات = العدد الذري = ${x.Z}.`,
+      group:x=> `${x.v} هو رقم المجموعة. مجموع الإلكترونات = العدد الذري = ${x.Z}.`,
+      offByOne:x=> `قريب! في الذرة المتعادلة عدد الإلكترونات يساوي عدد البروتونات تمامًا: العدد الذري لـ ${x.s} هو ${x.Z}.`,
+      _:x=> `في الذرة المتعادلة عدد الإلكترونات يساوي عدد البروتونات. العدد الذري لـ ${x.s} هو ${x.Z}، إذن مجموع إلكتروناته ${x.Z}.` },
+    reverse:{
+      wrongPeriod:x=> `في ${x.r.name} نفس عدد الإلكترونات الخارجية (${x.val})، لكن فيه ${x.T.EL(x.r.P)}. هذا النموذج فيه ${x.T.EL(x.P)}، إذن هو في الدورة ${x.P}: إنه ${x.name}.`,
+      wrongGroup:x=> `يقع ${x.r.name} في الدورة الصحيحة، لكن فيه ${x.T.V(x.r.val)}. مستوى الطاقة الخارجي في هذا النموذج فيه ${x.val}${x.He?' (الهيليوم استثناء في 8A)':`، إذن هو في ${x.gl}`}: إنه ${x.name}.`,
+      _:x=> `عُدّ مستويات الطاقة لتعرف الدورة (${x.P})، وعُدّ الإلكترونات الخارجية لتعرف المجموعة: هذا النموذج هو ${x.name} (${x.s}).` } },
+  tags:{ group:'استخدمت رقم المجموعة بالخطأ', atomicNumber:'اخترت العدد الذري (مجموع الإلكترونات)', valence:'استخدمت عدد إلكترونات التكافؤ بالخطأ',
+    offByOne:'أخطأت بفارق واحد', coreOnly:'أعطيت الإلكترونات الداخلية بدل المجموع', groupNot10:'لم تطرح 10 من رقم المجموعة 13–18',
+    period:'استخدمت رقم الدورة بالخطأ', toFull:'عددت الإلكترونات الناقصة بدل الموجودة', octet:'افترضت 8 إلكترونات تكافؤ',
+    he:'نسيت استثناء الهيليوم', capacity:'ملأت مستوى الطاقة إلى سعته دون إلكترونات كافية', always8:'افترضت أن كل مستوى طاقة يأخذ 8',
+    eightNot18:'استخدمت 8 لـ n = 3 بعد الكالسيوم (يتّسع لـ 18)', allRemaining:'وضعت كل الإلكترونات المتبقية في مستوى طاقة واحد',
+    firstOnly:'حسبت n = 1 فقط داخلية', justBelow:'حسبت مستوى الطاقة الذي تحت التكافؤ فقط داخليًا',
+    wrongPeriod:'أخطأت في عدد مستويات الطاقة (الدورة)', wrongGroup:'أخطأت في الإلكترونات الخارجية (المجموعة)', random:'تخمينات أخرى' },
+  banner:{ build:x=> `اكتمل ${x.name}!`, reverse:x=> `إنه ${x.name}!`, quick:x=> `${x.name}: الثلاثة صحيحة!`,
+    quickC:x=> `المجموع ${x.Z} · التكافؤ ${x.val} · الداخلية ${x.core}`, revS:x=> `الدورة ${x.P}، ${x.gl}.`, clean:' جولة بلا أخطاء' },
+  lesson:{ title:'مستوى الطاقة n = 3 يتّسع إلى 18',
+    p1:'لقد تجاوزت العناصر الانتقالية. بين الكالسيوم والغاليوم، تضيف عشرة عناصر انتقالية (من Sc إلى Zn) إلكتروناتها الجديدة إلى مستوى الطاقة n = 3، وليس إلى مستوى الطاقة الخارجي.',
+    arrow:'+10 إلكترونات تذهب إلى n = 3', gold:'النقاط الذهبية = الإلكترونات العشرة التي أضافتها العناصر الانتقالية.',
+    p2:'من الغاليوم إلى الكريبتون، يحتوي مستوى الطاقة n = 3 على 18 إلكترونًا. ومستوى الطاقة الخارجي ما زال يطابق المجموعة A: الغاليوم في 3A، إذن فيه 3 إلكترونات تكافؤ.',
+    gotIt:'فهمت' }
+}
+};
+const LANG_ORDER = ['en','es','zh','ar'];
+const RAW = [
+  ['H',1,[1],1],['He',2,[2],18],
+  ['Li',3,[2,1],1],['Be',4,[2,2],2],['B',5,[2,3],13],['C',6,[2,4],14],['N',7,[2,5],15],['O',8,[2,6],16],['F',9,[2,7],17],['Ne',10,[2,8],18],
+  ['Na',11,[2,8,1],1],['Mg',12,[2,8,2],2],['Al',13,[2,8,3],13],['Si',14,[2,8,4],14],['P',15,[2,8,5],15],['S',16,[2,8,6],16],['Cl',17,[2,8,7],17],['Ar',18,[2,8,8],18],
+  ['K',19,[2,8,8,1],1],['Ca',20,[2,8,8,2],2],
+  ['Ga',31,[2,8,18,3],13],['Ge',32,[2,8,18,4],14],['As',33,[2,8,18,5],15],['Se',34,[2,8,18,6],16],['Br',35,[2,8,18,7],17],['Kr',36,[2,8,18,8],18]
+];
+const ELS = RAW.map(([sym,Z,shells,group]) => {
+  const period = shells.length, valence = shells[period-1];
+  return { sym, Z, shells, group, period, valence, core: Z - valence, adv: Z > 20 };
+});
+const BY = Object.fromEntries(ELS.map(e=>[e.sym,e]));
+const sum = a => a.reduce((x,y)=>x+y,0);
+// Capacity in this course's model: 2, 8, then 8 for H–Ca and 18 past calcium.
+const cap = (el,i) => i===0 ? 2 : i===1 ? 8 : i===2 ? (el.adv ? 18 : 8) : 8;
+let LANG = 'en';
+const waveSize = () => S.rounds >= CFG.FIVE_FROM_ROUND ? 5 : CFG.ITEMS_PER_WAVE;
+const L = () => LANGS[LANG];
+const isoN = s => s.replace(/n = \d+/g, m => iso(m));
+const nameOf = (sym, lang=LANG) => LANGS[lang].names[sym];
+
+function tasksFor(kind, el){
+  let t;
+  if (kind==='build'){
+    t=[{type:'shells'},{type:'valence'}];
+    for (let i=0;i<el.period;i++) t.push({type:'fill', shell:i});
+    t.push({type:'core'});
+  } else if (kind==='reverse') t=[{type:'reverse'}];
+  else t=shuffle([{type:'valence'},{type:'total'},{type:'core'}]);
+  return t.map(x => ({...x, attempts:0, missed:0}));
+}
+const answerFor = (el,t) => ({ shells:el.period, valence:el.valence, fill:el.shells[t.shell], core:el.core, total:el.Z, reverse:el.sym })[t.type];
+
+/* Each distractor is a specific misconception, tagged so feedback and logs can name it. */
+function candidates(el,t){
+  const c=[], P=el.period, g=el.group, Z=el.Z, v=el.valence;
+  switch (t.type){
+  case 'shells':
+    c.push({v:g,tag:'group'},{v:Z,tag:'atomicNumber'},{v:v,tag:'valence'},{v:P+1,tag:'offByOne'});
+    if (P>1) c.push({v:P-1,tag:'offByOne'});
+    break;
+  case 'valence':
+    if (Z===2) c.push({v:8,tag:'heOctet'},{v:18,tag:'heGroup'},{v:1,tag:'period'});
+    else {
+      if (g>=13) c.push({v:g,tag:'groupNot10'});
+      c.push({v:P,tag:'period'},{v:Z,tag:'atomicNumber'},{v:8-v,tag:'toFull'},{v:8,tag:'octet'});
+    }
+    break;
+  case 'fill': {
+    const i=t.shell, cor=el.shells[i], cp=cap(el,i), rem=Z-sum(el.shells.slice(0,i));
+    if (cp!==cor) c.push({v:cp,tag:'capacity'});
+    if (i===2 && el.adv) c.push({v:8,tag:'eightNot18'});
+    else if (cor!==8) c.push({v:8,tag:'always8'});
+    if (rem!==cor) c.push({v:rem,tag:'allRemaining'});
+    c.push({v:Z,tag:'atomicNumber'});
+    if (i===P-1 && g>=13) c.push({v:g,tag:'groupNot10'});
+    c.push({v:P,tag:'period'});
+    break; }
+  case 'core': {
+    const inner=el.shells.slice(0,-1);
+    c.push({v:2,tag:'firstOnly'});
+    if (inner.length) c.push({v:inner[inner.length-1],tag:'justBelow'});
+    c.push({v:Z,tag:'atomicNumber'},{v:v,tag:'valence'});
+    if (el.adv) c.push({v:18,tag:'eightNot18'});
+    break; }
+  case 'total':
+    c.push({v:v,tag:'valence'},{v:el.core,tag:'coreOnly'},{v:P,tag:'period'},{v:g,tag:'group'},{v:Z+1,tag:'offByOne'});
+    if (Z>1) c.push({v:Z-1,tag:'offByOne'});
+    break;
+  case 'reverse': {
+    for (const p of [P-1,P+1]){ const e=ELS.find(x=>x.period===p && x.group===g); if (e) c.push({v:e.sym,tag:'wrongPeriod'}); }
+    const row=ELS.filter(x=>x.period===P).sort((a,b)=>a.Z-b.Z), k=row.indexOf(el);
+    for (const j of [k-1,k+1]) if (row[j]) c.push({v:row[j].sym,tag:'wrongGroup'});
+    break; }
+  }
+  return c;
+}
+function pickDistractors(el,t,correct){
+  const seen=new Set([correct]), out=[], need=waveSize()-1;
+  for (const c of shuffle(candidates(el,t))){
+    if ((typeof c.v==='number' && c.v<0) || seen.has(c.v)) continue;
+    seen.add(c.v); out.push(c); if (out.length>=need) break;
+  }
+  if (t.type==='reverse'){
+    for (const e of shuffle(ELS.filter(e=>Math.abs(e.period-el.period)<=1))){
+      if (out.length>=need) break; if (!seen.has(e.sym)){ seen.add(e.sym); out.push({v:e.sym,tag:'random'}); } }
+  }
+  const lo = t.type==='shells' ? 1 : 0; let guard=0;
+  while (out.length<need && guard++<80){
+    const v = Math.max(lo, correct + ((Math.random()*9|0) - 4));
+    if (!seen.has(v)){ seen.add(v); out.push({v,tag:'random'}); }
+  }
+  return out;
+}
+
+/* Builds the values every language's templates draw on. */
+function ctxFor(lang, el, t, v, c){
+  const T=LANGS[lang], name=T.names[el.sym], inner=el.shells.slice(0,-1), n=(t && t.shell!=null) ? t.shell+1 : 0;
+  const x = { T, s:el.sym, name, nm: lang==='es' ? name.toLowerCase() : name, P:el.period, g:el.group, gl:T.gl(el.group), A:AG[el.group],
+    Z:el.Z, val:el.valence, core:el.core, n, lvn:lv(n), lv1:lv(1), lv3:lv(3),
+    cp: t && t.type==='fill' ? cap(el,t.shell) : 0, rem: t && t.type==='fill' ? el.Z-sum(el.shells.slice(0,t.shell)) : 0,
+    v, c, He: el.Z===2, big3: !!(t && t.type==='fill' && t.shell===2 && el.adv),
+    eq: iso(`${inner.join(' + ')} = ${c}`), eqZ: iso(`${el.Z} − ${el.valence} = ${c}`), eq10: iso(`${el.group} − 10 = ${el.valence}`) };
+  if (t && t.type==='reverse' && BY[v]){ const r=BY[v], rn=T.names[r.sym]; x.r={ name:rn, nm: lang==='es'?rn.toLowerCase():rn, P:r.period, val:r.valence }; }
+  return x;
+}
+const normTag = tag => (tag==='heOctet'||tag==='heGroup') ? 'he' : tag;
+function explainIn(lang, tag, el, t, v, c){
+  const T=LANGS[lang], x=ctxFor(lang,el,t,v,c);
+  if (t.type==='core' && el.period===1) return T.ex.core.noInner(x);
+  const m=T.ex[t.type]; return (m[normTag(tag)] || m._)(x);
+}
+
+/* Electron placement, Living by Chemistry style:
+   n = 1 → top, then bottom. n ≥ 2 → singles at 12, 9, 6, 3 o'clock, then pair up in the same order.
+   An 18-electron n = 3 puts electrons 9–18 at the diagonals (10:30, 7:30, 4:30, 1:30) the same way. */
+function electronAngles(count, level, r){
+  const out=[];
+  if (level===0){ if (count>=1) out.push(-Math.PI/2); if (count>=2) out.push(Math.PI/2); return out; }
+  const CARD=[-Math.PI/2, Math.PI, Math.PI/2, 0], DIAG=[-3*Math.PI/4, 3*Math.PI/4, Math.PI/4, -Math.PI/4];
+  const d=5.8/r, base=Math.min(count,8), extra=Math.max(0,count-8);
+  for (let k=0;k<base;k++){ const j=k%4, paired = base>4+j; out.push(paired ? CARD[j] + (k<4 ? -d : d) : CARD[j]); }
+  const per=[0,0,0,0]; for (let q=0;q<extra;q++) per[q%4]++;
+  const seen=[0,0,0,0];
+  for (let q=0;q<extra;q++){ const j=q%4, idx=seen[j]++; out.push(DIAG[j] + (idx-(per[j]-1)/2)*2*d); }
+  return out;
+}
+
+/* ================= Helpers ================= */
+const $ = s => document.querySelector(s);
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=p=>1-Math.pow(1-clamp(p,0,1),3);
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* ================= State ================= */
+const H = 600; let W = 800, scale = 1, dpr = 1;
+const LEDGE = 64, GROUND = H - 64, MODEL_Y = 200;
+const cv = $('#cv'), ctx = cv.getContext('2d');
+const S = {
+  mode:'core', extra:false, state:'menu', time:0,
+  score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[],
+  queue:null, recent:[], kind:'build', el:null, tasks:[], taskIdx:0, task:null, correct:0, sawTransition:false,
+  wave:null, items:[], particles:[], flyers:[], floaters:[], model:null, lastWrong:null, prevRim:null,
+  mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0},
+  thinkT:0, thinkDur:1, resolveT:0, celebrateT:0, shake:0, fbReadyAt:0, pausedFrom:null,
+  log:[], tally:{}, tasksDone:0, firstTryDone:0, clean:true
+};
+const player = { x:400, vx:0, walk:0, face:1, jy:0, jv:0 };
+const VESSELS = ['beaker','erlenmeyer','roundflask','gradcyl','testtube','pipette','burette'];
+const DRIP = { pipette:true, burette:true };
+const LIQ = ['#5fd0f5','#7dffb2','#ffc845','#ff8fa3','#c9a8ff'];
+const makeMole = kind => ({ kind, x:400, lastX:400, vx:0, face:1, tilt:0, mood:0, moodT:0, step:0, vessel:'beaker', liquid:LIQ[0], queue:[], pour:null, cd:0 });
+const moles = [makeMole('main')];
+const assistantOn = () => moles.length > 1;
+const homeX = m => W * (assistantOn() ? (m.kind==='main' ? 0.3 : 0.7) : 0.5);
+function setMood(v,t){ moles.forEach(m=>{ m.mood=v; m.moodT=t; }); }
+const input = { left:false, right:false, ptr:null, swipe:null };
+let stars = [], bench = [];
+
+const ringR = i => 38 + 19*i;
+const catchY = () => GROUND - 90 - 16*Math.max(1,S.lives) + player.jy;
+const moleMin = () => 50, moleMax = () => W - 50;
+function newVessel(m){ let v; do { v=VESSELS[Math.random()*VESSELS.length|0]; } while (v===m.vessel); m.vessel=v; m.liquid=LIQ[Math.random()*LIQ.length|0]; }
+
+/* ================= Sizing ================= */
+function resize(){
+  const st=$('#stage'); const sw=st.clientWidth||800, sh=st.clientHeight||600;
+  W = Math.round(clamp(H*sw/sh, 440, 1000));
+  scale = Math.min(sw/W, sh/H);
+  dpr = Math.min(2, window.devicePixelRatio||1);
+  const b=$('#board');
+  b.style.width=(W*scale)+'px'; b.style.height=(H*scale)+'px'; b.style.setProperty('--s', scale.toFixed(3));
+  cv.style.width=(W*scale)+'px'; cv.style.height=(H*scale)+'px';
+  cv.width=Math.round(W*scale*dpr); cv.height=Math.round(H*scale*dpr);
+  player.x=clamp(player.x,40,W-40); moles.forEach(m=>{ m.x=clamp(m.x,moleMin(),moleMax()); });
+  stars = Array.from({length: Math.round(W/9)}, () => ({x:Math.random()*W, y:LEDGE+14+Math.random()*(H*0.62), r:Math.random()*1.4+0.4, p:Math.random()*6}));
+  bench = []; for (let x=40;x<W-20;x+=110+Math.random()*40) bench.push({x, type:VESSELS[Math.random()*VESSELS.length|0], liquid:LIQ[Math.random()*LIQ.length|0]});
+  renderQuestion();
+}
+
+/* ================= Audio: effects ================= */
+let actx=null, sfxOn=true;
+function beep(f, d=0.1, type='square', vol=0.05, slide=0, delay=0){
+  if (!sfxOn || !actx) return;
+  try{
+    const t0=actx.currentTime+delay, o=actx.createOscillator(), g=actx.createGain();
+    o.type=type; o.frequency.setValueAtTime(f,t0);
+    if (slide) o.frequency.exponentialRampToValueAtTime(f*slide, t0+d);
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+    o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0+d+0.02);
+  }catch(e){}
+}
+const sfx = {
+  good:()=>{ beep(660,.08); beep(990,.1,'square',.05,0,.07); },
+  bad:()=>beep(220,.35,'sawtooth',.06,.4),
+  pour:()=>beep(900,.08,'triangle',.025,.5),
+  jump:()=>beep(400,.12,'square',.03,2),
+  done:()=>[523,659,784,1047].forEach((f,i)=>beep(f,.14,'square',.05,0,i*.09)),
+  miss:()=>beep(300,.2,'triangle',.04,.7)
+};
+
+/* ================= Audio: music =================
+   Original 8-bar chiptune loop (pulse lead, triangle bass, noise drums) in an Atari/arcade style.
+   Speeds up a little every round. */
+const MUS = { on:true, playing:false, step:0, nextT:0, gain:null, pulse:null, noise:null };
+const midi = n => 440*Math.pow(2,(n-69)/12);
+const _ = null;
+const LEAD = [
+  64,_,67,_, 72,_,67,_, 64,_,62,64, 67,_,_,_,
+  60,_,64,_, 69,_,64,_, 60,_,59,60, 64,_,_,_,
+  65,_,69,_, 72,_,69,_, 65,_,64,65, 69,_,67,_,
+  67,_,71,_, 74,_,71,_, 67,_,65,67, 71,_,74,_,
+  69,_,_,67, 65,_,60,_, 65,_,67,_, 69,_,_,_,
+  71,_,_,69, 67,_,62,_, 67,_,69,_, 71,_,_,_,
+  72,_,71,_, 69,_,67,_, 64,_,67,_, 69,_,71,_,
+  74,_,_,_, 71,_,_,_, 67,_,71,_, 74,_,76,_
+];
+const ROOTS = [48,45,41,43, 41,43,45,43];
+const BASSPAT = [0,12,0,12,0,12,7,12];
+function musInit(){
+  if (!actx || MUS.gain) return;
+  MUS.gain=actx.createGain(); MUS.gain.gain.value=0; MUS.gain.connect(actx.destination);
+  const N=24, re=new Float32Array(N), im=new Float32Array(N);
+  for (let n=1;n<N;n++) re[n]=(2/(n*Math.PI))*Math.sin(n*Math.PI*0.25);
+  MUS.pulse=actx.createPeriodicWave(re,im);
+  MUS.noise=actx.createBuffer(1, Math.floor(actx.sampleRate*0.25), actx.sampleRate);
+  const ch=MUS.noise.getChannelData(0); for (let i=0;i<ch.length;i++) ch[i]=Math.random()*2-1;
+}
+function voice(freq,t,dur,vol,wave,type){
+  const o=actx.createOscillator(), g=actx.createGain();
+  if (wave) o.setPeriodicWave(wave); else o.type=type;
+  o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.006);
+  g.gain.setValueAtTime(vol,t+dur*0.6); g.gain.linearRampToValueAtTime(0,t+dur);
+  o.connect(g); g.connect(MUS.gain); o.start(t); o.stop(t+dur+0.03);
+}
+function hit(t,dur,vol,hp){
+  const s=actx.createBufferSource(), f=actx.createBiquadFilter(), g=actx.createGain();
+  s.buffer=MUS.noise; f.type='highpass'; f.frequency.value=hp;
+  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  s.connect(f); f.connect(g); g.connect(MUS.gain); s.start(t); s.stop(t+dur+0.03);
+}
+function kick(t){
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(45,t+0.12);
+  g.gain.setValueAtTime(0.55,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.16);
+  o.connect(g); g.connect(MUS.gain); o.start(t); o.stop(t+0.18);
+}
+const bpm = () => Math.min(CFG.BPM_MAX, CFG.BPM + CFG.BPM_PER_ROUND*S.rounds) * (S.extra?0.9:1);
+function playStep(s,t,sx){
+  const bar=s>>4, i=s&15, root=ROOTS[bar];
+  if (LEAD[s]!=null) voice(midi(LEAD[s]+12), t, sx*1.7, 0.06, MUS.pulse);
+  if (i%2===0) voice(midi(root+BASSPAT[i>>1]), t, sx*1.7, 0.16, null, 'triangle');
+  if (i===0 || i===8 || i===10) kick(t);
+  if (i===4 || i===12) hit(t,0.12,0.22,1400);
+  if (i%2===0) hit(t,0.03,i%4===2?0.09:0.05,7000);
+}
+setInterval(()=>{
+  if (!MUS.playing || !actx) return;
+  try{
+    const sx=60/bpm()/4;
+    if (MUS.nextT < actx.currentTime) MUS.nextT = actx.currentTime + 0.02;
+    while (MUS.nextT < actx.currentTime+0.12){ playStep(MUS.step, MUS.nextT, sx); MUS.step=(MUS.step+1)%LEAD.length; MUS.nextT+=sx; }
+  }catch(e){}
+}, 25);
+function musLevel(){
+  if (!MUS.gain) return;
+  const st=S.state, target = !MUS.on || !MUS.playing || st==='paused' ? 0 : (st==='feedback'||st==='lesson') ? 0.12 : 0.42;
+  MUS.gain.gain.setTargetAtTime(target, actx.currentTime, 0.08);
+}
+function musStart(){ musInit(); if (!MUS.gain) return; if (!MUS.playing){ MUS.playing=true; MUS.step=0; MUS.nextT=actx.currentTime+0.05; } musLevel(); }
+function musStop(){ MUS.playing=false; musLevel(); }
+
+/* ================= Flow ================= */
+function buildQueue(mode){
+  const core=ELS.filter(e=>!e.adv), adv=ELS.filter(e=>e.adv);
+  const ramp=[...shuffle(core.filter(e=>e.period<=2)).slice(0,3), ...shuffle(core.filter(e=>e.period===3)).slice(0,3), ...shuffle(core.filter(e=>e.period===4))];
+  if (mode==='core') return {ramp, pool:core};
+  if (mode==='adv') return {ramp:shuffle(adv.slice()), pool:adv};
+  return {ramp:[...ramp, ...shuffle(adv.slice()).slice(0,3)], pool:ELS};
+}
+function pickNext(){
+  const q=S.queue;
+  if (q.ramp.length) return q.ramp.shift();
+  const opts=q.pool.filter(e=>!S.recent.includes(e.sym));
+  return opts[Math.random()*opts.length|0] || q.pool[0];
+}
+function scaffold(type){
+  const m=S.mastery[type];
+  return m < CFG.SCAFFOLD_FULL_UNTIL ? 2 : m < CFG.SCAFFOLD_TABLE_UNTIL ? 1 : 0;
+}
+const curScaffold = () => Math.min(2, scaffold(S.task.type) + (S.task.missed>=2 ? 1 : 0));
+const fallSpeed = () => (CFG.FALL_BASE + CFG.FALL_PER_ROUND*Math.min(S.rounds,CFG.FALL_MAX_ROUNDS)) * (S.extra?CFG.EXTRA_FALL:1);
+const dropInterval = () => Math.max(CFG.DROP_INT_MIN, CFG.DROP_INT_BASE - CFG.DROP_INT_PER_ROUND*S.rounds) * (S.extra?CFG.EXTRA_DROP:1);
+const pts = n => Math.round(n * (S.extra?CFG.EXTRA_POINTS:1));
+
+function startGame(){
+  if (!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  try{ actx && actx.resume && actx.resume(); }catch(e){}
+  Object.assign(S, { score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[], recent:[], sawTransition:false,
+    items:[], particles:[], flyers:[], floaters:[], mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0},
+    log:[], tally:{}, tasksDone:0, firstTryDone:0, prevRim:null });
+  S.mastery = Object.assign(S.mastery, B.mastery||{});   // hints keep fading from where this student left off
+  saveState=''; syncProfile();
+  S.queue = buildQueue(S.mode);
+  ['#menu','#over','#pauseOv','#feedback','#banner','#lesson'].forEach(id=>$(id).classList.add('hidden'));
+  player.x = W/2; player.jy=0; player.jv=0; moles.length=1; moles[0].x = W/2; newVessel(moles[0]);
+  musStart();
+  nextRound();
+  renderStats();
+}
+function nextRound(){
+  S.kind = CFG.ROUND_PATTERN[S.rounds % CFG.ROUND_PATTERN.length];
+  if (S.rounds>0 && S.rounds===CFG.FIVE_FROM_ROUND) floater(L().ui.lvl5, W/2, H*0.47, '#ffe27a', 3);
+  if (S.rounds>0 && S.rounds===CFG.ASSISTANT_FROM_ROUND && !assistantOn()){
+    const h=makeMole('helper'); h.x=h.lastX=W+40; newVessel(h); moles.push(h);
+    floater(L().ui.helper, W/2, H*0.47 + (S.rounds===CFG.FIVE_FROM_ROUND?28:0), '#ffb3f0', 3);
+  }
+  S.el = pickNext();
+  S.recent = [S.el.sym, ...S.recent].slice(0,4);
+  const full = S.kind==='reverse';
+  S.model = { rings: full?S.el.period:0, ringsT:-9, e: full?S.el.shells.slice():[], eT: full?S.el.shells.map(()=>-9):[],
+              valence:false, core:false, hideSym: full, facts:[] };
+  S.tasks = tasksFor(S.kind, S.el); S.taskIdx = 0; S.clean = true;
+  $('#banner').classList.add('hidden');
+  const callout = S.el.adv && (CFG.TRANSITION_CALLOUT==='always' || (CFG.TRANSITION_CALLOUT==='first' && !S.sawTransition));
+  if (callout){ S.sawTransition=true; showLesson(); return; }
+  startTask(false);
+}
+function showLesson(){
+  S.state='lesson'; $('#lesson').classList.remove('hidden');
+  drawMini($('#lsCa'), BY.Ca, false); drawMini($('#lsGa'), BY.Ga, true); renderLessonRows();
+  renderQuestion(); musLevel();
+}
+function closeLesson(){
+  if (S.state!=='lesson') return;
+  $('#lesson').classList.add('hidden');
+  startTask(false);
+}
+function startTask(retry){
+  S.task = S.tasks[S.taskIdx];
+  S.correct = answerFor(S.el, S.task);
+  const vals = shuffle([{v:S.correct, tag:'correct'}, ...pickDistractors(S.el, S.task, S.correct)]);
+  const lo=moleMin(), hi=moleMax(), n=vals.length, slot=(hi-lo)/n;
+  const xs = shuffle([...Array(n).keys()]).map(k => lo + (k+0.5)*slot + (Math.random()-0.5)*slot*(n>4?0.2:0.4));
+  S.wave = { vals, xs, resolved:false };
+  const mid=(lo+hi)/2;
+  moles.forEach((m,j)=>{ m.pour=null; m.tilt=0; m.cd = 0.1 + j*dropInterval()*0.5;
+    m.queue = vals.map((_,i)=>i).filter(i => !assistantOn() || (m.kind==='main' ? xs[i] < mid : xs[i] >= mid)); });
+  S.items = [];
+  const sc = curScaffold();
+  S.thinkDur = S.thinkT = ((retry ? CFG.THINK_RETRY : CFG.THINK) + (sc>=1 && !retry ? CFG.THINK_SCAFFOLD_BONUS : 0)) * (S.extra ? CFG.EXTRA_THINK : 1);
+  S.state = 'think';
+  renderQuestion(); musLevel();
+}
+function onCatch(it){
+  if (S.wave.resolved) return;
+  S.wave.resolved = true; moles.forEach(m=>{ m.pour=null; m.tilt=0; m.queue=[]; });
+  S.items.forEach(o => { if (o!==it) burst(o.x,o.y,'#ffffff',6); });
+  S.items = [];
+  const t=S.task, cy=catchY();
+  const entry = { el:S.el.sym, round:S.kind, task:t.type+(t.type==='fill'?(t.shell+1):''), caught:it.v, correct:S.correct, tag:normTag(it.tag), attempt:t.attempts+1 };
+  if (it.correct){
+    S.log.push({...entry, ok:true});
+    const first = t.attempts===0;
+    let p = first ? CFG.PTS_FIRST + CFG.PTS_STREAK*Math.min(S.streak,CFG.STREAK_CAP) : CFG.PTS_RETRY;
+    if (t.missed) p = Math.round(p/2);
+    p = pts(p);
+    S.score += p; S.streak++; S.bestStreak=Math.max(S.bestStreak,S.streak);
+    S.tasksDone++; if (first){ S.firstTryDone++; S.mastery[t.type]++; }
+    floater(`+${p} ⚛`, it.x, cy-20, '#7dffb2');
+    addPoints(p); recordAnswer(t.type, true, first);
+    sfx.good();
+    setMood(-1,1.2);
+    S.flyers.push({ x0:it.x, y0:cy, x1:W/2, y1:MODEL_Y, t:0, dur:0.38, v:it.v, done:applyToModel });
+    S.state='resolve'; S.resolveT = 0.95;
+  } else {
+    S.log.push({...entry, ok:false});
+    t.attempts++; S.clean=false; S.streak=0;
+    S.mastery[t.type] = Math.max(0, S.mastery[t.type]-1);
+    const k = normTag(it.tag); S.tally[k] = (S.tally[k]||0)+1;
+    recordAnswer(t.type, false, false, it.tag);
+    S.lives--;
+    S.particles.push({type:'basket', x:player.x, y:cy+8, vx:(Math.random()<.5?-1:1)*140, vy:-260, rot:0, vr:7, life:1.6});
+    burst(it.x, cy, '#ff6b80', 14);
+    if (!reduceMotion) S.shake = 0.35;
+    sfx.bad();
+    setMood(1,2.5);
+    S.lastWrong = it;
+    showFeedback();
+  }
+  renderStats();
+}
+function applyToModel(){
+  const m=S.model, t=S.task, now=S.time;
+  burst(W/2, MODEL_Y, '#ffe27a', 10);
+  if (S.kind==='quick'){ m.facts.push({type:t.type, v:S.correct}); return; }
+  if (t.type==='shells'){ m.rings=S.el.period; m.ringsT=now; }
+  else if (t.type==='valence') m.valence=true;
+  else if (t.type==='fill'){ m.e[t.shell]=S.correct; m.eT[t.shell]=now; }
+  else if (t.type==='core') m.core=true;
+  else if (t.type==='reverse'){ m.hideSym=false; m.valence=true; m.core=true; }
+}
+function advance(){
+  S.taskIdx++;
+  if (S.taskIdx >= S.tasks.length) completeRound(); else startTask(false);
+}
+function completeRound(){
+  S.rounds++; S.built.push(S.el.sym);
+  S.bonus = pts(S.kind==='build' ? CFG.PTS_BUILD + (S.clean?CFG.PTS_BUILD_CLEAN:0) : CFG.PTS_SHORT + (S.clean?CFG.PTS_SHORT_CLEAN:0));
+  S.score += S.bonus; addPoints(S.bonus);
+  renderBanner();
+  $('#banner').classList.remove('hidden');
+  for (let i=0;i<4;i++) burst(W/2+(Math.random()-.5)*140, MODEL_Y+(Math.random()-.5)*90, ['#ffc845','#5fd0f5','#7dffb2','#c9a8ff'][i], 16);
+  sfx.done();
+  S.state='celebrate'; S.celebrateT = S.extra ? 2.8 : 2.2;
+  renderQuestion(); renderStats();
+}
+function renderBanner(){
+  if (!S.el) return;
+  const T=L(), x=ctxFor(LANG, S.el, null, null, null), b=$('#banner'), k=S.kind;
+  b.querySelector('.t').textContent = T.banner[k](x);
+  b.querySelector('.c').textContent = k==='quick' ? T.banner.quickC(x) : S.el.shells.join(' – ');
+  b.querySelector('.s').textContent = (k==='reverse' ? T.banner.revS(x)+' ' : '') + `+${S.bonus}${S.clean?T.banner.clean:''}`;
+}
+function waveExhausted(){
+  S.wave.resolved = true;
+  S.task.missed++;
+  floater(L().cv.gotAway, W/2, H*0.55, '#ffe27a', 1.6);
+  sfx.miss();
+  startTask(true);
+}
+function showFeedback(){
+  S.state='feedback';
+  renderFeedback();
+  $('#fbNext').disabled = true;
+  S.fbReadyAt = S.time + 0.9;
+  $('#feedback').classList.remove('hidden');
+  renderQuestion(); musLevel();
+}
+function renderFeedback(){
+  const it=S.lastWrong; if (!it || !S.el) return;
+  const T=L(), x=ctxFor(LANG,S.el,S.task,it.v,S.correct);
+  $('#fbHead').textContent = T.fbHead(x);
+  $('#fbBody').textContent = explainIn(LANG, it.tag, S.el, S.task, it.v, S.correct);
+  $('#fbEn').textContent = LANG==='en' ? '' : explainIn('en', it.tag, S.el, S.task, it.v, S.correct);
+  $('#fbNext').textContent = S.lives>0 ? T.ui.tryAgain(S.lives) : T.ui.results;
+}
+function continueFromFeedback(){
+  if (S.state!=='feedback' || S.time < S.fbReadyAt) return;
+  $('#feedback').classList.add('hidden');
+  if (S.lives<=0) return gameOver();
+  startTask(true);
+}
+function gameOver(){
+  S.state='over'; musStop();
+  finishGameB();
+  renderOver();
+  $('#over').classList.remove('hidden');
+  renderQuestion();
+}
+function renderOver(){
+  const T=L();
+  $('#oScore').textContent=S.score; $('#oAtoms').textContent=S.rounds;
+  $('#oAcc').textContent = S.tasksDone ? Math.round(100*S.firstTryDone/S.tasksDone)+'%' : '–';
+  $('#oStreak').textContent=S.bestStreak;
+  const ml=$('#misList'); ml.innerHTML='';
+  const ent=Object.entries(S.tally).sort((a,b)=>b[1]-a[1]);
+  if (!ent.length){ const li=document.createElement('li'); li.textContent=T.ui.nothing; ml.appendChild(li); }
+  ent.forEach(([k,n])=>{ const li=document.createElement('li'); li.textContent=`${isoN(T.tags[k]||T.tags.random)} (${n}×)`; ml.appendChild(li); });
+  const ch=$('#chips'); ch.innerHTML='';
+  if (!S.built.length){ const s=document.createElement('span'); s.textContent=T.ui.none; ch.appendChild(s); }
+  S.built.forEach(sym=>{ const s=document.createElement('span'); s.textContent=sym; s.title=nameOf(sym); ch.appendChild(s); });
+  renderSaveNote();
+}
+function setPaused(on){
+  if (on && ['think','drop','resolve','celebrate'].includes(S.state)){ S.pausedFrom=S.state; S.state='paused'; $('#pauseOv').classList.remove('hidden'); musLevel(); }
+  else if (!on && S.state==='paused'){ S.state=S.pausedFrom; $('#pauseOv').classList.add('hidden'); musLevel(); }
+}
+function toMenu(){
+  S.state='menu'; S.el=null; S.items=[]; musStop();
+  ['#over','#pauseOv','#feedback','#banner','#lesson'].forEach(id=>$(id).classList.add('hidden'));
+  $('#menu').classList.remove('hidden');
+  renderQuestion(); renderStats();
+}
+function jump(){
+  if (!['think','drop','resolve','celebrate'].includes(S.state)) return;
+  if (player.jy===0 && player.jv===0){ player.jv = -CFG.JUMP_V; sfx.jump(); }
+}
+
+/* ================= Language ================= */
+function applyLang(code){
+  LANG = LANGS[code] ? code : 'en';
+  const T=L(), root=document.documentElement;
+  root.lang=T.html; root.dir=T.dir;
+  document.querySelectorAll('[data-k]').forEach(n=>{ const [a,b]=n.dataset.k.split('.'); const v=T[a]&&T[a][b]; if (typeof v==='string') n.textContent=isoN(v); });
+  document.querySelectorAll('[data-name]').forEach(n=>{ n.textContent=T.names[n.dataset.name]; });
+  document.querySelectorAll('#langSeg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.lang===LANG)));
+  $('#btnLang').textContent=T.short;
+  $('#lsArrowGlyph').textContent = T.dir==='rtl' ? '←' : '→';
+  renderQuestion(); renderLessonRows();
+  if (S.state==='feedback') renderFeedback();
+  if (S.state==='over') renderOver();
+  renderAcct();
+  if (S.state==='celebrate') renderBanner();
+}
+
+/* ================= Question UI ================= */
+function buildTable(pt){
+  pt.innerHTML='';
+  const cols=[1,2,'gap',13,14,15,16,17,18];
+  const add=(cls,html,attrs={})=>{ const d=document.createElement('div'); d.className=cls; d.innerHTML=html; Object.entries(attrs).forEach(([k,v])=>d.dataset[k]=v); pt.appendChild(d); };
+  add('h','');
+  cols.forEach(g=> g==='gap' ? add('h','') : add('h',`<b>${g}</b>${AG[g]}`,{g}));
+  for (let p=1;p<=4;p++){
+    add('r',p,{p});
+    cols.forEach(g=>{
+      if (g==='gap'){ add('c gap', p===4?'···':''); return; }
+      const el=ELS.find(e=>e.period===p && e.group===g);
+      el ? add('c',el.sym,{sym:el.sym}) : add('c empty','');
+    });
+  }
+}
+function renderQuestion(){
+  const el=S.el, t=S.task, card=$('#card'), dq=$('#dockQ'), dc=$('#dockC'), dt=$('#dockTable'), ct=$('#cardTable');
+  document.querySelectorAll('.ptable .hl').forEach(n=>n.classList.remove('hl'));
+  $('#pips').innerHTML = el && S.state!=='over' && S.state!=='menu'
+    ? S.tasks.map((x,i)=>`<i class="${i<S.taskIdx||S.state==='celebrate'?'done':i===S.taskIdx?'now':''}"></i>`).join('') : '';
+  const live = el && t && ['think','drop','resolve','feedback','paused'].includes(S.state);
+  if (!live){ card.classList.add('hidden'); dq.textContent=''; dc.textContent=''; dt.classList.add('hidden'); return; }
+
+  const T=L(), x=ctxFor(LANG, el, t, null, null);
+  const [full, short] = T.q[t.type](x);
+  const sc = curScaffold();
+  let hint='', count='', table=false, hl={};
+  switch (t.type){
+    case 'shells': if (sc>=2) hint=T.hint.shells(x); table=sc>=1; hl={sym:true,row:true}; break;
+    case 'valence': if (sc>=2) hint=T.hint.valence(x); table=sc>=1; hl={sym:true,col:true}; break;
+    case 'fill': if (sc>=2) hint=T.hint.fill(x); if (sc>=1) count=T.count.fill(x); break;
+    case 'core': if (sc>=2) hint=T.hint.core(x); if (sc>=1) count = S.kind==='quick' ? T.count.coreQuick(x) : T.count.coreBuild(x); break;
+    case 'total': if (sc>=2) hint=T.hint.total(x); break;
+    case 'reverse': if (sc>=2) hint=T.hint.reverse(x); table=sc>=1; break;
+  }
+  $('#qtag').textContent=T.tag[t.type](x); $('#qtag').className=t.type;
+  $('#qtext').textContent=full;
+  $('#qtextEn').textContent = LANG==='en' ? '' : LANGS.en.q[t.type](ctxFor('en', el, t, null, null))[0];
+  $('#qhint').textContent=hint; $('#qcount').textContent=count;
+  card.classList.toggle('hidden', S.state!=='think');
+  ct.classList.toggle('hidden', !table);
+  const docked = S.state!=='think';
+  dq.textContent = docked ? short : ''; dc.textContent = docked ? count : '';
+  dt.classList.toggle('hidden', !(docked && table && W*scale >= 560));
+  if (table) for (const pt of [ct,dt]){
+    if (hl.sym) pt.querySelector(`[data-sym="${el.sym}"]`)?.classList.add('hl');
+    if (hl.row) pt.querySelector(`.r[data-p="${el.period}"]`)?.classList.add('hl');
+    if (hl.col) pt.querySelector(`.h[data-g="${el.group}"]`)?.classList.add('hl');
+  }
+}
+function renderStats(){ $('#sScore').textContent=S.score; $('#sStreak').textContent=S.streak; $('#sAtoms').textContent=S.rounds; }
+
+/* ================= Lesson card: matching models ================= */
+const LV_COL = ['#ff8fa3','#5fd0f5','#7dffb2','#c9a8ff'];
+function drawMini(cnv, el, markExtra){
+  const c=cnv.getContext('2d'), N=cnv.width;
+  c.setTransform(1,0,0,1,0,0); c.fillStyle='#2a1d52'; c.fillRect(0,0,N,N);
+  const k=N/(2*(ringR(3)+14)); c.setTransform(k,0,0,k,N/2,N/2);
+  el.shells.forEach((count,i)=>{
+    const r=ringR(i);
+    c.strokeStyle=LV_COL[i]; c.lineWidth=2.4; c.beginPath(); c.arc(0,0,r,0,Math.PI*2); c.stroke();
+    electronAngles(count,i,r).forEach((a,j)=>{
+      c.fillStyle = (markExtra && i===2 && j>=8) ? '#ffc845' : LV_COL[i];
+      c.beginPath(); c.arc(Math.cos(a)*r, Math.sin(a)*r, (markExtra && i===2 && j>=8) ? 5.6 : 4.8, 0, Math.PI*2); c.fill();
+      c.strokeStyle='#1d1340'; c.lineWidth=1.2; c.stroke();
+    });
+  });
+  c.fillStyle='#c2352f'; c.beginPath(); c.arc(0,0,24,0,Math.PI*2); c.fill();
+  c.fillStyle='#fff'; c.textAlign='center'; c.textBaseline='middle'; c.font=`700 20px ${FONT}`; c.fillText(el.sym,0,1);
+}
+function renderLessonRows(){
+  for (const [id,el] of [['#rowsCa',BY.Ca],['#rowsGa',BY.Ga]]){
+    $(id).innerHTML = el.shells.map((n,i)=>
+      `<div class="lsRow${el===BY.Ga&&i===2?' big':''}"><span><i style="background:${LV_COL[i]}"></i> n = ${i+1}</span><b>${n}</b></div>`).join('');
+  }
+}
+
+/* ================= Effects ================= */
+function burst(x,y,color,n){
+  for (let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, s=60+Math.random()*180;
+    S.particles.push({type:'dot',x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.5+Math.random()*.4,max:.9,color,r:2+Math.random()*2.5}); }
+}
+function floater(text,x,y,color,life=1){ S.floaters.push({text,x,y,color,life,max:life}); }
+
+/* ================= Class accounts =================
+   Same Google Sheet and Apps Script web app as iBond (see Code.gs). Students log in with the
+   last 5 digits of their ID; points, sprite and hat are shared across the whole suite, and this
+   game's stats go in the Sheet's "Ka-BOHR" tab. Leave API_URL blank for guest-only. */
+const API_URL='https://script.google.com/macros/s/AKfycbyQdG9xrv-ba_5Jae5hy0ZN4oyEvXCrSL85F4MCrT52W6zLdIMHcpxmf3dKMPHoA7h1/exec';
+const GAME_ID='bohr';
+const NET={on:false,code:''};
+try{
+  const q=new URLSearchParams(location.search).get('code');
+  if(q)localStorage.setItem('ibond-code',q);            // same key as iBond, so one link sets it for both
+  NET.code=q||localStorage.getItem('ibond-code')||'';
+}catch(e){}
+const viaRun=()=>!!(window.google&&google.script&&google.script.run);
+const inClaude=/claude\.ai$|claudeusercontent\.com$|anthropic\.com$/.test(location.hostname)||!!(window.claude&&(window.claude.use||window.claude.complete));
+NET.on=(viaRun()||!!API_URL)&&!inClaude;                // the Claude preview can't reach the Sheet: guest only
+function call(action,body={}){
+  const req=JSON.stringify(Object.assign({action,code:NET.code,game:GAME_ID},body));
+  if(viaRun())return new Promise((res,rej)=>google.script.run
+    .withSuccessHandler(t=>{let r;try{r=JSON.parse(t)}catch(e){r={error:'server'}}r.error?rej(r):res(r)})
+    .withFailureHandler(()=>rej({error:'network'})).apiRun(req));
+  if(!API_URL)return Promise.reject({error:'offline'});
+  // a plain-text POST is a "simple" request, so the browser doesn't need a CORS preflight
+  return fetch(API_URL,{method:'POST',body:req}).then(r=>r.json(),()=>{throw {error:'network'}}).then(r=>{if(r.error)throw r;return r});
+}
+const errText=e=>{const u=L().ui;return e&&e.error==='bad_code'?u.badCode:e&&e.error==='busy'?u.busy:u.network};
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const whoName=r=>`${r.first||'?'} ${r.init?r.init+'.':''}`.trim();
+
+// ---- this game's saved data (cached on this computer, synced to the Sheet) ----
+const BBLANK=()=>({games:0,best:0,bestRounds:0,stats:{},ft:{r:0,n:0},tally:{},mastery:{},extra:false,lang:'en',
+  buddy:'H',hat:'',points:0,pending:0,inflight:null,updated:0});
+let who=null;
+try{const w=localStorage.getItem('ibond-who');if(w)who=JSON.parse(w)}catch(e){}   // logged in to iBond on this computer = logged in here
+const bkey=()=>who?'kabohr-stu-'+who.rid:'kabohr-guest';
+function loadB(k){try{const raw=localStorage.getItem(k);if(raw)return Object.assign(BBLANK(),JSON.parse(raw))}catch(e){}return BBLANK()}
+function guestLook(b){try{const g=JSON.parse(localStorage.getItem('ibond-v1')||'null');if(g){b.buddy=g.buddy||'H';b.hat=g.hat||''}}catch(e){}return b}
+let B=who?loadB(bkey()):guestLook(loadB(bkey()));
+let dirtyB=false,syncB=0,flushingB=null,saveState='';
+function persistB(soon){
+  B.updated=Date.now();
+  try{localStorage.setItem(bkey(),JSON.stringify(B))}catch(e){}
+  if(who){dirtyB=true;clearTimeout(syncB);syncB=setTimeout(()=>flushB(),soon?0:15000)}
+}
+function addPoints(n){ if(n<=0)return; B.points+=n; if(who)B.pending=(B.pending||0)+n; persistB(); }
+function recordAnswer(type,ok,firstTry,tag){
+  const s=B.stats[type]||(B.stats[type]={r:0,w:0}); ok?s.r++:s.w++;
+  if(ok){B.ft.n++; if(firstTry)B.ft.r++}
+  else { const k=normTag(tag); B.tally[k]=(B.tally[k]||0)+1; }
+  persistB();
+}
+function finishGameB(){
+  B.games++; B.best=Math.max(B.best,S.score); B.bestRounds=Math.max(B.bestRounds,S.rounds);
+  B.mastery=Object.assign({},S.mastery); B.extra=S.extra; B.lang=LANG;
+  persistB(true);
+}
+const TYPE_COL={shells:'Energy levels',valence:'Valence',fill:'Fill energy levels',core:'Core',total:'Total electrons',reverse:'Name it'};
+const pctStr=(r,n)=>n?`${r} / ${n} (${Math.round(100*r/n)}%)`:'';
+function summaryB(){   // what the teacher sees in the Ka-BOHR tab (always English)
+  const c={'Best score':B.best,'Games':B.games,'Rounds (best)':B.bestRounds,'First-try':pctStr(B.ft.r,B.ft.n)};
+  Object.entries(TYPE_COL).forEach(([k,col])=>{const t=B.stats[k];c[col]=t?pctStr(t.r,t.r+t.w):''});
+  c['Most missed']=Object.entries(B.tally).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,n])=>`${LANGS.en.tags[k]||k} (${n})`).join(', ');
+  c['Extra time']=B.extra?'On':'';
+  c['Language']={en:'English',es:'Spanish',zh:'Chinese (Traditional)',ar:'Arabic'}[B.lang]||'';
+  return c;
+}
+async function flushB(){
+  clearTimeout(syncB);
+  if(!who||!dirtyB||!NET.on)return;
+  if(flushingB){await flushingB;if(dirtyB)return flushB();return}
+  dirtyB=false; setSave('saving');
+  // points go up in numbered batches; a batch that may have arrived is resent with the same id, never re-counted
+  if(!B.inflight)B.inflight={sid:Math.random().toString(36).slice(2,12),amt:B.pending||0};
+  const sent=B.inflight.amt, sid=B.inflight.sid;
+  const data=JSON.parse(JSON.stringify(B));['pending','inflight','points','buddy','hat'].forEach(k=>delete data[k]);
+  flushingB=call('save',{rid:who.rid,sid,delta:sent,profile:{buddy:B.buddy,hat:B.hat},data,summary:summaryB()}).then(r=>{
+    B.pending=Math.max(0,(B.pending||0)-sent); B.inflight=null;
+    B.points=(+r.points||0)+B.pending;          // the Sheet keeps the running total, shared by every game in the suite
+    try{localStorage.setItem(bkey(),JSON.stringify(B))}catch(e){}
+    setSave(dirtyB?'saving':'saved'); renderAcct();
+  }).catch(()=>{dirtyB=true;setSave('fail');syncB=setTimeout(()=>flushB(),20000)}).finally(()=>{flushingB=null});
+  await flushingB;
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushB()});
+
+// combine what the Sheet has with anything this computer saved but hadn't sent yet
+function mergedB(r,rid){
+  const cached=loadB('kabohr-stu-'+rid), remote=r.data?Object.assign(BBLANK(),r.data):null;
+  const sv=remote&&(remote.updated||0)>=(cached.updated||0)?remote:(cached.updated?cached:(remote||BBLANK()));
+  sv.pending=cached.pending||0; sv.inflight=cached.inflight||null;
+  sv.points=(r.profile?+r.profile.points||0:0)+sv.pending;
+  sv.buddy=(r.profile&&r.profile.buddy)||'H'; sv.hat=(r.profile&&r.profile.hat)||'';
+  return sv;
+}
+async function syncProfile(){        // picks up a sprite or hat changed in iBond since this page loaded
+  if(!who||!NET.on)return;
+  try{
+    const r=await call('login',{rid:who.rid});
+    const keep=B; B=mergedB(r,who.rid);
+    if(keep.updated>B.updated){ Object.assign(keep,{points:B.points,buddy:B.buddy,hat:B.hat}); B=keep; }
+    try{localStorage.setItem(bkey(),JSON.stringify(B))}catch(e){}
+    refreshSprite(); renderAcct();
+    if(B.pending){dirtyB=true;flushB()}
+  }catch(e){}
+}
+
+// ---- login panel (on the start screen) ----
+let acct={step:'idle',err:'',matches:[]};
+function renderAcct(){
+  const box=$('#acct'); if(!box)return;
+  if(!NET.on){box.classList.add('hidden');return}
+  box.classList.remove('hidden');
+  const u=L().ui, st=acct;
+  if(who){
+    box.innerHTML=`<div class="acrow">${sprite(B.buddy,B.hat,44)}<div class="acwho"><b>${esc(whoName(who))}</b><small>${esc(u.period(who.period))} · ${esc(u.total(B.points.toLocaleString()))}</small></div><button class="ghost slim" id="acOut">${esc(u.logOut)}</button></div>`;
+    $('#acOut').addEventListener('click',logoutB); return;
+  }
+  if(st.step==='idle'){
+    box.innerHTML=`<div class="acrow">${sprite(B.buddy,B.hat,44)}<div class="acwho"><b>${esc(u.guest)}</b><small>${esc(u.guestSave)}</small></div><button class="btn slim" id="acIn">${esc(u.logIn)}</button></div>`;
+    $('#acIn').addEventListener('click',()=>{acct={step:'id',err:'',matches:[]};renderAcct();$('#acId')?.focus()}); return;
+  }
+  if(st.step==='id'){
+    box.innerHTML=`<label for="acId" class="label" style="margin-top:0">${esc(u.idLabel)}</label><div class="acrow"><input id="acId" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="12345"><button class="btn slim" id="acNext">${esc(u.next)}</button></div><p class="acerr" aria-live="polite">${esc(st.err)}</p>`;
+    const i=$('#acId'); i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'').slice(0,5)});
+    i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.stopPropagation();lookupB()}});
+    $('#acNext').addEventListener('click',lookupB); return;
+  }
+  if(st.step==='confirm'){
+    box.innerHTML=`<div class="label" style="margin-top:0">${esc(u.isYou)}</div><div class="acpick">`+
+      st.matches.map((m,i)=>`<button class="ghost slim" data-m="${i}">${esc(whoName(m))}<small> · ${esc(u.period(m.period))}</small></button>`).join('')+
+      `</div><button class="linkbtn" id="acBack">${esc(u.notMe)}</button><p class="acerr" aria-live="polite">${esc(st.err)}</p>`;
+    box.querySelectorAll('[data-m]').forEach(b=>b.addEventListener('click',()=>chooseB(st.matches[+b.dataset.m])));
+    $('#acBack').addEventListener('click',()=>{acct={step:'id',err:u.checkAgain,matches:[]};renderAcct()});
+  }
+}
+async function lookupB(){
+  const v=$('#acId').value, u=L().ui;
+  if(!/^\d{5}$/.test(v)){acct.err=u.enter5;renderAcct();return}
+  $('#acNext').disabled=true;
+  try{
+    const r=await call('lookup',{last5:v});
+    const m=(r.matches||[]).filter(x=>x.rid&&x.first);
+    acct = m.length ? {step:'confirm',err:'',matches:m} : {step:'id',err:u.noMatch,matches:[]};
+  }catch(e){acct.err=errText(e)}
+  renderAcct();
+}
+async function chooseB(m){
+  let r;
+  try{r=await call('login',{rid:m.rid})}catch(e){acct.err=errText(e);renderAcct();return}
+  who={rid:m.rid,first:String(m.first),init:String(m.init||''),period:String(m.period)};
+  try{localStorage.setItem('ibond-who',JSON.stringify(who))}catch(e){}
+  B=mergedB(r,m.rid);
+  try{localStorage.setItem(bkey(),JSON.stringify(B))}catch(e){}
+  acct={step:'idle',err:'',matches:[]};
+  refreshSprite(); renderAcct();
+  if(B.pending){dirtyB=true;flushB()}
+}
+async function logoutB(){
+  await flushB();
+  who=null; try{localStorage.removeItem('ibond-who')}catch(e){}
+  B=guestLook(loadB(bkey())); acct={step:'idle',err:'',matches:[]};
+  refreshSprite(); renderAcct();
+}
+function setSave(s){ saveState=s; renderSaveNote(); }
+function renderSaveNote(){
+  const n=$('#oSave'); if(!n)return; const u=L().ui;
+  $('#oEarned').textContent=u.earned(S.score.toLocaleString());
+  n.textContent = !NET.on ? '' : !who ? u.guestSave : saveState==='saving' ? u.saving : saveState==='fail' ? u.saveFail : u.saved(B.points.toLocaleString());
+}
+
+// ---- the student's iBond sprite (atom buddy + hat), same drawing as iBond ----
+const BUDDIES=[{s:'H',col:'#8E9AAF'},{s:'Na',col:'#E85A4F'},{s:'Cl',col:'#3AA76D'},{s:'O',col:'#2BB3CF'},{s:'Mg',col:'#B07CC6'},{s:'Ca',col:'#E08E3C'},
+  {s:'S',col:'#D4B21C'},{s:'Al',col:'#7B8C99'},{s:'N',col:'#4867D6'},{s:'K',col:'#C9467A'},{s:'Br',col:'#9C4A2E'},{s:'Au',col:'#C9A227'}];
+const buddyOf=s=>BUDDIES.find(b=>b.s===s)||BUDDIES[0];
+function hatSVG(k){
+  switch(k){
+    case 'shades':return `<rect x="9" y="16" width="16" height="10" rx="4" fill="#1b1b1b"/><rect x="31" y="16" width="16" height="10" rx="4" fill="#1b1b1b"/><path d="M25 19h6" stroke="#1b1b1b" stroke-width="2.5"/><path d="M12 18.5h5M34 18.5h5" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>`;
+    case 'party':return `<path d="M17 10 L28 -13 L39 10 Z" fill="#B07CC6" stroke="#6E3F86" stroke-width="2" stroke-linejoin="round"/><path d="M21.5 1h13M25 -6h6" stroke="#F2B630" stroke-width="3"/><circle cx="28" cy="-13" r="4" fill="#F2B630"/>`;
+    case 'cap':return `<path d="M7 14 Q28 -10 49 14 Z" fill="#2B59C3" stroke="#1A3B8A" stroke-width="2" stroke-linejoin="round"/><path d="M41 12 Q54 9 59 15 L43 16 Z" fill="#1A3B8A"/><circle cx="28" cy="2" r="2.5" fill="#fff"/>`;
+    case 'crown':return `<path d="M12 11 L14 -6 L21 3 L28 -10 L35 3 L42 -6 L44 11 Z" fill="#F2B630" stroke="#A7790F" stroke-width="2" stroke-linejoin="round"/><circle cx="28" cy="3" r="2.6" fill="#E85A4F"/>`;
+  }
+  return '';
+}
+function sprite(sym,hat,size=52){
+  const b=buddyOf(sym), h=['shades','party','cap','crown'].includes(hat)?hat:'';
+  const eyes=h==='shades'?'':`<ellipse cx="19" cy="22" rx="3" ry="3.6" fill="#1b1b1b"/><ellipse cx="37" cy="22" rx="3" ry="3.6" fill="#1b1b1b"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="sprite" width="${size}" height="${Math.round(size*76/60)}" viewBox="-2 -16 62 76" aria-hidden="true">`+
+    `<circle cx="28" cy="32" r="26" fill="${b.col}" stroke="rgba(0,0,0,.15)" stroke-width="3"/>${eyes}`+
+    `<text x="28" y="45" text-anchor="middle" font-family="'Arial Rounded MT Bold','Arial Black',Arial,sans-serif" font-weight="800" font-size="18" fill="#fff">${esc(b.s)}</text>${hatSVG(h)}</svg>`;
+}
+let spriteImg=null;
+function refreshSprite(){
+  try{ const img=new Image(); img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(sprite(B.buddy,B.hat,124)); spriteImg=img; }catch(e){ spriteImg=null; }
+}
+refreshSprite();
+
+/* ================= Update ================= */
+function vesselPoint(type){ return DRIP[type] ? [0,27] : ({beaker:[12,-10], erlenmeyer:[0,-15], roundflask:[0,-17], gradcyl:[6,-27], testtube:[0,-21]})[type]; }
+function gripPoint(m){ return [m.x + m.face*10, LEDGE - 24]; }
+function toWorld(m,px,py){
+  const [gx,gy]=gripPoint(m), c=Math.cos(m.tilt), s=Math.sin(m.tilt);
+  return [gx + m.face*(px*c - py*s), gy + (px*s + py*c)];
+}
+function update(dt){
+  if (['paused','menu','over','lesson'].includes(S.state)) return;
+  S.time += dt;
+  const active = S.state!=='feedback';
+  if (active){
+    let vx=0;
+    if (input.left||input.right){ vx=(input.right-input.left)*CFG.KEY_SPEED; input.ptr=null; }
+    else if (input.ptr!=null){ const d=input.ptr-player.x; vx=clamp(d*12,-CFG.PTR_SPEED,CFG.PTR_SPEED); if (Math.abs(d)<2) vx=0; }
+    player.x = clamp(player.x+vx*dt, 40, W-40); player.vx=vx;
+    if (Math.abs(vx)>10){ player.walk+=Math.abs(vx)*dt*0.04; player.face=Math.sign(vx); }
+    if (player.jy<0 || player.jv<0){
+      player.jv += CFG.GRAVITY*dt; player.jy += player.jv*dt;
+      if (player.jy>=0){ player.jy=0; player.jv=0; }
+    }
+  }
+  if (S.state==='think'){
+    S.thinkT -= dt;
+    $('#thinkbar').style.width = (100*clamp(S.thinkT/S.thinkDur,0,1))+'%';
+    if (S.thinkT<=0){ S.state='drop'; renderQuestion(); }
+  } else if (S.state==='drop'){
+    const w=S.wave;
+    for (const m of moles){
+      if (m.pour){
+        const p=m.pour, P=CFG.POUR; p.t += dt;
+        m.tilt = DRIP[m.vessel] ? 0 : 1.9*Math.sin(Math.PI*clamp(p.t/P,0,1));
+        if (!p.spawned && p.t >= P*0.5){
+          p.spawned = true;
+          const v=w.vals[p.i], [sx,sy]=toWorld(m, ...vesselPoint(m.vessel));
+          S.items.push({ x:clamp(sx,30,W-30), y:sy, py:sy, v:v.v, tag:v.tag, correct:v.tag==='correct',
+            vy:fallSpeed()*(0.92+Math.random()*0.16), sway:Math.random()*6, born:S.time });
+          sfx.pour();
+        }
+        if (p.t >= P){ m.pour=null; m.cd=Math.max(0, dropInterval()-P); m.tilt=0; newVessel(m); }
+      } else if (m.queue.length){
+        const tx=w.xs[m.queue[0]], d=tx-m.x;
+        const mv = clamp(d, -CFG.MOLE_SPEED*dt, CFG.MOLE_SPEED*dt); m.x += mv;
+        if (Math.abs(mv)>0.5) m.face = Math.sign(mv);
+        m.cd -= dt;
+        if (Math.abs(d)<3 && m.cd<=0) m.pour = { t:0, spawned:false, i:m.queue.shift() };
+      }
+    }
+    const rim=catchY(), prevRim = S.prevRim==null ? rim : S.prevRim;
+    for (const it of S.items.slice()){
+      it.py=it.y; it.y+=it.vy*dt;
+      // counts a catch whether the item falls into the basket or the jumping basket rises up around it
+      if ((it.py - prevRim) < 0 && (it.y - rim) >= 0 && Math.abs(it.x-player.x) <= CFG.CATCH_HALF){ onCatch(it); break; }
+      if (it.y > H+40) S.items.splice(S.items.indexOf(it),1);
+    }
+    if (S.state==='drop' && !w.resolved && moles.every(m=>!m.queue.length && !m.pour) && S.items.length===0) waveExhausted();
+  } else if (S.state==='resolve'){
+    S.resolveT-=dt; if (S.resolveT<=0) advance();
+  } else if (S.state==='celebrate'){
+    S.celebrateT-=dt; if (S.celebrateT<=0) nextRound();
+  } else if (S.state==='feedback'){
+    if (S.time>=S.fbReadyAt) $('#fbNext').disabled=false;
+  }
+  S.prevRim = catchY();
+  for (const m of moles){
+    const idle = S.state!=='drop' || (!m.queue.length && !m.pour);
+    if (idle){ m.tilt = m.pour ? m.tilt : 0; const sp = m.x>W || m.x<0 ? 220 : 90; m.x += clamp(homeX(m)-m.x, -sp*dt, sp*dt); if (Math.abs(homeX(m)-m.x)>0.5) m.face=Math.sign(homeX(m)-m.x); }
+    m.vx = dt ? (m.x-m.lastX)/dt : 0; m.lastX=m.x; if (Math.abs(m.vx)>10) m.step += dt*14;
+    m.moodT-=dt; if (m.moodT<=0) m.mood=0;
+  }
+
+  for (const f of S.flyers.slice()){ f.t+=dt; if (f.t>=f.dur){ S.flyers.splice(S.flyers.indexOf(f),1); f.done(); } }
+  for (const p of S.particles.slice()){
+    p.life-=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=(p.type==='basket'?700:240)*dt; if (p.rot!=null) p.rot+=p.vr*dt;
+    if (p.life<=0) S.particles.splice(S.particles.indexOf(p),1);
+  }
+  for (const f of S.floaters.slice()){ f.life-=dt; f.y-=40*dt; if (f.life<=0) S.floaters.splice(S.floaters.indexOf(f),1); }
+  if (S.shake>0) S.shake-=dt;
+}
+
+/* ================= Draw ================= */
+const FONT = "'Atkinson Hyperlegible', 'Noto Sans TC', 'Noto Sans Arabic', 'Segoe UI', system-ui, sans-serif";
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function circle(x,y,r){ ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); }
+function text(str,x,y,dir){ ctx.direction = dir || 'ltr'; ctx.fillText(str,x,y); ctx.direction='ltr'; }
+
+function draw(){
+  ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);
+  if (S.shake>0){ const k=S.shake*18; ctx.translate((Math.random()-.5)*k,(Math.random()-.5)*k); }
+  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#2a1d52'); g.addColorStop(.7,'#5a3d8f'); g.addColorStop(1,'#7b5aa8');
+  ctx.fillStyle=g; ctx.fillRect(-20,-20,W+40,H+40);
+  for (const s of stars){ ctx.globalAlpha=.3+.3*Math.sin(S.time*1.5+s.p); ctx.fillStyle='#fff'; circle(s.x,s.y,s.r); ctx.fill(); }
+  ctx.globalAlpha=1;
+  drawLedge();
+  ctx.fillStyle='#2c4a18'; ctx.fillRect(-20,GROUND,W+40,H-GROUND+20);
+  ctx.fillStyle='#6f9e3a'; ctx.fillRect(-20,GROUND,W+40,6);
+
+  if (S.el){
+    ctx.globalAlpha = S.state==='drop' ? 0.88 : 1;
+    S.kind==='quick' ? drawTile() : drawModel();
+    ctx.globalAlpha = 1;
+  }
+  moles.forEach(drawMole);
+  for (const it of S.items) drawItem(it);
+  for (const f of S.flyers) drawFlyer(f);
+  drawPlayer();
+  for (const p of S.particles){
+    if (p.type==='basket'){ ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.globalAlpha=clamp(p.life,0,1); drawBasket(0,0); ctx.restore(); }
+    else { ctx.globalAlpha=clamp(p.life/p.max,0,1); ctx.fillStyle=p.color; circle(p.x,p.y,p.r); ctx.fill(); }
+  }
+  ctx.globalAlpha=1;
+  for (const f of S.floaters){
+    ctx.globalAlpha=clamp(f.life/f.max*1.5,0,1); ctx.font=`700 20px ${FONT}`; ctx.textAlign='center'; ctx.direction=L().dir;
+    ctx.lineWidth=4; ctx.strokeStyle='rgba(30,15,60,.8)'; ctx.strokeText(f.text,f.x,f.y); ctx.fillStyle=f.color; ctx.fillText(f.text,f.x,f.y);
+    ctx.direction='ltr';
+  }
+  ctx.globalAlpha=1;
+}
+
+/* --- lab glassware: grip point at (0,0), drawn upright --- */
+function drawVessel(type, liquid){
+  const glass='rgba(225,238,255,.95)', fillG='rgba(200,230,255,.22)';
+  ctx.lineWidth=2; ctx.strokeStyle=glass; ctx.lineJoin='round';
+  const tick=(x1,x2,ys)=>{ ctx.lineWidth=1; ctx.beginPath(); ys.forEach(y=>{ctx.moveTo(x1,y);ctx.lineTo(x2,y);}); ctx.stroke(); ctx.lineWidth=2; };
+  switch(type){
+  case 'beaker':
+    ctx.fillStyle=fillG; rr(-11,-8,22,22,3); ctx.fill();
+    ctx.fillStyle=liquid; ctx.fillRect(-10,2,20,11);
+    rr(-11,-8,22,22,3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(11,-8); ctx.lineTo(14,-11); ctx.stroke();
+    tick(-11,-6,[-2,4,10]); break;
+  case 'erlenmeyer':
+    ctx.beginPath(); ctx.moveTo(-4,-14); ctx.lineTo(-4,-4); ctx.lineTo(-13,14); ctx.lineTo(13,14); ctx.lineTo(4,-4); ctx.lineTo(4,-14);
+    ctx.fillStyle=fillG; ctx.fill();
+    ctx.fillStyle=liquid; ctx.beginPath(); ctx.moveTo(-8.5,5); ctx.lineTo(8.5,5); ctx.lineTo(12.5,13); ctx.lineTo(-12.5,13); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-4,-14); ctx.lineTo(-4,-4); ctx.lineTo(-13,14); ctx.lineTo(13,14); ctx.lineTo(4,-4); ctx.lineTo(4,-14); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-6,-14); ctx.lineTo(6,-14); ctx.stroke(); break;
+  case 'roundflask':
+    ctx.fillStyle=fillG; circle(0,5,11); ctx.fill(); ctx.fillRect(-3.5,-16,7,12);
+    ctx.fillStyle=liquid; ctx.beginPath(); ctx.arc(0,5,10,0.12*Math.PI,0.88*Math.PI); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,5,11,-0.39*Math.PI,1.39*Math.PI); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-3.5,-5); ctx.lineTo(-3.5,-16); ctx.moveTo(3.5,-5); ctx.lineTo(3.5,-16); ctx.moveTo(-5.5,-16); ctx.lineTo(5.5,-16); ctx.stroke(); break;
+  case 'gradcyl':
+    ctx.fillStyle=fillG; ctx.fillRect(-5,-24,10,38);
+    ctx.fillStyle=liquid; ctx.fillRect(-4,-6,8,19);
+    ctx.strokeRect(-5,-24,10,38); ctx.beginPath(); ctx.moveTo(5,-24); ctx.lineTo(8,-27); ctx.stroke();
+    ctx.fillStyle=glass; ctx.fillRect(-10,14,20,3);
+    tick(1,5,[-18,-12,-6,0,6]); break;
+  case 'testtube':
+    ctx.beginPath(); ctx.moveTo(-5,-20); ctx.lineTo(-5,10); ctx.arc(0,10,5,Math.PI,0,true); ctx.lineTo(5,-20);
+    ctx.fillStyle=fillG; ctx.fill();
+    ctx.fillStyle=liquid; ctx.beginPath(); ctx.moveTo(-4,-2); ctx.lineTo(-4,10); ctx.arc(0,10,4,Math.PI,0,true); ctx.lineTo(4,-2); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-5,-20); ctx.lineTo(-5,10); ctx.arc(0,10,5,Math.PI,0,true); ctx.lineTo(5,-20); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-7,-20); ctx.lineTo(7,-20); ctx.stroke(); break;
+  case 'pipette':
+    ctx.fillStyle=fillG; ctx.beginPath(); ctx.ellipse(0,0,5,9,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=liquid; ctx.beginPath(); ctx.ellipse(0,2,4,7,0,0,Math.PI*2); ctx.fill(); ctx.fillRect(-1,8,2,16);
+    ctx.beginPath(); ctx.ellipse(0,0,5,9,0,0,Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-1.6,-9); ctx.lineTo(-1.6,-30); ctx.moveTo(1.6,-9); ctx.lineTo(1.6,-30);
+    ctx.moveTo(-1.6,9); ctx.lineTo(-1.6,23); ctx.lineTo(0,27); ctx.lineTo(1.6,23); ctx.lineTo(1.6,9); ctx.stroke();
+    tick(-1.6,3,[-20]); break;
+  case 'burette':
+    ctx.fillStyle=fillG; ctx.fillRect(-3.5,-34,7,44);
+    ctx.fillStyle=liquid; ctx.fillRect(-2.5,-18,5,28);
+    ctx.strokeRect(-3.5,-34,7,44);
+    ctx.fillStyle='#3a2b63'; ctx.fillRect(-8,11,16,4); ctx.fillStyle=glass; ctx.fillRect(-2,10,4,6);
+    ctx.beginPath(); ctx.moveTo(-1.5,16); ctx.lineTo(-1.5,23); ctx.lineTo(0,27); ctx.lineTo(1.5,23); ctx.lineTo(1.5,16); ctx.stroke();
+    tick(-3.5,0,[-28,-22,-16,-10,-4,2]); break;
+  }
+}
+function drawLedge(){
+  ctx.fillStyle='#1c1238'; ctx.fillRect(-20,LEDGE,W+40,12);
+  ctx.fillStyle='#8f73c9'; ctx.fillRect(-20,LEDGE,W+40,3);
+  ctx.globalAlpha=0.35;
+  for (const b of bench){
+    if (moles.some(m=>Math.abs(b.x-m.x)<34)) continue;      // a mole is standing there
+    ctx.save(); ctx.translate(b.x, LEDGE-15*0.75); ctx.scale(0.75,0.75);
+    if (b.type==='pipette'||b.type==='burette'){ ctx.translate(0,-12); }
+    drawVessel(b.type, b.liquid); ctx.restore();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawMole(m){
+  const x=m.x, by=LEDGE, moving=Math.abs(m.vx)>10, bob=moving?Math.abs(Math.sin(m.step))*-3:0;
+  const helper = m.kind==='helper', fur = helper ? '#8d8f9e' : '#6b4e3d', snout = helper ? '#b9bac6' : '#a8826a';
+  ctx.save(); ctx.translate(0,bob);
+  ctx.fillStyle='#e89aa8'; ctx.beginPath(); ctx.ellipse(x-9,by-2,7,3.5,0,0,Math.PI*2); ctx.ellipse(x+9,by-2,7,3.5,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=fur; ctx.beginPath(); ctx.ellipse(x,by-22,19,20,0,0,Math.PI*2); ctx.fill();
+  if (helper){
+    // tie-dye lab coat
+    const td=ctx.createRadialGradient(x+4,by-20,1,x,by-17,24);
+    ['#ff6fb5','#ffd23f','#3ee0c8','#7b6cff','#ff6fb5','#9cff57','#ffd23f'].forEach((c,i,a)=>td.addColorStop(i/(a.length-1),c));
+    ctx.fillStyle=td;
+  } else ctx.fillStyle='#f4f1ff';
+  rr(x-18,by-30,36,26,9); ctx.fill();
+  ctx.strokeStyle='#c9c2e0'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x-7,by-30); ctx.lineTo(x,by-18); ctx.lineTo(x+7,by-30); ctx.moveTo(x,by-18); ctx.lineTo(x,by-5); ctx.stroke();
+  // head
+  ctx.fillStyle=fur; circle(x,by-47,15); ctx.fill();
+  ctx.fillStyle=snout; ctx.beginPath(); ctx.ellipse(x+m.face*2,by-41,9,6.5,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#2a1d52'; rr(x-14,by-60,28,6,3); ctx.fill();
+  ctx.fillStyle=helper?'#ffc2ec':'#bff6ff'; circle(x-6,by-57,4.2); ctx.fill(); circle(x+6,by-57,4.2); ctx.fill();
+  ctx.fillStyle='#120a22'; circle(x-6+m.face*1.5,by-49,2.2); ctx.fill(); circle(x+6+m.face*1.5,by-49,2.2); ctx.fill();
+  ctx.fillStyle='#ff8fa3'; circle(x+m.face*2,by-44,3.6); ctx.fill();
+  ctx.strokeStyle='#120a22'; ctx.lineWidth=1.8; ctx.beginPath();
+  if (m.mood>0) ctx.arc(x,by-40,5,0.15*Math.PI,0.85*Math.PI);
+  else if (m.mood<0) ctx.arc(x,by-34,4,1.2*Math.PI,1.8*Math.PI);
+  else { ctx.moveTo(x-3,by-37); ctx.lineTo(x+3,by-37); }
+  ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=1; ctx.beginPath();
+  ctx.moveTo(x-8,by-42); ctx.lineTo(x-19,by-44); ctx.moveTo(x-8,by-40); ctx.lineTo(x-19,by-39);
+  ctx.moveTo(x+8,by-42); ctx.lineTo(x+19,by-44); ctx.moveTo(x+8,by-40); ctx.lineTo(x+19,by-39); ctx.stroke();
+  // the vessel he pours from, held at the grip point
+  const thin = m.vessel==='pipette'||m.vessel==='burette'||m.vessel==='testtube'||m.vessel==='gradcyl';
+  const hx = thin ? 6.5 : 13;
+  const [l1x,l1y]=toWorld(m,-hx,0), [l2x,l2y]=toWorld(m,hx,0);
+  ctx.strokeStyle=fur; ctx.lineWidth=6; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x-15,by-26); ctx.lineTo(l1x,l1y); ctx.moveTo(x+15,by-26); ctx.lineTo(l2x,l2y); ctx.stroke(); ctx.lineCap='butt';
+  const [gx,gy]=gripPoint(m);
+  ctx.save(); ctx.translate(gx,gy); ctx.scale(m.face,1); ctx.rotate(m.tilt);
+  drawVessel(m.vessel, m.liquid);
+  ctx.fillStyle='#f3d9c6'; circle(-hx,0,4.5); ctx.fill(); circle(hx,0,4.5); ctx.fill();
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawModel(){
+  const el=S.el, m=S.model, ax=W/2, ay=MODEL_Y+Math.sin(S.time*2)*3, P=el.period, R=ringR(P-1)+12;
+  const t=S.task, focus = t && t.type==='fill' && (S.state==='think'||S.state==='drop') ? t.shell : -1;
+  const hg=ctx.createRadialGradient(ax,ay,10,ax,ay,R+16);
+  hg.addColorStop(0,'rgba(255,220,150,.22)'); hg.addColorStop(1,'rgba(255,220,150,0)');
+  ctx.fillStyle=hg; circle(ax,ay,R+16); ctx.fill();
+  for (let i=0;i<P && i<m.rings;i++){
+    const p=ease((S.time-m.ringsT-i*0.12)/0.35), r=ringR(i)*p;
+    if (r<=1) continue;
+    const isVal = m.valence && i===P-1, isCore = m.core && i<P-1, filled = m.e[i]!=null;
+    if (i===focus){ ctx.lineWidth=7; ctx.strokeStyle=`rgba(255,226,122,${0.25+0.2*Math.sin(S.time*6)})`; circle(ax,ay,r); ctx.stroke(); }
+    ctx.lineWidth = isVal||isCore||i===focus ? 3 : 2;
+    ctx.strokeStyle = isVal ? '#ffc845' : isCore ? '#8fb0ff' : i===focus ? '#ffe27a' : 'rgba(255,255,255,.55)';
+    ctx.setLineDash(filled ? [] : [6,6]); circle(ax,ay,r); ctx.stroke(); ctx.setLineDash([]);
+    if (filled){
+      const n=m.e[i], angs=electronAngles(n,i,r);
+      angs.forEach((a,k)=>{
+        const tt=ease((S.time-m.eT[i]-k*Math.min(0.06,0.7/n))/0.18); if (tt<=0) return;
+        const ex=ax+Math.cos(a)*r, ey=ay+Math.sin(a)*r;
+        const col = isVal ? '#ffc845' : isCore ? '#8fb0ff' : '#5fd0f5';
+        if (isVal||isCore){ ctx.fillStyle=col+'55'; circle(ex,ey,7.5*tt); ctx.fill(); }
+        ctx.fillStyle=col; circle(ex,ey,4.4*tt); ctx.fill();
+        ctx.strokeStyle='#1d1340'; ctx.lineWidth=1.2; ctx.stroke();
+      });
+    }
+  }
+  const ng=ctx.createRadialGradient(ax-8,ay-8,4,ax,ay,28);
+  ng.addColorStop(0,'#ff9a6b'); ng.addColorStop(1,'#c2352f');
+  ctx.fillStyle=ng; circle(ax,ay,27); ctx.fill();
+  ctx.lineWidth=2; ctx.strokeStyle='#7d1f1c'; ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  if (m.hideSym){ ctx.font=`700 26px ${FONT}`; ctx.fillText('?', ax, ay+1); }
+  else { ctx.font=`700 19px ${FONT}`; ctx.fillText(el.sym, ax, ay-5); ctx.font=`700 10px ${FONT}`; ctx.fillText(`${el.Z} p⁺`, ax, ay+11); }
+  const T=L();
+  const tagAt=(str,color,i,side)=>{
+    const r=ringR(i), x=ax+side*(r*0.72), y=ay+r*0.72;
+    ctx.font=`700 12px ${FONT}`; const w=ctx.measureText(str).width+12;
+    ctx.fillStyle=color; rr(x-w/2,y-9,w,18,9); ctx.fill();
+    ctx.fillStyle='#1d1340'; text(str,x,y+1,T.dir);
+  };
+  if (m.valence && !m.hideSym) tagAt(`${T.cv.valence} ${el.valence}`,'#ffc845',P-1,1);
+  if (m.core && P>1 && !m.hideSym) tagAt(`${T.cv.core} ${el.core}`,'#8fb0ff',P-2,-1);
+  drawLegend(ax, ay, el, m, focus);
+  ctx.textBaseline='alphabetic';
+}
+function drawLegend(ax, ay, el, m, focus){
+  if (!m.rings) return;
+  const T=L(), P=el.period, rowH=19, w=118, h=P*rowH+28, R=ringR(P-1)+16;
+  let x = ax + R + 8, y = ay - h/2;
+  if (x + w > W - 6){ x = ax - R - 8 - w; if (x < 6){ x = 6; y = LEDGE + 18; } }
+  ctx.fillStyle='rgba(20,10,40,.6)'; rr(x,y,w,h,10); ctx.fill();
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#d8ccff'; ctx.font=`700 11px ${FONT}`;
+  text(T.cv.legend, x+w/2, y+13, T.dir);
+  for (let i=0;i<P;i++){
+    const ry=y+26+i*rowH+rowH/2;
+    if (i===focus){ ctx.fillStyle='rgba(255,226,122,.25)'; rr(x+4,ry-rowH/2+1,w-8,rowH-2,6); ctx.fill(); }
+    const col = m.valence && i===P-1 ? '#ffc845' : m.core && i<P-1 ? '#8fb0ff' : i===focus ? '#ffe27a' : '#ffffff';
+    ctx.fillStyle=col; ctx.font=`700 13px ${FONT}`;
+    ctx.textAlign='left'; ctx.fillText(`n = ${i+1}`, x+12, ry);
+    ctx.textAlign='right'; ctx.font=`700 15px ${FONT}`; ctx.fillText(m.e[i]!=null ? String(m.e[i]) : '–', x+w-12, ry);
+  }
+  ctx.textAlign='center';
+}
+
+function drawTile(){
+  const el=S.el, m=S.model, T=L(), w=128, h=138, x=W/2-w/2, y=MODEL_Y-h/2-14+Math.sin(S.time*2)*3;
+  ctx.fillStyle='rgba(0,0,0,.25)'; rr(x+4,y+6,w,h,16); ctx.fill();
+  ctx.fillStyle='#fdfbff'; rr(x,y,w,h,16); ctx.fill();
+  ctx.lineWidth=4; ctx.strokeStyle='#ffc845'; ctx.stroke();
+  ctx.fillStyle='#5a3d8f'; ctx.textAlign='left'; ctx.textBaseline='top'; ctx.font=`700 18px ${FONT}`; ctx.fillText(String(el.Z), x+12, y+10);
+  ctx.textAlign='right'; ctx.font=`700 12px ${FONT}`; ctx.fillText(`${el.group} · ${AG[el.group]}`, x+w-10, y+13);
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#1d1340'; ctx.font=`700 52px ${FONT}`; ctx.fillText(el.sym, W/2, y+70);
+  ctx.font=`700 14px ${FONT}`; ctx.fillStyle='#5f5680'; text(T.names[el.sym], W/2, y+h-18, T.dir);
+  const cols={valence:'#ffc845', total:'#ff9ab8', core:'#8fb0ff'};
+  const chips=m.facts.map(f=>({t:`${T.cv[f.type]} ${f.v}`, c:cols[f.type]}));
+  ctx.font=`700 13px ${FONT}`;
+  const widths=chips.map(c=>ctx.measureText(c.t).width+16), tot=sum(widths)+8*Math.max(0,chips.length-1);
+  let cx=W/2-tot/2; const cy=y+h+16;
+  chips.forEach((c,i)=>{ ctx.fillStyle=c.c; rr(cx,cy-11,widths[i],22,11); ctx.fill(); ctx.fillStyle='#1d1340'; text(c.t,cx+widths[i]/2,cy+1,T.dir); cx+=widths[i]+8; });
+  ctx.textBaseline='alphabetic';
+}
+
+function drawItem(it){
+  const k=0.35+0.65*ease((S.time-it.born)/0.18), x=it.x+Math.sin(S.time*3+it.sway)*2, y=it.y, r=29*k, str=String(it.v);
+  ctx.fillStyle='rgba(255,255,255,.18)'; circle(x,y,r+6*k); ctx.fill();
+  const g=ctx.createRadialGradient(x-8*k,y-10*k,3,x,y,r); g.addColorStop(0,'#ffffff'); g.addColorStop(1,'#cfe9ff');
+  ctx.fillStyle=g; circle(x,y,r); ctx.fill();
+  ctx.lineWidth=3; ctx.strokeStyle='#2a1d52'; ctx.stroke();
+  ctx.fillStyle='#1d1340'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  const isSym = typeof it.v==='string', electrons = !isSym && S.task && S.task.type!=='shells';
+  ctx.font=`700 ${Math.round((isSym?25:(str.length>1?24:27))*k)}px ${FONT}`;
+  ctx.fillText(str, x, electrons ? y-6*k : y+1);
+  if (electrons){ ctx.font=`700 ${Math.round(16*k)}px ${FONT}`; ctx.fillStyle='#5a3d8f'; ctx.fillText('e⁻', x, y+13*k); }
+  ctx.textBaseline='alphabetic';
+}
+function drawFlyer(f){
+  const p=ease(f.t/f.dur), x=f.x0+(f.x1-f.x0)*p, y=f.y0+(f.y1-f.y0)*p - Math.sin(p*Math.PI)*60, s=1-0.5*p;
+  ctx.fillStyle='#ffe27a'; circle(x,y,22*s); ctx.fill();
+  ctx.fillStyle='#1d1340'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font=`700 ${Math.round(22*s)}px ${FONT}`;
+  ctx.fillText(String(f.v),x,y); ctx.textBaseline='alphabetic';
+}
+function drawBasket(x,y){
+  ctx.fillStyle='#c98a4b'; ctx.beginPath(); ctx.moveTo(x-38,y); ctx.lineTo(x+38,y); ctx.lineTo(x+29,y+15); ctx.lineTo(x-29,y+15); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='#8a5526'; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath(); for (let k=-24;k<=24;k+=12){ ctx.moveTo(x+k,y+2); ctx.lineTo(x+k*0.8,y+14); } ctx.stroke();
+  ctx.fillStyle='#e3a865'; rr(x-40,y-3,80,6,3); ctx.fill();
+}
+function drawPlayer(){
+  const x=player.x, air=player.jy<0, sw=air?0:Math.sin(player.walk)*(Math.abs(player.vx)>10?1:0);
+  const shadowK = 1 + player.jy/300;
+  ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x,GROUND+3,26*Math.max(.4,shadowK),6*Math.max(.4,shadowK),0,0,Math.PI*2); ctx.fill();
+  const gy=GROUND+player.jy;
+  ctx.strokeStyle='#2a1d52'; ctx.lineWidth=7; ctx.lineCap='round';
+  ctx.beginPath();
+  if (air){ ctx.moveTo(x-8,gy-22); ctx.lineTo(x-14,gy-8); ctx.moveTo(x+8,gy-22); ctx.lineTo(x+14,gy-8); }
+  else { ctx.moveTo(x-8,gy-22); ctx.lineTo(x-8+sw*8,gy-2); ctx.moveTo(x+8,gy-22); ctx.lineTo(x+8-sw*8,gy-2); }
+  ctx.stroke();
+  ctx.strokeStyle='#2a1d52'; ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(x-17,gy-48); ctx.lineTo(x-27,gy-90); ctx.moveTo(x+17,gy-48); ctx.lineTo(x+27,gy-90); ctx.stroke();
+  ctx.lineCap='butt';
+  // the student's iBond atom buddy (and hat) is the catcher
+  if (spriteImg && spriteImg.complete && spriteImg.naturalWidth){
+    const w=56, h=w*76/62; ctx.drawImage(spriteImg, x-30*w/62, gy-47-48*w/62, w, h);
+  } else {
+    ctx.fillStyle=buddyOf(B.buddy).col; circle(x,gy-47,23); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font=`800 15px ${FONT}`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(buddyOf(B.buddy).s,x,gy-41); ctx.textBaseline='alphabetic';
+  }
+  for (let k=0;k<S.lives;k++) drawBasket(x, gy-90-16*(k+1)+1);
+}
+
+/* ================= Loop ================= */
+let last=0;
+function frame(ts){
+  const dt = last ? Math.min(0.05,(ts-last)/1000) : 0; last=ts;
+  update(dt); draw();
+  requestAnimationFrame(frame);
+}
+
+/* ================= Input ================= */
+const toLogical = e => { const r=cv.getBoundingClientRect(); return (e.clientX-r.left)/scale; };
+cv.addEventListener('pointermove', e=>{
+  if (e.pointerType==='mouse' || e.buttons) input.ptr=toLogical(e);
+  const sw=input.swipe;
+  if (sw && !sw.done && sw.y - e.clientY > 30 && performance.now()-sw.t < 450){ sw.done=true; jump(); }
+});
+cv.addEventListener('pointerdown', e=>{
+  input.ptr=toLogical(e); input.swipe={ y:e.clientY, t:performance.now(), done:false };
+  try{ cv.setPointerCapture(e.pointerId); }catch(_e){}
+});
+cv.addEventListener('pointerup', ()=>{ input.swipe=null; });
+$('#btnJump').addEventListener('pointerdown', e=>{ e.preventDefault(); e.stopPropagation(); jump(); });
+window.addEventListener('keydown', e=>{
+  const k=e.key;
+  if (k==='ArrowLeft'||k==='a'||k==='A'){ input.left=true; e.preventDefault(); }
+  else if (k==='ArrowRight'||k==='d'||k==='D'){ input.right=true; e.preventDefault(); }
+  else if (k===' '||k==='ArrowUp'||k==='w'||k==='W'){
+    if (['think','drop','resolve','celebrate'].includes(S.state)){ e.preventDefault(); jump(); }
+    else if (k===' ' && S.state==='feedback') e.preventDefault();   // Space never skips feedback (mashing jump)
+  }
+  else if (k==='Enter'){
+    if (S.state==='think'){ e.preventDefault(); S.thinkT=0; }
+    else if (S.state==='feedback'){ e.preventDefault(); continueFromFeedback(); }
+    else if (S.state==='lesson'){ e.preventDefault(); closeLesson(); }
+    else if (S.state==='paused'){ e.preventDefault(); setPaused(false); }
+  }
+  else if (k==='p'||k==='P'||k==='Escape'){ S.state==='paused' ? setPaused(false) : setPaused(true); }
+});
+window.addEventListener('keyup', e=>{
+  const k=e.key;
+  if (k==='ArrowLeft'||k==='a'||k==='A') input.left=false;
+  if (k==='ArrowRight'||k==='d'||k==='D') input.right=false;
+});
+window.addEventListener('blur', ()=>{ input.left=input.right=false; });
+document.addEventListener('visibilitychange', ()=>{ if (document.hidden) setPaused(true); });
+$('#modeSeg').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if (!b) return;
+  S.mode=b.dataset.mode;
+  document.querySelectorAll('#modeSeg button').forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+});
+$('#langSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if (b) applyLang(b.dataset.lang); });
+$('#btnLang').addEventListener('click', ()=> applyLang(LANG_ORDER[(LANG_ORDER.indexOf(LANG)+1)%LANG_ORDER.length]));
+$('#extraTime').addEventListener('change', e=>{ S.extra=e.target.checked; });
+$('#btnStart').addEventListener('click', startGame);
+$('#btnAgain').addEventListener('click', startGame);
+$('#btnMenu').addEventListener('click', toMenu);
+$('#btnQuit').addEventListener('click', toMenu);
+$('#btnResume').addEventListener('click', ()=>setPaused(false));
+$('#btnPause').addEventListener('click', ()=> S.state==='paused' ? setPaused(false) : setPaused(true));
+$('#fbNext').addEventListener('click', continueFromFeedback);
+$('#lsGo').addEventListener('click', closeLesson);
+$('#card').addEventListener('pointerdown', ()=>{ if (S.state==='think') S.thinkT=0; });
+$('#btnMute').addEventListener('click', e=>{ sfxOn=!sfxOn; e.currentTarget.textContent=sfxOn?'🔊':'🔇'; e.currentTarget.setAttribute('aria-pressed', String(sfxOn)); });
+$('#btnMusic').addEventListener('click', e=>{ MUS.on=!MUS.on; e.currentTarget.setAttribute('aria-pressed', String(MUS.on)); musLevel(); });
+window.addEventListener('resize', resize);
+
+buildTable($('#cardTable')); buildTable($('#dockTable'));
+applyLang('en');
+resize(); renderStats(); renderAcct();
+if (NET.on && who) setTimeout(syncProfile, 0);
+requestAnimationFrame(frame);
+
+window.__kabohr = { S, player, moles, NET, getB:()=>B, getWho:()=>who, input, ELS, BY, CFG, LANGS, explainIn, candidates, pickDistractors, electronAngles, catchY, startGame, applyLang, jump };
+})();
+</script>
+</body></html>
