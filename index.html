@@ -306,6 +306,11 @@ const CFG = {
   SCAFFOLD_FULL_UNTIL: 2,   // first-try correct answers of a question type before the written hint fades
   SCAFFOLD_TABLE_UNTIL: 5,  // ...before the periodic table and counters fade too
   ROUND_PATTERN: ['build','build','quick','reverse'],
+  ROUND_PATTERN_ADV: ['build','quick','build','reverse'],   // Advanced, and Mixed after the warm-up
+  AUTOFILL_AFTER: 3,         // first-try right answers for n = 1 (or n = 2) before it fills itself in on period 3–4 atoms
+  AUTOFILL_SPOTCHECK: 0.2,   // chance a mastered level gets asked anyway; a miss puts it back in the builds
+  AUTO_PAUSE: 0.75,          // seconds to watch an auto-filled level pop in
+  CONTRAST_CHANCE: 0.5,      // in Advanced/Mixed: chance the next pick is a same-group pair (e.g. Al then Ga), about 1 atom in 3
   FIVE_FROM_ROUND: 6,        // from this round on, 5 choices drop instead of 4
   ASSISTANT_FROM_ROUND: 12,  // from this round on, a tie-dye lab assistant mole drops half of them
   TRANSITION_CALLOUT: 'first',  // 'first' = once per session, 'always' = every Ga–Kr atom, 'off'
@@ -736,9 +741,13 @@ const nameOf = (sym, lang=LANG) => LANGS[lang].names[sym];
 function tasksFor(kind, el){
   let t;
   if (kind==='build'){
-    t=[{type:'shells'},{type:'valence'}];
-    for (let i=0;i<el.period;i++) t.push({type:'fill', shell:i});
-    t.push({type:'core'});
+    // n = 1 and n = 2 fill themselves in on period 3–4 atoms once this student has them down (with an occasional spot check)
+    const auto = i => el.period>=3 && i<=1 && (S.mastery['fill'+(i+1)]||0) >= CFG.AUTOFILL_AFTER && Math.random() >= CFG.AUTOFILL_SPOTCHECK;
+    const fills=[]; for (let i=0;i<el.period;i++) fills.push({type: auto(i) ? 'auto' : 'fill', shell:i});
+    if (el.adv){
+      // Ga–Kr: always n = 3 (8 or 18?) and the outer level, plus one of energy levels / core
+      t = Math.random()<0.5 ? [{type:'shells'}, ...fills] : [...fills, {type:'core'}];
+    } else t=[{type:'shells'},{type:'valence'}, ...fills, {type:'core'}];
   } else if (kind==='reverse') t=[{type:'reverse'}];
   else t=shuffle([{type:'valence'},{type:'total'},{type:'core'}]);
   return t.map(x => ({...x, attempts:0, missed:0}));
@@ -856,7 +865,7 @@ const S = {
   score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[],
   queue:null, recent:[], kind:'build', el:null, tasks:[], taskIdx:0, task:null, correct:0, sawTransition:false,
   wave:null, items:[], particles:[], flyers:[], floaters:[], model:null, lastWrong:null, prevRim:null,
-  mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0},
+  mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0,fill1:0,fill2:0},
   thinkT:0, thinkDur:1, resolveT:0, celebrateT:0, shake:0, fbReadyAt:0, pausedFrom:null,
   log:[], tally:{}, tasksDone:0, firstTryDone:0, clean:true
 };
@@ -989,16 +998,31 @@ function musStop(){ MUS.playing=false; musLevel(); }
 /* ================= Flow ================= */
 function buildQueue(mode){
   const core=ELS.filter(e=>!e.adv), adv=ELS.filter(e=>e.adv);
-  const ramp=[...shuffle(core.filter(e=>e.period<=2)).slice(0,3), ...shuffle(core.filter(e=>e.period===3)).slice(0,3), ...shuffle(core.filter(e=>e.period===4))];
-  if (mode==='core') return {ramp, pool:core};
-  if (mode==='adv') return {ramp:shuffle(adv.slice()), pool:adv};
-  return {ramp:[...ramp, ...shuffle(adv.slice()).slice(0,3)], pool:ELS};
+  // warm-up: a few small atoms, then period 3, then one of K/Ca; after that, random picks
+  const ramp=[...shuffle(core.filter(e=>e.period<=2)).slice(0,3), ...shuffle(core.filter(e=>e.period===3)).slice(0,3), ...shuffle(core.filter(e=>e.period===4)).slice(0,1)];
+  if (mode==='core') return {ramp, pool:core, partner:null};
+  if (mode==='adv') return {ramp:[], pool:adv, partner:null};
+  return {ramp, pool:ELS, partner:null};
 }
+// no easy follow-ups: the next atom can't be the one right before/after, or in the same group
+const okAfter = (e,prev) => !prev || (Math.abs(e.Z-prev.Z)>=2 && e.group!==prev.group);
 function pickNext(){
-  const q=S.queue;
-  if (q.ramp.length) return q.ramp.shift();
-  const opts=q.pool.filter(e=>!S.recent.includes(e.sym));
-  return opts[Math.random()*opts.length|0] || q.pool[0];
+  const q=S.queue, prev=S.el;
+  if (q.partner){ const p=q.partner; q.partner=null; return p; }      // second half of a contrast pair
+  if (q.ramp.length){ const i=q.ramp.findIndex(e=>okAfter(e,prev)); return q.ramp.splice(Math.max(0,i),1)[0]; }
+  const fresh = e => e!==prev && !S.recent.includes(e.sym);
+  const adv = q.pool.filter(e=>e.adv);
+  if (adv.length && Math.random() < CFG.CONTRAST_CHANCE){
+    // contrast pair: a period 3 atom, then the period 4 atom under it (Al → Ga, Cl → Br): same valence, n = 3 goes 8 → 18
+    for (const a of shuffle(adv.filter(fresh))){
+      const c = ELS.find(x=>x.group===a.group && x.period===3);
+      if (c && okAfter(c,prev) && !S.recent.includes(c.sym)){ q.partner=a; return c; }
+    }
+  }
+  for (const f of [e=>fresh(e)&&okAfter(e,prev), e=>e!==prev&&okAfter(e,prev), e=>e!==prev]){
+    const o=q.pool.filter(f); if (o.length) return o[Math.random()*o.length|0];
+  }
+  return q.pool[0];
 }
 function scaffold(type){
   const m=S.mastery[type];
@@ -1013,7 +1037,7 @@ function startGame(){
   if (!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
   try{ actx && actx.resume && actx.resume(); }catch(e){}
   Object.assign(S, { score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[], recent:[], sawTransition:false,
-    items:[], particles:[], flyers:[], floaters:[], mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0},
+    items:[], particles:[], flyers:[], floaters:[], mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0,fill1:0,fill2:0},
     log:[], tally:{}, tasksDone:0, firstTryDone:0, prevRim:null });
   S.mastery = Object.assign(S.mastery, B.mastery||{});   // hints keep fading from where this student left off
   saveState=''; syncProfile();
@@ -1025,7 +1049,8 @@ function startGame(){
   renderStats();
 }
 function nextRound(){
-  S.kind = CFG.ROUND_PATTERN[S.rounds % CFG.ROUND_PATTERN.length];
+  const pat = (S.mode==='adv' || (S.mode==='mixed' && !S.queue.ramp.length)) ? CFG.ROUND_PATTERN_ADV : CFG.ROUND_PATTERN;
+  S.kind = pat[S.rounds % pat.length];
   if (S.rounds>0 && S.rounds===CFG.FIVE_FROM_ROUND) floater(L().ui.lvl5, W/2, H*0.47, '#ffe27a', 3);
   if (S.rounds>0 && S.rounds===CFG.ASSISTANT_FROM_ROUND && !assistantOn()){
     const h=makeMole('helper'); h.x=h.lastX=W+40; newVessel(h); moles.push(h);
@@ -1037,6 +1062,7 @@ function nextRound(){
   S.model = { rings: full?S.el.period:0, ringsT:-9, e: full?S.el.shells.slice():[], eT: full?S.el.shells.map(()=>-9):[],
               valence:false, core:false, hideSym: full, facts:[] };
   S.tasks = tasksFor(S.kind, S.el); S.taskIdx = 0; S.clean = true;
+  if (S.kind==='build' && S.tasks[0].type!=='shells'){ S.model.rings=S.el.period; S.model.ringsT=S.time; }   // energy levels not asked: draw them now
   $('#banner').classList.add('hidden');
   const callout = S.el.adv && (CFG.TRANSITION_CALLOUT==='always' || (CFG.TRANSITION_CALLOUT==='first' && !S.sawTransition));
   if (callout){ S.sawTransition=true; showLesson(); return; }
@@ -1054,6 +1080,14 @@ function closeLesson(){
 }
 function startTask(retry){
   S.task = S.tasks[S.taskIdx];
+  if (S.task.type==='auto'){
+    const i=S.task.shell, n=S.el.shells[i];
+    S.wave=null; S.items=[];
+    S.model.e[i]=n; S.model.eT[i]=S.time;
+    floater(`n = ${i+1}: ${n} ✓`, W/2, MODEL_Y - ringR(S.el.period-1) - 4, '#7dffb2', 1.1);
+    S.state='resolve'; S.resolveT = CFG.AUTO_PAUSE * (S.extra ? 1.4 : 1);
+    renderQuestion(); musLevel(); return;
+  }
   S.correct = answerFor(S.el, S.task);
   const vals = shuffle([{v:S.correct, tag:'correct'}, ...pickDistractors(S.el, S.task, S.correct)]);
   const lo=moleMin(), hi=moleMax(), n=vals.length, slot=(hi-lo)/n;
@@ -1083,6 +1117,7 @@ function onCatch(it){
     p = pts(p);
     S.score += p; S.streak++; S.bestStreak=Math.max(S.bestStreak,S.streak);
     S.tasksDone++; if (first){ S.firstTryDone++; S.mastery[t.type]++; }
+    const lvl = levelKey(t); if (first && lvl) S.mastery[lvl] = (S.mastery[lvl]||0)+1;
     floater(`+${p} ⚛`, it.x, cy-20, '#7dffb2');
     addPoints(p); recordAnswer(t.type, true, first);
     sfx.good();
@@ -1093,6 +1128,7 @@ function onCatch(it){
     S.log.push({...entry, ok:false});
     t.attempts++; S.clean=false; S.streak=0;
     S.mastery[t.type] = Math.max(0, S.mastery[t.type]-1);
+    const lvl = levelKey(t); if (lvl) S.mastery[lvl] = Math.max(0, Math.min((S.mastery[lvl]||0)-1, CFG.AUTOFILL_AFTER-1));   // back into the builds
     const k = normTag(it.tag); S.tally[k] = (S.tally[k]||0)+1;
     recordAnswer(t.type, false, false, it.tag);
     S.lives--;
@@ -1106,6 +1142,8 @@ function onCatch(it){
   }
   renderStats();
 }
+// which inner-level skill a fill question checks: n = 1 when it isn't the outer level, n = 2 when it's an inner 8
+const levelKey = t => t.type!=='fill' ? null : (t.shell===0 && S.el.period>=2) ? 'fill1' : (t.shell===1 && S.el.period>=3) ? 'fill2' : null;
 function applyToModel(){
   const m=S.model, t=S.task, now=S.time;
   burst(W/2, MODEL_Y, '#ffe27a', 10);
@@ -1122,6 +1160,7 @@ function advance(){
 }
 function completeRound(){
   S.rounds++; S.built.push(S.el.sym);
+  if (S.kind==='build'){ S.model.valence=true; S.model.core=true; }
   S.bonus = pts(S.kind==='build' ? CFG.PTS_BUILD + (S.clean?CFG.PTS_BUILD_CLEAN:0) : CFG.PTS_SHORT + (S.clean?CFG.PTS_SHORT_CLEAN:0));
   S.score += S.bonus; addPoints(S.bonus);
   renderBanner();
@@ -1241,7 +1280,7 @@ function renderQuestion(){
   document.querySelectorAll('.ptable .hl').forEach(n=>n.classList.remove('hl'));
   $('#pips').innerHTML = el && S.state!=='over' && S.state!=='menu'
     ? S.tasks.map((x,i)=>`<i class="${i<S.taskIdx||S.state==='celebrate'?'done':i===S.taskIdx?'now':''}"></i>`).join('') : '';
-  const live = el && t && ['think','drop','resolve','feedback','paused'].includes(S.state);
+  const live = el && t && t.type!=='auto' && ['think','drop','resolve','feedback','paused'].includes(S.state);
   if (!live){ card.classList.add('hidden'); dq.textContent=''; dc.textContent=''; dt.classList.add('hidden'); return; }
 
   const T=L(), x=ctxFor(LANG, el, t, null, null);
