@@ -77,6 +77,10 @@ canvas#cv{display:block;border-radius:16px;touch-action:none;user-select:none;-w
 #qcount:empty{display:none}
 #qready{font-size:13px;color:var(--muted);font-style:italic}
 #card{cursor:pointer}
+/* "Name it": the card drops to just above the ground so the model stays in view */
+#card.low{bottom:calc(68px * var(--s));padding:8px 14px 10px}
+#card.low #qtext{font-size:clamp(16px,2.2vw,20px)}
+@media (max-width:680px){ #card.low .ptable{display:none} }
 #thinkbar{position:absolute;left:0;bottom:0;height:5px;background:var(--gold);width:0}
 
 .ptable{border:2px solid var(--line);border-radius:10px;padding:5px;display:grid;grid-template-columns:14px repeat(9,20px);gap:2px;align-content:start;flex:none;direction:ltr}
@@ -316,6 +320,11 @@ const CFG = {
   TRANSITION_CALLOUT: 'first',  // 'first' = once per session, 'always' = every Ga–Kr atom, 'off'
   CATCH_HALF: 42, KEY_SPEED: 520, PTR_SPEED: 950, MOLE_SPEED: 340,
   JUMP_V: 780, GRAVITY: 2300,
+  HEIGHT_BONUS: 0.5,         // a catch at the top of a full jump earns +50% (scaled by height; grounded = +0%)
+  PEAK_ZONE: 0.15,           // the top 15% of a jump counts as a peak catch (about a quarter second of hang time)
+  PEAKS_FOR_SUPER: 3,        // peak catches (a wrong catch resets the count) to charge a super jump
+  SUPER_JUMP: 1.3,           // the super jump goes 30% higher, so its top is worth up to +65%
+  THINK_REVERSE_BONUS: 1.5,  // extra seconds to study the model before a "Name it" drop
   BPM: 138, BPM_PER_ROUND: 3, BPM_MAX: 174
 };
 
@@ -341,7 +350,7 @@ en: {
     busy:'The class list is busy. Try again in a minute.', badCode:'This link is missing the class code. Use the game link your teacher shared.', network:'Couldn’t reach the class list. Check the internet and try again.',
     period:n=>`Period ${n}`, total:n=>`${n} ⚛ total`, saving:'Saving…', saved:n=>`Saved! You have ${n} ⚛ in all.`, saveFail:'Couldn’t save yet. It will try again.',
     guestSave:'Log in to keep your ⚛.', earned:n=>`+${n} ⚛ this game`,
-    score:'Score', streak:'Streak', rounds:'Rounds', jump:'Jump', ready:'Ready? Press Enter or tap here to start the drop.', lvl5:'Level up: 5 choices now!', helper:'A lab assistant joins the mole!',
+    score:'Score', streak:'Streak', rounds:'Rounds', jump:'Jump', ready:'Ready? Press Enter or tap here to start the drop.', peak:'Peak!', superCatch:'Super catch!', superReady:'Super jump ready! Your next jump goes higher.', lvl5:'Level up: 5 choices now!', helper:'A lab assistant joins the mole!',
     lede:'The mole drops numbers. Catch the right one to build each Bohr model, name mystery atoms, and answer rapid-fire questions. A wrong catch costs a basket.',
     language:'Language', elements:'Elements', mCore:'Core', mAdv:'Advanced', mMixed:'Mixed', mMixedSub:'Core, then advanced',
     extra:'Extra time', extraSub:'Slower drops and a longer think pause. Points are scaled.', start:'Start',
@@ -437,7 +446,7 @@ es: {
     busy:'La lista de la clase está ocupada. Inténtalo en un minuto.', badCode:'A este enlace le falta el código de la clase. Usa el enlace que compartió tu maestro.', network:'No se pudo conectar con la lista de la clase. Revisa el internet e inténtalo de nuevo.',
     period:n=>`Periodo ${n}`, total:n=>`${n} ⚛ en total`, saving:'Guardando…', saved:n=>`¡Guardado! Tienes ${n} ⚛ en total.`, saveFail:'Todavía no se pudo guardar. Se intentará de nuevo.',
     guestSave:'Inicia sesión para guardar tus ⚛.', earned:n=>`+${n} ⚛ en esta partida`,
-    score:'Puntos', streak:'Racha', rounds:'Rondas', jump:'Saltar', ready:'¿Listo? Presiona Enter o toca aquí para empezar.', lvl5:'¡Subes de nivel: ahora hay 5 opciones!', helper:'¡Un asistente de laboratorio ayuda al topo!',
+    score:'Puntos', streak:'Racha', rounds:'Rondas', jump:'Saltar', ready:'¿Listo? Presiona Enter o toca aquí para empezar.', peak:'¡En la cima!', superCatch:'¡Superatrapada!', superReady:'¡Supersalto listo! Tu próximo salto llega más alto.', lvl5:'¡Subes de nivel: ahora hay 5 opciones!', helper:'¡Un asistente de laboratorio ayuda al topo!',
     lede:'El topo deja caer números. Atrapa el correcto para construir cada modelo de Bohr, identificar átomos misteriosos y responder preguntas rápidas. Atrapar uno incorrecto te cuesta una canasta.',
     language:'Idioma', elements:'Elementos', mCore:'Básico', mAdv:'Avanzado', mMixed:'Mixto', mMixedSub:'Básico y luego avanzado',
     extra:'Tiempo extra', extraSub:'Caídas más lentas y más tiempo para pensar. Los puntos se ajustan.', start:'Empezar',
@@ -533,7 +542,7 @@ zh: {
     busy:'班級名單忙碌中，請一分鐘後再試。', badCode:'這個連結缺少班級代碼。請使用老師分享的連結。', network:'無法連到班級名單。請檢查網路後再試。',
     period:n=>`第 ${n} 節`, total:n=>`共 ${n} ⚛`, saving:'儲存中…', saved:n=>`已儲存！你現在共有 ${n} ⚛。`, saveFail:'還沒存好，稍後會再試。',
     guestSave:'登入才能保存你的 ⚛。', earned:n=>`這局 +${n} ⚛`,
-    score:'分數', streak:'連續答對', rounds:'回合', jump:'跳', ready:'準備好了？按 Enter 或點這裡開始。', lvl5:'升級：現在有 5 個選項！', helper:'實驗室助手來幫鼴鼠了！',
+    score:'分數', streak:'連續答對', rounds:'回合', jump:'跳', ready:'準備好了？按 Enter 或點這裡開始。', peak:'最高點！', superCatch:'超級接住！', superReady:'超級跳準備好了！下一次會跳得更高。', lvl5:'升級：現在有 5 個選項！', helper:'實驗室助手來幫鼴鼠了！',
     lede:'鼴鼠會丟下數字。接住正確的數字來建立每個波耳模型、猜出神秘原子，並回答快問快答。接錯一次就會失去一個籃子。',
     language:'語言', elements:'元素', mCore:'基礎', mAdv:'進階', mMixed:'混合', mMixedSub:'先基礎，再進階',
     extra:'延長時間', extraSub:'掉得比較慢，思考時間比較長。分數會調整。', start:'開始',
@@ -630,7 +639,7 @@ ar: {
     busy:'قائمة الصف مشغولة. حاول بعد دقيقة.', badCode:'هذا الرابط ينقصه رمز الصف. استخدم الرابط الذي شاركه معلمك.', network:'تعذّر الوصول إلى قائمة الصف. تحقق من الإنترنت وحاول مرة أخرى.',
     period:n=>`الحصة ${n}`, total:n=>`المجموع ${n} ⚛`, saving:'جارٍ الحفظ…', saved:n=>`تم الحفظ! لديك الآن ${n} ⚛.`, saveFail:'لم يتم الحفظ بعد. ستتم المحاولة مرة أخرى.',
     guestSave:'سجّل الدخول لتحتفظ بـ ⚛.', earned:n=>`+${n} ⚛ في هذه اللعبة`,
-    score:'النقاط', streak:'التتابع', rounds:'الجولات', jump:'اقفز', ready:'جاهز؟ اضغط Enter أو المس هنا لتبدأ.', lvl5:'مستوى جديد: الآن 5 خيارات!', helper:'مساعد مختبر ينضم إلى الخُلد!',
+    score:'النقاط', streak:'التتابع', rounds:'الجولات', jump:'اقفز', ready:'جاهز؟ اضغط Enter أو المس هنا لتبدأ.', peak:'القمة!', superCatch:'التقاط خارق!', superReady:'القفزة الخارقة جاهزة! قفزتك التالية أعلى.', lvl5:'مستوى جديد: الآن 5 خيارات!', helper:'مساعد مختبر ينضم إلى الخُلد!',
     lede:'الخُلد يُسقط أرقامًا. التقط الرقم الصحيح لتبني نموذج بور لكل ذرة، وتتعرّف على الذرات الغامضة، وتجيب عن أسئلة سريعة. كل التقاط خاطئ يكلّفك سلة.',
     language:'اللغة', elements:'العناصر', mCore:'أساسي', mAdv:'متقدم', mMixed:'مختلط', mMixedSub:'الأساسي ثم المتقدم',
     extra:'وقت إضافي', extraSub:'سقوط أبطأ ووقت أطول للتفكير. تُعدَّل النقاط.', start:'ابدأ',
@@ -919,6 +928,8 @@ const sfx = {
   bad:()=>beep(220,.35,'sawtooth',.06,.4),
   pour:()=>beep(900,.08,'triangle',.025,.5),
   jump:()=>beep(400,.12,'square',.03,2),
+  superJump:()=>{ beep(300,.25,'square',.04,3); beep(600,.2,'triangle',.03,2,.05); },
+  power:()=>[392,523,659,784,1047,1319].forEach((f,i)=>beep(f,.1,'square',.045,0,i*.06)),
   done:()=>[523,659,784,1047].forEach((f,i)=>beep(f,.14,'square',.05,0,i*.09)),
   miss:()=>beep(300,.2,'triangle',.04,.7)
 };
@@ -1038,7 +1049,7 @@ function startGame(){
   try{ actx && actx.resume && actx.resume(); }catch(e){}
   Object.assign(S, { score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[], recent:[], sawTransition:false,
     items:[], particles:[], flyers:[], floaters:[], mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0,fill1:0,fill2:0},
-    log:[], tally:{}, tasksDone:0, firstTryDone:0, prevRim:null });
+    log:[], tally:{}, tasksDone:0, firstTryDone:0, prevRim:null, peaks:0, superReady:false });
   S.mastery = Object.assign(S.mastery, B.mastery||{});   // hints keep fading from where this student left off
   saveState=''; syncProfile();
   S.queue = buildQueue(S.mode);
@@ -1091,14 +1102,23 @@ function startTask(retry){
   S.correct = answerFor(S.el, S.task);
   const vals = shuffle([{v:S.correct, tag:'correct'}, ...pickDistractors(S.el, S.task, S.correct)]);
   const lo=moleMin(), hi=moleMax(), n=vals.length, slot=(hi-lo)/n;
-  const xs = shuffle([...Array(n).keys()]).map(k => lo + (k+0.5)*slot + (Math.random()-0.5)*slot*(n>4?0.2:0.4));
+  let xs = shuffle([...Array(n).keys()]).map(k => lo + (k+0.5)*slot + (Math.random()-0.5)*slot*(n>4?0.2:0.4));
+  if (S.task.type==='reverse'){
+    // keep the falling answers out of the model's column when there's room, so it stays countable
+    const gap=ringR(S.el.period-1)+28, L0=lo, L1=W/2-gap, R0=W/2+gap, R1=hi, nl=Math.ceil(n/2), nr=n-nl;
+    if ((L1-L0)/nl >= 60 && (R1-R0)/Math.max(1,nr) >= 60){
+      const side=(a,b,k)=>[...Array(k).keys()].map(i=>a+(i+0.5)*(b-a)/k);
+      const pos=shuffle([...side(L0,L1,nl), ...side(R0,R1,nr)]);
+      xs = pos;
+    }
+  }
   S.wave = { vals, xs, resolved:false };
   const mid=(lo+hi)/2;
   moles.forEach((m,j)=>{ m.pour=null; m.tilt=0; m.cd = 0.1 + j*dropInterval()*0.5;
     m.queue = vals.map((_,i)=>i).filter(i => !assistantOn() || (m.kind==='main' ? xs[i] < mid : xs[i] >= mid)); });
   S.items = [];
   const sc = curScaffold();
-  S.thinkDur = S.thinkT = ((retry ? CFG.THINK_RETRY : CFG.THINK) + (sc>=1 && !retry ? CFG.THINK_SCAFFOLD_BONUS : 0)) * (S.extra ? CFG.EXTRA_THINK : 1);
+  S.thinkDur = S.thinkT = ((retry ? CFG.THINK_RETRY : CFG.THINK) + (sc>=1 && !retry ? CFG.THINK_SCAFFOLD_BONUS : 0) + (S.task.type==='reverse' && !retry ? CFG.THINK_REVERSE_BONUS : 0)) * (S.extra ? CFG.EXTRA_THINK : 1);
   S.state = 'think';
   renderQuestion(); musLevel();
 }
@@ -1114,11 +1134,21 @@ function onCatch(it){
     const first = t.attempts===0;
     let p = first ? CFG.PTS_FIRST + CFG.PTS_STREAK*Math.min(S.streak,CFG.STREAK_CAP) : CFG.PTS_RETRY;
     if (t.missed) p = Math.round(p/2);
-    p = pts(p);
+    // higher catch = answered sooner: up to +50% at the top of a jump (+65% on a super jump)
+    const h = jumpHeight(), peak = h >= 1 - CFG.PEAK_ZONE;
+    p = Math.round(pts(p) * (1 + CFG.HEIGHT_BONUS * clamp(h, 0, CFG.SUPER_JUMP)));
     S.score += p; S.streak++; S.bestStreak=Math.max(S.bestStreak,S.streak);
     S.tasksDone++; if (first){ S.firstTryDone++; S.mastery[t.type]++; }
     const lvl = levelKey(t); if (first && lvl) S.mastery[lvl] = (S.mastery[lvl]||0)+1;
-    floater(`+${p} ⚛`, it.x, cy-20, '#7dffb2');
+    const superCatch = player.superJump && h > 1;
+    floater(`+${p} ⚛${superCatch ? ' '+L().ui.superCatch : peak ? ' '+L().ui.peak : ''}`, it.x, cy-20, peak ? '#ffe27a' : '#7dffb2', peak ? 1.4 : 1);
+    if (peak){
+      S.peaks++; burst(it.x, cy, '#ffe27a', superCatch ? 34 : 20); burst(it.x, cy, '#ffffff', 10);
+      if (S.peaks >= CFG.PEAKS_FOR_SUPER && !S.superReady){
+        S.superReady = true; S.peaks = 0; sfx.power();
+        floater(L().ui.superReady, W/2, H*0.5, '#ffe27a', 2.4);
+      }
+    }
     addPoints(p); recordAnswer(t.type, true, first);
     sfx.good();
     setMood(-1,1.2);
@@ -1131,7 +1161,7 @@ function onCatch(it){
     const lvl = levelKey(t); if (lvl) S.mastery[lvl] = Math.max(0, Math.min((S.mastery[lvl]||0)-1, CFG.AUTOFILL_AFTER-1));   // back into the builds
     const k = normTag(it.tag); S.tally[k] = (S.tally[k]||0)+1;
     recordAnswer(t.type, false, false, it.tag);
-    S.lives--;
+    S.lives--; S.peaks = 0;
     S.particles.push({type:'basket', x:player.x, y:cy+8, vx:(Math.random()<.5?-1:1)*140, vy:-260, rot:0, vr:7, life:1.6});
     burst(it.x, cy, '#ff6b80', 14);
     if (!reduceMotion) S.shake = 0.35;
@@ -1237,9 +1267,16 @@ function toMenu(){
   $('#menu').classList.remove('hidden');
   renderQuestion(); renderStats();
 }
+// how high the baskets are right now, as a fraction of a normal full jump (0 = on the ground, 1 = top, 1.3 = top of a super jump)
+const JUMP_H = CFG.JUMP_V*CFG.JUMP_V/(2*CFG.GRAVITY);
+const jumpHeight = () => Math.max(0, -player.jy) / JUMP_H;
 function jump(){
   if (!['think','drop','resolve','celebrate'].includes(S.state)) return;
-  if (player.jy===0 && player.jv===0){ player.jv = -CFG.JUMP_V; sfx.jump(); }
+  if (player.jy===0 && player.jv===0){
+    const sup = S.superReady && S.state==='drop';
+    player.jv = -CFG.JUMP_V * (sup ? Math.sqrt(CFG.SUPER_JUMP) : 1);
+    player.superJump = sup; if (sup){ S.superReady=false; sfx.superJump(); } else sfx.jump();
+  }
 }
 
 /* ================= Language ================= */
@@ -1300,6 +1337,7 @@ function renderQuestion(){
   $('#qtextEn').textContent = LANG==='en' ? '' : LANGS.en.q[t.type](ctxFor('en', el, t, null, null))[0];
   $('#qhint').textContent=hint; $('#qcount').textContent=count;
   card.classList.toggle('hidden', S.state!=='think');
+  card.classList.toggle('low', t.type==='reverse');
   ct.classList.toggle('hidden', !table);
   const docked = S.state!=='think';
   dq.textContent = docked ? short : ''; dc.textContent = docked ? count : '';
@@ -1558,7 +1596,8 @@ function update(dt){
     if (Math.abs(vx)>10){ player.walk+=Math.abs(vx)*dt*0.04; player.face=Math.sign(vx); }
     if (player.jy<0 || player.jv<0){
       player.jv += CFG.GRAVITY*dt; player.jy += player.jv*dt;
-      if (player.jy>=0){ player.jy=0; player.jv=0; }
+      if (player.jy>=0){ player.jy=0; player.jv=0; player.superJump=false; }
+      if (player.superJump && Math.random()<0.6) S.particles.push({type:'dot', x:player.x+(Math.random()-.5)*50, y:catchY()+20, vx:(Math.random()-.5)*40, vy:60, life:.4, max:.4, color:Math.random()<.5?'#ffe27a':'#ffb3f0', r:2.5});
     }
   }
   if (S.state==='think'){
@@ -1637,7 +1676,7 @@ function draw(){
   ctx.fillStyle='#6f9e3a'; ctx.fillRect(-20,GROUND,W+40,6);
 
   if (S.el){
-    ctx.globalAlpha = S.state==='drop' ? 0.88 : 1;
+    ctx.globalAlpha = S.state==='drop' && S.kind!=='reverse' ? 0.88 : 1;
     S.kind==='quick' ? drawTile() : drawModel();
     ctx.globalAlpha = 1;
   }
@@ -1893,6 +1932,19 @@ function drawPlayer(){
     ctx.fillStyle='#fff'; ctx.font=`800 15px ${FONT}`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(buddyOf(B.buddy).s,x,gy-41); ctx.textBaseline='alphabetic';
   }
   for (let k=0;k<S.lives;k++) drawBasket(x, gy-90-16*(k+1)+1);
+  const topY = gy-90-16*Math.max(1,S.lives)+1;
+  // sweet spot: the rim glows while the baskets are in the peak zone
+  if (jumpHeight() >= 1-CFG.PEAK_ZONE){ ctx.strokeStyle='rgba(255,226,122,.95)'; ctx.lineWidth=4; rr(x-42,topY-5,84,9,4); ctx.stroke(); }
+  // super jump charged: pulsing halo around the stack
+  if (S.superReady){
+    const a=0.35+0.25*Math.sin(S.time*8);
+    ctx.strokeStyle=`rgba(255,226,122,${a})`; ctx.lineWidth=5; ctx.beginPath(); ctx.ellipse(x, topY+20, 54, 30, 0, 0, Math.PI*2); ctx.stroke();
+    if (Math.random()<0.25) S.particles.push({type:'dot', x:x+(Math.random()-.5)*90, y:topY+(Math.random()-.5)*30, vx:0, vy:-40, life:.5, max:.5, color:'#ffe27a', r:2});
+  }
+  // peak catches toward the next super jump
+  if (S.peaks>0 && !S.superReady){
+    for (let i=0;i<CFG.PEAKS_FOR_SUPER;i++){ ctx.fillStyle = i<S.peaks ? '#ffe27a' : 'rgba(255,255,255,.25)'; circle(x+50, topY+4+i*11, 4); ctx.fill(); }
+  }
 }
 
 /* ================= Loop ================= */
