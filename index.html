@@ -6,13 +6,13 @@
 <title>Ka-BOHR! · Bohr model catch (iBond sandbox)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bungee&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bungee&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+HK:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#ece7f6; --panel:#ffffff; --ink:#221a3a; --muted:#5f5680; --line:#d5cde8;
   --violet:#5a3d8f; --gold:#e8a91c; --good:#2f9e5b; --bad:#d6334a; --cyan:#1f8fb8;
   --title:'Bungee', 'Arial Black', Impact, sans-serif;
-  --body:'Atkinson Hyperlegible', 'Noto Sans TC', 'Noto Sans Arabic', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --body:'Atkinson Hyperlegible', 'Noto Sans HK', 'Noto Sans TC', 'Noto Sans Arabic', 'Segoe UI', system-ui, -apple-system, sans-serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
@@ -105,7 +105,7 @@ canvas#cv{display:block;border-radius:16px;touch-action:none;user-select:none;-w
 
 #banner{pointer-events:none;text-align:center;background:var(--panel);border:3px solid var(--good);border-radius:18px;padding:10px 20px;width:auto;max-width:94%}
 #banner .t{font-family:var(--title);font-size:clamp(20px,3.6vw,32px);color:var(--good);line-height:1.15}
-:root[lang="zh-Hant"] #banner .t,:root[lang="ar"] #banner .t{font-family:var(--body);font-weight:700}
+:root[lang="zh-HK"] #banner .t,:root[lang="ar"] #banner .t{font-family:var(--body);font-weight:700}
 #banner .c{font-size:19px;font-weight:700}
 #banner .s{font-size:14px;color:var(--muted)}
 
@@ -142,7 +142,7 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
 .toggle input{width:20px;height:20px;accent-color:var(--violet)}
 .toggle small{color:var(--muted);display:block;font-size:12px}
 .go{margin-top:16px;width:100%;border:none;background:var(--gold);color:#221a3a;font-family:var(--title);font-size:22px;padding:12px;border-radius:14px;box-shadow:0 5px 0 #a8770c}
-:root[lang="zh-Hant"] .go,:root[lang="ar"] .go{font-family:var(--body);font-weight:700}
+:root[lang="zh-HK"] .go,:root[lang="ar"] .go{font-family:var(--body);font-weight:700}
 .go:active{transform:translateY(3px);box-shadow:0 2px 0 #a8770c}
 .ghost{margin-top:8px;width:100%;border:2px solid var(--line);background:transparent;padding:9px;border-radius:12px}
 .fine{font-size:12px;color:var(--muted);margin:12px 0 0;text-align:center}
@@ -169,6 +169,13 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
 .saveline{margin:4px 0 0;font-size:15px}
 .saveline span{color:var(--muted)}
 .sprite{flex:none}
+@media (max-width:440px){
+  #topbar{gap:4px;flex-wrap:nowrap}
+  #pips{min-width:0;gap:3px}
+  #pips i{width:7px;height:7px}
+  .stat{min-width:40px !important;padding:2px 4px !important}
+  .iconbtn{min-width:32px !important;padding:0 3px !important}
+}
 @media (max-width:680px){
   #brand{display:none}
   .stat{min-width:46px;padding:2px 5px}
@@ -250,18 +257,18 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
         <div class="seg four" id="langSeg">
           <button data-lang="en" aria-pressed="true" lang="en">English</button>
           <button data-lang="es" aria-pressed="false" lang="es">Español</button>
-          <button data-lang="zh" aria-pressed="false" lang="zh-Hant">中文（繁體）</button>
+          <button data-lang="zh" aria-pressed="false" lang="zh-HK">中文（香港）</button>
           <button data-lang="ar" aria-pressed="false" lang="ar">العربية</button>
         </div>
         <div class="label" data-k="ui.elements"></div>
         <div class="seg" id="modeSeg">
-          <button data-mode="core" aria-pressed="true"><span data-k="ui.mCore"></span><small>H – Ca</small></button>
+          <button data-mode="basic" aria-pressed="true"><span data-k="ui.mBasic"></span><small>H – Ca</small></button>
           <button data-mode="adv" aria-pressed="false"><span data-k="ui.mAdv"></span><small>Ga – Kr</small></button>
           <button data-mode="mixed" aria-pressed="false"><span data-k="ui.mMixed"></span><small data-k="ui.mMixedSub"></small></button>
         </div>
         <label class="toggle"><input type="checkbox" id="extraTime"><span><span data-k="ui.extra"></span><small data-k="ui.extraSub"></small></span></label>
         <button class="go" id="btnStart" data-k="ui.start"></button>
-        <p class="fine"><span data-k="ui.controls"></span><br><span data-k="ui.sandbox"></span></p>
+        <p class="fine"><span data-k="ui.controls"></span><br><span data-k="ui.sandbox"></span><br><span id="ver"></span></p>
       </div>
     </div>
 
@@ -298,10 +305,16 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
 'use strict';
 
 /* ================= Tunables ================= */
+const VERSION = 'Version: Oct 16, 2026, update 1';
 const CFG = {
   LIVES: 3, ITEMS_PER_WAVE: 4,
-  FALL_BASE: 85, FALL_PER_ROUND: 6, FALL_MAX_ROUNDS: 16,       // logical px/s (screen is 600 tall)
-  DROP_INT_BASE: 1.0, DROP_INT_MIN: 0.55, DROP_INT_PER_ROUND: 0.025, POUR: 0.42,
+  // pace rises a little every round, all the way up (no sudden jumps)
+  FALL_BASE: 85, FALL_PER_ROUND: 4, FALL_MAX_ROUNDS: 30,       // logical px/s (screen is 600 tall); round 6 ≈ 109, 12 ≈ 133, 30 = 205
+  DROP_INT_BASE: 1.0, DROP_INT_MIN: 0.6, DROP_INT_PER_ROUND: 0.015, POUR: 0.42,   // seconds between pours
+  PHASE_RELIEF: 0.08,        // when a new choice or the second mole is added, drops slow by 8%...
+  PHASE_EASE_ROUNDS: 3,      // ...then ease back to normal pace over this many rounds
+  ASSIST_SPACING: 1.5,       // with two moles, each mole waits 1.5× as long between pours (total drops go up only a little)
+  LOSE_SUPER_ON_MISS: false, // true = a wrong catch or a missed wave also throws away a charged (gold) super jump
   THINK: 3.5, THINK_RETRY: 2.2, THINK_SCAFFOLD_BONUS: 1.8,      // seconds the question card shows before drops (Enter / tap skips)
   EXTRA_FALL: 0.65, EXTRA_DROP: 1.35, EXTRA_THINK: 2.0, EXTRA_POINTS: 0.5,   // Extra time earns half, same as iBond
   // points are ⚛, the same currency as iBond (a right answer there is worth roughly 15–50)
@@ -316,22 +329,25 @@ const CFG = {
   AUTO_PAUSE: 0.75,          // seconds to watch an auto-filled level pop in
   CONTRAST_CHANCE: 0.5,      // in Advanced/Mixed: chance the next pick is a same-group pair (e.g. Al then Ga), about 1 atom in 3
   FIVE_FROM_ROUND: 6,        // from this round on, 5 choices drop instead of 4
-  ASSISTANT_FROM_ROUND: 12,  // from this round on, a tie-dye lab assistant mole drops half of them
+  ASSISTANT_FROM_ROUND: 12,  // from this round on, a tie-dye lab assistant mole drops half of them (and the music goes "underground")
+  SIX_FROM_ROUND: 12,        // from this round on, 6 choices drop
   TRANSITION_CALLOUT: 'first',  // 'first' = once per session, 'always' = every Ga–Kr atom, 'off'
   CATCH_HALF: 42, KEY_SPEED: 520, PTR_SPEED: 950, MOLE_SPEED: 340,
   JUMP_V: 780, GRAVITY: 2300,
-  HEIGHT_BONUS: 0.5,         // a catch at the top of a full jump earns +50% (scaled by height; grounded = +0%)
+  HEIGHT_BONUS: 0.25,        // a catch at the top of a full jump earns +25% (scaled by height; grounded = +0%)
   PEAK_ZONE: 0.15,           // the top 15% of a jump counts as a peak catch (about a quarter second of hang time)
-  PEAKS_FOR_SUPER: 3,        // peak catches (a wrong catch resets the count) to charge a super jump
-  SUPER_JUMP: 1.3,           // the super jump goes 30% higher, so its top is worth up to +65%
+  PEAKS_FOR_SUPER: 3,        // peak catches IN A ROW to charge a super jump (any other catch or a miss resets it)
+                             // baskets show the count: brown 0 · copper 1 · silver 2 · gold + sparkles = super jump ready
+  SUPER_JUMP: 1.3,           // the super jump goes 30% higher, so its top is worth up to +32%
   THINK_REVERSE_BONUS: 1.5,  // extra seconds to study the model before a "Name it" drop
-  BPM: 138, BPM_PER_ROUND: 3, BPM_MAX: 174
+  BPM: 138, BPM_PER_ROUND: 3, BPM_MAX: 174,                // lab music (rounds 0–11): speeds up each round
+  CAVE_BPM: 132, CAVE_BPM_PER_ROUND: 2, CAVE_BPM_MAX: 168   // underground music once the second mole arrives
 };
 
 /* ================= Chemistry data ================= */
 const AG = {1:'1A',2:'2A',13:'3A',14:'4A',15:'5A',16:'6A',17:'7A',18:'8A'};
 /* ================= Languages =================
-   English is the source. Spanish, Traditional Chinese and Arabic are first-pass translations:
+   English is the source. Spanish, Chinese (Hong Kong usage: 能級, 硅, 玻爾, 周期) and Arabic are first-pass translations:
    have a native-speaking colleague check the chemistry vocabulary before classroom use.
    Key vocabulary lives in each language's templates, so a term swap is a find/replace. */
 const iso = s => '\u2066' + s + '\u2069';           // keeps "n = 3" and equations left-to-right inside Arabic text
@@ -350,9 +366,9 @@ en: {
     busy:'The class list is busy. Try again in a minute.', badCode:'This link is missing the class code. Use the game link your teacher shared.', network:'Couldn’t reach the class list. Check the internet and try again.',
     period:n=>`Period ${n}`, total:n=>`${n} ⚛ total`, saving:'Saving…', saved:n=>`Saved! You have ${n} ⚛ in all.`, saveFail:'Couldn’t save yet. It will try again.',
     guestSave:'Log in to keep your ⚛.', earned:n=>`+${n} ⚛ this game`,
-    score:'Score', streak:'Streak', rounds:'Rounds', jump:'Jump', ready:'Ready? Press Enter or tap here to start the drop.', peak:'Peak!', superCatch:'Super catch!', superReady:'Super jump ready! Your next jump goes higher.', lvl5:'Level up: 5 choices now!', helper:'A lab assistant joins the mole!',
+    score:'Score', streak:'Streak', rounds:'Rounds', jump:'Jump', ready:'Ready? Press Enter or tap here to start the drop.', peak:'Peak!', superCatch:'Super catch!', superReady:'Super jump ready! Your next jump goes higher.', lvl5:'Level up: 5 choices now!', helper:'A lab assistant joins the mole!', lvl6:'Level up: 6 choices now!', noCatch:'Nothing caught! Letting every answer fall costs a basket.', hintLabel:'Hint:',
     lede:'The mole drops numbers. Catch the right one to build each Bohr model, name mystery atoms, and answer rapid-fire questions. A wrong catch costs a basket.',
-    language:'Language', elements:'Elements', mCore:'Core', mAdv:'Advanced', mMixed:'Mixed', mMixedSub:'Core, then advanced',
+    language:'Language', elements:'Elements', mBasic:'Basic', mAdv:'Advanced', mMixed:'Mixed', mMixedSub:'Basic, then advanced',
     extra:'Extra time', extraSub:'Slower drops and a longer think pause. Points are scaled.', start:'Start',
     controls:'Move with ← → or A / D, or drag. Jump with Space or ↑ (on a phone, swipe up or tap Jump). P pauses.',
     sandbox:'Sandbox demo · guest mode, nothing is saved.', paused:'Paused', resume:'Resume', quit:'Quit to menu',
@@ -426,7 +442,7 @@ en: {
     he:'Missed the helium exception', capacity:'Filled an energy level to capacity without enough electrons left', always8:'Assumed every energy level holds 8',
     eightNot18:'Used 8 for n = 3 past calcium (it holds 18)', allRemaining:'Put all remaining electrons in one energy level',
     firstOnly:'Counted only n = 1 as core', justBelow:'Counted only the energy level under valence as core',
-    wrongPeriod:'Misread the number of energy levels (period)', wrongGroup:'Misread the outer electrons (group)', random:'Other guesses' },
+    wrongPeriod:'Misread the number of energy levels (period)', wrongGroup:'Misread the outer electrons (group)', noCatch:'Let every answer fall (no catch)', random:'Other guesses' },
   banner:{ build:x=> `${x.name} built!`, reverse:x=> `That's ${x.name}!`, quick:x=> `${x.name}: all three!`,
     quickC:x=> `${x.Z} total · ${x.val} valence · ${x.core} core`, revS:x=> `Period ${x.P}, ${x.gl}.`, clean:' clean round' },
   lesson:{ title:'Energy level n = 3 grows to 18',
@@ -446,9 +462,9 @@ es: {
     busy:'La lista de la clase está ocupada. Inténtalo en un minuto.', badCode:'A este enlace le falta el código de la clase. Usa el enlace que compartió tu maestro.', network:'No se pudo conectar con la lista de la clase. Revisa el internet e inténtalo de nuevo.',
     period:n=>`Periodo ${n}`, total:n=>`${n} ⚛ en total`, saving:'Guardando…', saved:n=>`¡Guardado! Tienes ${n} ⚛ en total.`, saveFail:'Todavía no se pudo guardar. Se intentará de nuevo.',
     guestSave:'Inicia sesión para guardar tus ⚛.', earned:n=>`+${n} ⚛ en esta partida`,
-    score:'Puntos', streak:'Racha', rounds:'Rondas', jump:'Saltar', ready:'¿Listo? Presiona Enter o toca aquí para empezar.', peak:'¡En la cima!', superCatch:'¡Superatrapada!', superReady:'¡Supersalto listo! Tu próximo salto llega más alto.', lvl5:'¡Subes de nivel: ahora hay 5 opciones!', helper:'¡Un asistente de laboratorio ayuda al topo!',
+    score:'Puntos', streak:'Racha', rounds:'Rondas', jump:'Saltar', ready:'¿Listo? Presiona Enter o toca aquí para empezar.', peak:'¡En la cima!', superCatch:'¡Superatrapada!', superReady:'¡Supersalto listo! Tu próximo salto llega más alto.', lvl5:'¡Subes de nivel: ahora hay 5 opciones!', helper:'¡Un asistente de laboratorio ayuda al topo!', lvl6:'¡Subes de nivel: ahora hay 6 opciones!', noCatch:'¡No atrapaste nada! Dejar caer todas las respuestas te cuesta una canasta.', hintLabel:'Pista:',
     lede:'El topo deja caer números. Atrapa el correcto para construir cada modelo de Bohr, identificar átomos misteriosos y responder preguntas rápidas. Atrapar uno incorrecto te cuesta una canasta.',
-    language:'Idioma', elements:'Elementos', mCore:'Básico', mAdv:'Avanzado', mMixed:'Mixto', mMixedSub:'Básico y luego avanzado',
+    language:'Idioma', elements:'Elementos', mBasic:'Básico', mAdv:'Avanzado', mMixed:'Mixto', mMixedSub:'Básico y luego avanzado',
     extra:'Tiempo extra', extraSub:'Caídas más lentas y más tiempo para pensar. Los puntos se ajustan.', start:'Empezar',
     controls:'Muévete con ← → o A / D, o arrastra. Salta con Espacio o ↑ (en el teléfono, desliza hacia arriba o toca Saltar). P pausa.',
     sandbox:'Demo de prueba · modo invitado, no se guarda nada.', paused:'En pausa', resume:'Continuar', quit:'Salir al menú',
@@ -522,7 +538,7 @@ es: {
     he:'Olvidaste la excepción del helio', capacity:'Llenaste un nivel de energía a su capacidad sin electrones suficientes', always8:'Supusiste que todo nivel de energía tiene 8',
     eightNot18:'Usaste 8 para n = 3 después del calcio (tiene 18)', allRemaining:'Pusiste todos los electrones restantes en un solo nivel de energía',
     firstOnly:'Contaste solo n = 1 como internos', justBelow:'Contaste solo el nivel de energía debajo de la valencia como internos',
-    wrongPeriod:'Leíste mal el número de niveles de energía (periodo)', wrongGroup:'Leíste mal los electrones externos (grupo)', random:'Otras respuestas' },
+    wrongPeriod:'Leíste mal el número de niveles de energía (periodo)', wrongGroup:'Leíste mal los electrones externos (grupo)', noCatch:'Dejaste caer todas las respuestas (no atrapaste ninguna)', random:'Otras respuestas' },
   banner:{ build:x=> `¡${x.name} construido!`, reverse:x=> `¡Es el ${x.nm}!`, quick:x=> `${x.name}: ¡las tres!`,
     quickC:x=> `${x.Z} en total · ${x.val} de valencia · ${x.core} internos`, revS:x=> `Periodo ${x.P}, ${x.gl}.`, clean:' ronda perfecta' },
   lesson:{ title:'El nivel de energía n = 3 crece a 18',
@@ -533,97 +549,97 @@ es: {
 },
 
 zh: {
-  code:'zh', html:'zh-Hant', dir:'ltr', short:'中',
-  names:{H:'氫',He:'氦',Li:'鋰',Be:'鈹',B:'硼',C:'碳',N:'氮',O:'氧',F:'氟',Ne:'氖',Na:'鈉',Mg:'鎂',Al:'鋁',Si:'矽',P:'磷',S:'硫',Cl:'氯',Ar:'氬',K:'鉀',Ca:'鈣',Ga:'鎵',Ge:'鍺',As:'砷',Se:'硒',Br:'溴',Kr:'氪'},
+  code:'zh', html:'zh-HK', dir:'ltr', short:'中',
+  names:{H:'氫',He:'氦',Li:'鋰',Be:'鈹',B:'硼',C:'碳',N:'氮',O:'氧',F:'氟',Ne:'氖',Na:'鈉',Mg:'鎂',Al:'鋁',Si:'硅',P:'磷',S:'硫',Cl:'氯',Ar:'氬',K:'鉀',Ca:'鈣',Ga:'鎵',Ge:'鍺',As:'砷',Se:'硒',Br:'溴',Kr:'氪'},
   gl: g => `第 ${g} 族（${AG[g]}）`,
-  E: n => `${n} 個電子`, EL: n => `${n} 個能階`, V: n => `${n} 個價電子`,
+  E: n => `${n} 個電子`, EL: n => `${n} 個能級`, V: n => `${n} 個價電子`,
   ui:{ logIn:'登入', logOut:'登出', guest:'以訪客身分遊玩', idLabel:'學號的最後 5 位數字', next:'下一步', isYou:'這是你嗎？', notMe:'這不是我',
     enter5:'請輸入全部 5 位數字。', noMatch:'找不到這個號碼。請檢查一下，或問老師。', checkAgain:'請檢查號碼再試一次。如果還是不對，請告訴老師。',
-    busy:'班級名單忙碌中，請一分鐘後再試。', badCode:'這個連結缺少班級代碼。請使用老師分享的連結。', network:'無法連到班級名單。請檢查網路後再試。',
+    busy:'班級名單忙碌中，請一分鐘後再試。', badCode:'這個連結缺少班級代碼。請使用老師分享的連結。', network:'無法連到班級名單。請檢查網絡後再試。',
     period:n=>`第 ${n} 節`, total:n=>`共 ${n} ⚛`, saving:'儲存中…', saved:n=>`已儲存！你現在共有 ${n} ⚛。`, saveFail:'還沒存好，稍後會再試。',
     guestSave:'登入才能保存你的 ⚛。', earned:n=>`這局 +${n} ⚛`,
-    score:'分數', streak:'連續答對', rounds:'回合', jump:'跳', ready:'準備好了？按 Enter 或點這裡開始。', peak:'最高點！', superCatch:'超級接住！', superReady:'超級跳準備好了！下一次會跳得更高。', lvl5:'升級：現在有 5 個選項！', helper:'實驗室助手來幫鼴鼠了！',
-    lede:'鼴鼠會丟下數字。接住正確的數字來建立每個波耳模型、猜出神秘原子，並回答快問快答。接錯一次就會失去一個籃子。',
-    language:'語言', elements:'元素', mCore:'基礎', mAdv:'進階', mMixed:'混合', mMixedSub:'先基礎，再進階',
+    score:'分數', streak:'連續答對', rounds:'回合', jump:'跳', ready:'準備好了？按 Enter 或按這裡開始。', peak:'最高點！', superCatch:'超級接住！', superReady:'超級跳準備好了！下一次會跳得更高。', lvl5:'升級：現在有 5 個選項！', helper:'實驗室助手來幫鼴鼠了！', lvl6:'升級：現在有 6 個選項！', noCatch:'一個都沒接到！讓所有答案掉下去也會失去一個籃子。', hintLabel:'提示：',
+    lede:'鼴鼠會丟下數字。接住正確的數字來建立每個玻爾模型、猜出神秘原子，並回答快速問答。接錯一次就會失去一個籃子。',
+    language:'語言', elements:'元素', mBasic:'基礎', mAdv:'進階', mMixed:'混合', mMixedSub:'先基礎，再進階',
     extra:'延長時間', extraSub:'掉得比較慢，思考時間比較長。分數會調整。', start:'開始',
-    controls:'用 ← → 或 A / D 移動，或用手指拖曳。按空白鍵或 ↑ 跳躍（手機上往上滑或點「跳」）。按 P 暫停。',
+    controls:'用 ← → 或 A / D 移動，或用手指拖曳。按空格鍵或 ↑ 跳躍（手機上往上滑或按「跳」）。按 P 暫停。',
     sandbox:'測試版 · 訪客模式，不會儲存。', paused:'暫停', resume:'繼續', quit:'回到選單',
     over:'籃子用完了！', firstTry:'一次答對', best:'最長連對', tripped:'容易出錯的地方', finished:'完成的原子',
     none:'還沒有，差一點！', nothing:'還沒有！', again:'再玩一次', settings:'更改設定',
     tryAgain: n => `再試一次（Enter）· 還剩 ${n} 個籃子`, results:'看結果（Enter）' },
-  cv:{ valence:'價電子', core:'內層', total:'總數', legend:'能階', gotAway:'跑掉了！再來一次。' },
-  tag:{ shells:()=> '能階數', valence:()=> '價電子', fill:x=> `填入 ${x.lvn}`, core:()=> '內層電子', total:()=> '電子總數', reverse:()=> '猜元素' },
+  cv:{ valence:'價電子', core:'內層', total:'總數', legend:'能級', gotAway:'跑掉了！再來一次。' },
+  tag:{ shells:()=> '能級數', valence:()=> '價電子', fill:x=> `填入 ${x.lvn}`, core:()=> '內層電子', total:()=> '電子總數', reverse:()=> '猜元素' },
   q:{
-    shells: x=>[`${x.name}（${x.s}）有幾個能階？`, `${x.s} 有幾個能階？`],
+    shells: x=>[`${x.name}（${x.s}）有幾個能級？`, `${x.s} 有幾個能級？`],
     valence:x=>[`${x.name}（${x.s}）有幾個價電子？`, `${x.s} 有幾個價電子？`],
-    fill:   x=>[`${x.name}（${x.s}）的能階 ${x.lvn} 有幾個電子？`, `${x.s}：${x.lvn} 有幾個電子？`],
+    fill:   x=>[`${x.name}（${x.s}）的能級 ${x.lvn} 有幾個電子？`, `${x.s}：${x.lvn} 有幾個電子？`],
     core:   x=>[`${x.name}（${x.s}）有幾個內層電子？`, `${x.s} 有幾個內層電子？`],
     total:  x=>[`中性的${x.name}（${x.s}）原子有幾個電子？`, `${x.s} 共有幾個電子？`],
-    reverse:()=>['這個波耳模型是哪一個元素？', '這是哪一個元素？'] },
+    reverse:()=>['這個玻爾模型是哪一個元素？', '這是哪一個元素？'] },
   hint:{
-    shells:()=> '週期（橫列）的數字就是原子的能階數。',
-    valence:x=> x.He ? '氦很特別：它唯一的能階只要 2 個電子就填滿了。' : 'A 族的數字就是價電子數（3A 有 3 個）。',
-    fill:x=> x.big3 ? `鈣之後，能階 ${x.lv3} 最多可容納 18 個電子。` : `能階 ${x.lvn} 最多可容納 ${x.cp} 個電子。`,
-    core:()=> '內層電子是所有內層能階中的電子，也就是價電子以外的所有電子。',
+    shells:()=> '周期（橫行）的數字就是原子的能級數。',
+    valence:x=> x.He ? '氦很特別：它唯一的能級只要 2 個電子就填滿了。' : 'A 族的數字就是價電子數（3A 有 3 個）。',
+    fill:x=> x.big3 ? `鈣之後，能級 ${x.lv3} 最多可容納 18 個電子。` : `能級 ${x.lvn} 最多可容納 ${x.cp} 個電子。`,
+    core:()=> '內層電子是所有內層能級中的電子，也就是價電子以外的所有電子。',
     total:()=> '中性原子的電子數等於質子數（原子序）。',
-    reverse:()=> '數能階數可以知道週期；數最外層的電子可以知道 A 族。' },
+    reverse:()=> '數能級數可以知道周期；數最外層的電子可以知道 A 族。' },
   count:{ fill:x=> `還剩 ${x.rem} 個電子要放（共 ${x.Z} 個）`, coreBuild:x=> `電子總數：${x.Z}`, coreQuick:x=> `原子序：${x.Z}` },
   fbHead: x=> `你接到了 ${x.v}。正確答案是 ${x.c}。`,
   ex:{
     shells:{
-      group:x=> `${x.v} 是 ${x.s} 的族數（直行）。能階數要看週期（橫列）。${x.s} 在第 ${x.P} 週期，所以有 ${x.T.EL(x.P)}。`,
-      atomicNumber:x=> `${x.v} 是 ${x.s} 的原子序，代表它全部的電子數。能階數和週期相同：第 ${x.P} 週期就有 ${x.T.EL(x.P)}。`,
-      valence:x=> `${x.v} 是 ${x.s} 的價電子數。能階數要看橫列：第 ${x.P} 週期就有 ${x.T.EL(x.P)}。`,
-      offByOne:x=> `差一點！${x.s} 在第 ${x.P} 週期，所以剛好有 ${x.T.EL(x.P)}。`,
-      _:x=> `${x.s} 在第 ${x.P} 週期，所以有 ${x.T.EL(x.P)}。` },
+      group:x=> `${x.v} 是 ${x.s} 的族數（直行）。能級數要看周期（橫行）。${x.s} 在第 ${x.P} 周期，所以有 ${x.T.EL(x.P)}。`,
+      atomicNumber:x=> `${x.v} 是 ${x.s} 的原子序，代表它全部的電子數。能級數和周期相同：第 ${x.P} 周期就有 ${x.T.EL(x.P)}。`,
+      valence:x=> `${x.v} 是 ${x.s} 的價電子數。能級數要看橫行：第 ${x.P} 周期就有 ${x.T.EL(x.P)}。`,
+      offByOne:x=> `差一點！${x.s} 在第 ${x.P} 周期，所以剛好有 ${x.T.EL(x.P)}。`,
+      _:x=> `${x.s} 在第 ${x.P} 周期，所以有 ${x.T.EL(x.P)}。` },
     valence:{
       groupNot10:x=> `${x.v} 是 1–18 的族數。第 13–18 族要減 10（${x.eq10}），或直接看 A 族：${x.A} 就是 ${x.val} 個。`,
-      period:x=> `${x.v} 是 ${x.s} 的週期數，它代表能階數，不是價電子數。${x.gl}代表有 ${x.T.V(x.val)}。`,
-      atomicNumber:x=> `${x.v} 是原子序，代表全部的電子數。價電子只算最外層能階的電子：${x.val} 個。`,
-      toFull:x=> `${x.v} 是 ${x.s} 還需要幾個電子才能填滿最外層能階。價電子算的是已經在那裡的電子：${x.val} 個。`,
-      octet:x=> `8 個表示最外層能階已經填滿。${x.s} 在${x.gl}，所以有 ${x.T.V(x.val)}。`,
-      he:x=> `氦是例外！它在第 18 族（8A），但它唯一的能階只能容納 2 個電子，所以它有 2 個價電子，不是 ${x.v} 個。`,
+      period:x=> `${x.v} 是 ${x.s} 的周期數，它代表能級數，不是價電子數。${x.gl}代表有 ${x.T.V(x.val)}。`,
+      atomicNumber:x=> `${x.v} 是原子序，代表全部的電子數。價電子只算最外層能級的電子：${x.val} 個。`,
+      toFull:x=> `${x.v} 是 ${x.s} 還需要幾個電子才能填滿最外層能級。價電子算的是已經在那裡的電子：${x.val} 個。`,
+      octet:x=> `8 個表示最外層能級已經填滿。${x.s} 在${x.gl}，所以有 ${x.T.V(x.val)}。`,
+      he:x=> `氦是例外！它在第 18 族（8A），但它唯一的能級只能容納 2 個電子，所以它有 2 個價電子，不是 ${x.v} 個。`,
       _:x=> `${x.s} 在${x.gl}，所以有 ${x.T.V(x.val)}。` },
     fill:{
-      capacity:x=> `能階 ${x.lvn} 最多可容納 ${x.cp} 個，但 ${x.s} 只剩 ${x.T.E(x.rem)}要放。`,
-      always8:x=> x.n===1 ? `能階 ${x.lvn} 很小，最多只能容納 2 個${x.c<2?`，而 ${x.s} 只有 ${x.c} 個`:''}。` : `不是每個能階都放 8 個。${x.s} 還剩 ${x.rem} 個電子，能階 ${x.lvn} 放 ${x.c} 個。`,
-      eightNot18:x=> `鈣之後，能階 ${x.lv3} 可以容納 18 個。所以 ${x.s} 的能階 ${x.lv3} 放 18 個，不是 8 個。`,
-      allRemaining:x=> `${x.v} 是 ${x.s} 剩下的全部電子，但能階 ${x.lvn} 最多只能容納 ${x.cp} 個。這裡放 ${x.c} 個，其餘的放到下一個能階。`,
-      atomicNumber:x=> `${x.v} 是 ${x.s} 的電子總數。能階 ${x.lvn} 只放其中 ${x.c} 個。`,
-      period:x=> `${x.v} 是週期數。${x.s} 的能階 ${x.lvn} 放 ${x.T.E(x.c)}。`,
-      groupNot10:x=> `${x.v} 是 1–18 的族數。${x.s} 是 ${x.A}，所以最外層能階放 ${x.c} 個。`,
-      _:x=> `${x.s} 的能階 ${x.lvn} 放 ${x.T.E(x.c)}。` },
+      capacity:x=> `能級 ${x.lvn} 最多可容納 ${x.cp} 個，但 ${x.s} 只剩 ${x.T.E(x.rem)}要放。`,
+      always8:x=> x.n===1 ? `能級 ${x.lvn} 很小，最多只能容納 2 個${x.c<2?`，而 ${x.s} 只有 ${x.c} 個`:''}。` : `不是每個能級都放 8 個。${x.s} 還剩 ${x.rem} 個電子，能級 ${x.lvn} 放 ${x.c} 個。`,
+      eightNot18:x=> `鈣之後，能級 ${x.lv3} 可以容納 18 個。所以 ${x.s} 的能級 ${x.lv3} 放 18 個，不是 8 個。`,
+      allRemaining:x=> `${x.v} 是 ${x.s} 剩下的全部電子，但能級 ${x.lvn} 最多只能容納 ${x.cp} 個。這裡放 ${x.c} 個，其餘的放到下一個能級。`,
+      atomicNumber:x=> `${x.v} 是 ${x.s} 的電子總數。能級 ${x.lvn} 只放其中 ${x.c} 個。`,
+      period:x=> `${x.v} 是周期數。${x.s} 的能級 ${x.lvn} 放 ${x.T.E(x.c)}。`,
+      groupNot10:x=> `${x.v} 是 1–18 的族數。${x.s} 是 ${x.A}，所以最外層能級放 ${x.c} 個。`,
+      _:x=> `${x.s} 的能級 ${x.lvn} 放 ${x.T.E(x.c)}。` },
     core:{
-      noInner:x=> `${x.name}只有一個能階，所以它所有的電子都是價電子，內層電子是 0 個。`,
-      firstOnly:x=> `內層電子包括所有內層能階，不只是 ${x.lv1}：${x.eq}。`,
-      justBelow:x=> `不只是價電子下面那一個能階，所有內層能階都算：${x.eq}。`,
+      noInner:x=> `${x.name}只有一個能級，所以它所有的電子都是價電子，內層電子是 0 個。`,
+      firstOnly:x=> `內層電子包括所有內層能級，不只是 ${x.lv1}：${x.eq}。`,
+      justBelow:x=> `不只是價電子下面那一個能級，所有內層能級都算：${x.eq}。`,
       atomicNumber:x=> `${x.v} 是全部的電子。內層電子要扣掉 ${x.val} 個價電子：${x.eqZ}。`,
-      valence:x=> `${x.v} 是最外層能階的價電子數。內層電子是裡面所有的電子：${x.c} 個。`,
-      eightNot18:x=> `鈣之後，能階 ${x.lv3} 有 18 個。內層電子 = ${x.eq}。`,
+      valence:x=> `${x.v} 是最外層能級的價電子數。內層電子是裡面所有的電子：${x.c} 個。`,
+      eightNot18:x=> `鈣之後，能級 ${x.lv3} 有 18 個。內層電子 = ${x.eq}。`,
       _:x=> `內層電子 = 全部電子扣掉 ${x.val} 個價電子：${x.eqZ}。` },
     total:{
       valence:x=> `${x.v} 只是價電子。中性原子的電子數等於質子數，所以 ${x.s} 共有 ${x.Z} 個電子。`,
       coreOnly:x=> `${x.v} 只是內層電子。加上 ${x.val} 個價電子就是 ${x.Z}，也就是原子序。`,
-      period:x=> `${x.v} 是週期數。電子總數 = 原子序 = ${x.Z}。`,
+      period:x=> `${x.v} 是周期數。電子總數 = 原子序 = ${x.Z}。`,
       group:x=> `${x.v} 是族數。電子總數 = 原子序 = ${x.Z}。`,
       offByOne:x=> `差一點！中性原子的電子數剛好等於質子數：${x.s} 的原子序是 ${x.Z}。`,
       _:x=> `中性原子的電子數等於質子數。${x.s} 的原子序是 ${x.Z}，所以有 ${x.Z} 個電子。` },
     reverse:{
-      wrongPeriod:x=> `${x.r.name}的最外層電子數相同（${x.val} 個），但它有 ${x.T.EL(x.r.P)}。這個模型有 ${x.T.EL(x.P)}，所以在第 ${x.P} 週期：是${x.name}。`,
-      wrongGroup:x=> `${x.r.name}在同一個週期，但它有 ${x.T.V(x.r.val)}。這個模型的最外層能階有 ${x.val} 個${x.He?'（氦是 8A 的例外）':`，所以在${x.gl}`}：是${x.name}。`,
-      _:x=> `數能階數找週期（${x.P}），數最外層電子找族：這個模型是${x.name}（${x.s}）。` } },
+      wrongPeriod:x=> `${x.r.name}的最外層電子數相同（${x.val} 個），但它有 ${x.T.EL(x.r.P)}。這個模型有 ${x.T.EL(x.P)}，所以在第 ${x.P} 周期：是${x.name}。`,
+      wrongGroup:x=> `${x.r.name}在同一個周期，但它有 ${x.T.V(x.r.val)}。這個模型的最外層能級有 ${x.val} 個${x.He?'（氦是 8A 的例外）':`，所以在${x.gl}`}：是${x.name}。`,
+      _:x=> `數能級數找周期（${x.P}），數最外層電子找族：這個模型是${x.name}（${x.s}）。` } },
   tags:{ group:'誤用了族數', atomicNumber:'選了原子序（電子總數）', valence:'誤用了價電子數', offByOne:'差了一個',
-    coreOnly:'給了內層電子數而不是總數', groupNot10:'第 13–18 族沒有減 10', period:'誤用了週期數',
+    coreOnly:'給了內層電子數而不是總數', groupNot10:'第 13–18 族沒有減 10', period:'誤用了周期數',
     toFull:'算成還缺的電子數，而不是已有的電子數', octet:'以為有 8 個價電子', he:'忘了氦的例外',
-    capacity:'電子不夠卻把能階填到最大容量', always8:'以為每個能階都放 8 個', eightNot18:'鈣之後的 n = 3 用了 8（應該是 18）',
-    allRemaining:'把剩下的電子全放進一個能階', firstOnly:'只把 n = 1 算成內層電子', justBelow:'只把價電子下面那一個能階算成內層電子',
-    wrongPeriod:'看錯能階數（週期）', wrongGroup:'看錯最外層電子（族）', random:'其他猜測' },
+    capacity:'電子不夠卻把能級填到最大容量', always8:'以為每個能級都放 8 個', eightNot18:'鈣之後的 n = 3 用了 8（應該是 18）',
+    allRemaining:'把剩下的電子全放進一個能級', firstOnly:'只把 n = 1 算成內層電子', justBelow:'只把價電子下面那一個能級算成內層電子',
+    wrongPeriod:'看錯能級數（周期）', wrongGroup:'看錯最外層電子（族）', noCatch:'讓所有答案掉下去（一個都沒接）', random:'其他猜測' },
   banner:{ build:x=> `${x.name}完成了！`, reverse:x=> `是${x.name}！`, quick:x=> `${x.name}：三題全對！`,
-    quickC:x=> `共 ${x.Z} 個 · 價電子 ${x.val} · 內層 ${x.core}`, revS:x=> `第 ${x.P} 週期，${x.gl}。`, clean:' 全對' },
-  lesson:{ title:'能階 n = 3 增加到 18',
-    p1:'你剛剛跨過了過渡金屬。從鈣到鎵之間，十個過渡金屬（Sc 到 Zn）把新的電子加到能階 n = 3，而不是最外層能階。',
+    quickC:x=> `共 ${x.Z} 個 · 價電子 ${x.val} · 內層 ${x.core}`, revS:x=> `第 ${x.P} 周期，${x.gl}。`, clean:' 全對' },
+  lesson:{ title:'能級 n = 3 增加到 18',
+    p1:'你剛剛跨過了過渡金屬。從鈣到鎵之間，十個過渡金屬（Sc 到 Zn）把新的電子加到能級 n = 3，而不是最外層能級。',
     arrow:'+10 個電子進入 n = 3', gold:'金色的點 = 過渡金屬加入的 10 個電子。',
-    p2:'從鎵到氪，能階 n = 3 有 18 個電子。最外層能階仍然和 A 族一致：鎵是 3A，所以有 3 個價電子。',
+    p2:'從鎵到氪，能級 n = 3 有 18 個電子。最外層能級仍然和 A 族一致：鎵是 3A，所以有 3 個價電子。',
     gotIt:'我懂了' }
 },
 
@@ -639,9 +655,9 @@ ar: {
     busy:'قائمة الصف مشغولة. حاول بعد دقيقة.', badCode:'هذا الرابط ينقصه رمز الصف. استخدم الرابط الذي شاركه معلمك.', network:'تعذّر الوصول إلى قائمة الصف. تحقق من الإنترنت وحاول مرة أخرى.',
     period:n=>`الحصة ${n}`, total:n=>`المجموع ${n} ⚛`, saving:'جارٍ الحفظ…', saved:n=>`تم الحفظ! لديك الآن ${n} ⚛.`, saveFail:'لم يتم الحفظ بعد. ستتم المحاولة مرة أخرى.',
     guestSave:'سجّل الدخول لتحتفظ بـ ⚛.', earned:n=>`+${n} ⚛ في هذه اللعبة`,
-    score:'النقاط', streak:'التتابع', rounds:'الجولات', jump:'اقفز', ready:'جاهز؟ اضغط Enter أو المس هنا لتبدأ.', peak:'القمة!', superCatch:'التقاط خارق!', superReady:'القفزة الخارقة جاهزة! قفزتك التالية أعلى.', lvl5:'مستوى جديد: الآن 5 خيارات!', helper:'مساعد مختبر ينضم إلى الخُلد!',
+    score:'النقاط', streak:'التتابع', rounds:'الجولات', jump:'اقفز', ready:'جاهز؟ اضغط Enter أو المس هنا لتبدأ.', peak:'القمة!', superCatch:'التقاط خارق!', superReady:'القفزة الخارقة جاهزة! قفزتك التالية أعلى.', lvl5:'مستوى جديد: الآن 5 خيارات!', helper:'مساعد مختبر ينضم إلى الخُلد!', lvl6:'مستوى جديد: الآن 6 خيارات!', noCatch:'لم تلتقط شيئًا! ترك كل الإجابات تسقط يكلّفك سلة.', hintLabel:'تلميح:',
     lede:'الخُلد يُسقط أرقامًا. التقط الرقم الصحيح لتبني نموذج بور لكل ذرة، وتتعرّف على الذرات الغامضة، وتجيب عن أسئلة سريعة. كل التقاط خاطئ يكلّفك سلة.',
-    language:'اللغة', elements:'العناصر', mCore:'أساسي', mAdv:'متقدم', mMixed:'مختلط', mMixedSub:'الأساسي ثم المتقدم',
+    language:'اللغة', elements:'العناصر', mBasic:'أساسي', mAdv:'متقدم', mMixed:'مختلط', mMixedSub:'الأساسي ثم المتقدم',
     extra:'وقت إضافي', extraSub:'سقوط أبطأ ووقت أطول للتفكير. تُعدَّل النقاط.', start:'ابدأ',
     controls:'تحرّك بـ ← → أو A / D، أو اسحب بإصبعك. اقفز بالمسافة أو ↑ (على الهاتف اسحب لأعلى أو اضغط «اقفز»). P للإيقاف المؤقت.',
     sandbox:'نسخة تجريبية · وضع الضيف، لا يُحفظ شيء.', paused:'متوقف مؤقتًا', resume:'استئناف', quit:'العودة إلى القائمة',
@@ -715,7 +731,7 @@ ar: {
     he:'نسيت استثناء الهيليوم', capacity:'ملأت مستوى الطاقة إلى سعته دون إلكترونات كافية', always8:'افترضت أن كل مستوى طاقة يأخذ 8',
     eightNot18:'استخدمت 8 لـ n = 3 بعد الكالسيوم (يتّسع لـ 18)', allRemaining:'وضعت كل الإلكترونات المتبقية في مستوى طاقة واحد',
     firstOnly:'حسبت n = 1 فقط داخلية', justBelow:'حسبت مستوى الطاقة الذي تحت التكافؤ فقط داخليًا',
-    wrongPeriod:'أخطأت في عدد مستويات الطاقة (الدورة)', wrongGroup:'أخطأت في الإلكترونات الخارجية (المجموعة)', random:'تخمينات أخرى' },
+    wrongPeriod:'أخطأت في عدد مستويات الطاقة (الدورة)', wrongGroup:'أخطأت في الإلكترونات الخارجية (المجموعة)', noCatch:'تركت كل الإجابات تسقط (لم تلتقط شيئًا)', random:'تخمينات أخرى' },
   banner:{ build:x=> `اكتمل ${x.name}!`, reverse:x=> `إنه ${x.name}!`, quick:x=> `${x.name}: الثلاثة صحيحة!`,
     quickC:x=> `المجموع ${x.Z} · التكافؤ ${x.val} · الداخلية ${x.core}`, revS:x=> `الدورة ${x.P}، ${x.gl}.`, clean:' جولة بلا أخطاء' },
   lesson:{ title:'مستوى الطاقة n = 3 يتّسع إلى 18',
@@ -742,7 +758,7 @@ const sum = a => a.reduce((x,y)=>x+y,0);
 // Capacity in this course's model: 2, 8, then 8 for H–Ca and 18 past calcium.
 const cap = (el,i) => i===0 ? 2 : i===1 ? 8 : i===2 ? (el.adv ? 18 : 8) : 8;
 let LANG = 'en';
-const waveSize = () => S.rounds >= CFG.FIVE_FROM_ROUND ? 5 : CFG.ITEMS_PER_WAVE;
+const waveSize = () => S.rounds >= CFG.SIX_FROM_ROUND ? 6 : S.rounds >= CFG.FIVE_FROM_ROUND ? 5 : CFG.ITEMS_PER_WAVE;
 const L = () => LANGS[LANG];
 const isoN = s => s.replace(/n = \d+/g, m => iso(m));
 const nameOf = (sym, lang=LANG) => LANGS[lang].names[sym];
@@ -818,8 +834,9 @@ function pickDistractors(el,t,correct){
       if (out.length>=need) break; if (!seen.has(e.sym)){ seen.add(e.sym); out.push({v:e.sym,tag:'random'}); } }
   }
   const lo = t.type==='shells' ? 1 : 0; let guard=0;
-  while (out.length<need && guard++<80){
-    const v = Math.max(lo, correct + ((Math.random()*9|0) - 4));
+  while (typeof correct==='number' && out.length<need && guard++<120){
+    const spread = 4 + (guard/30|0);      // widens if nearby numbers run out (H and He have few)
+    const v = Math.max(lo, correct + ((Math.random()*(2*spread+1)|0) - spread));
     if (!seen.has(v)){ seen.add(v); out.push({v,tag:'random'}); }
   }
   return out;
@@ -870,7 +887,7 @@ const H = 600; let W = 800, scale = 1, dpr = 1;
 const LEDGE = 64, GROUND = H - 64, MODEL_Y = 200;
 const cv = $('#cv'), ctx = cv.getContext('2d');
 const S = {
-  mode:'core', extra:false, state:'menu', time:0,
+  mode:'basic', extra:false, state:'menu', time:0,
   score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[],
   queue:null, recent:[], kind:'build', el:null, tasks:[], taskIdx:0, task:null, correct:0, sawTransition:false,
   wave:null, items:[], particles:[], flyers:[], floaters:[], model:null, lastWrong:null, prevRim:null,
@@ -937,7 +954,7 @@ const sfx = {
 /* ================= Audio: music =================
    Original 8-bar chiptune loop (pulse lead, triangle bass, noise drums) in an Atari/arcade style.
    Speeds up a little every round. */
-const MUS = { on:true, playing:false, step:0, nextT:0, gain:null, pulse:null, noise:null };
+const MUS = { on:true, playing:false, step:0, nextT:0, gain:null, pulse:null, thin:null, noise:null, track:'lab' };
 const midi = n => 440*Math.pow(2,(n-69)/12);
 const _ = null;
 const LEAD = [
@@ -952,12 +969,33 @@ const LEAD = [
 ];
 const ROOTS = [48,45,41,43, 41,43,45,43];
 const BASSPAT = [0,12,0,12,0,12,7,12];
+/* "Underground" loop for the two-mole half of the game: original, D minor with a C♯ leading tone,
+   sparse low lead with a cave echo, staccato bass, ticking hats and a low tom instead of a snare. */
+const CAVE_LEAD = [
+  62,_,_,65, _,_,64,_, 62,_,_,_, 57,_,_,_,
+  62,_,_,65, _,_,67,_, 69,_,_,_, _,_,_,_,
+  70,_,_,69, _,_,67,_, 65,_,_,_, 62,_,_,_,
+  64,_,_,61, _,_,57,_, _,_,_,_, _,_,_,_,
+  62,_,62,65, _,62,69,_, 68,_,67,_, 65,_,_,_,
+  65,_,_,69, _,_,72,_, 70,_,69,_, 67,_,_,_,
+  67,_,_,70, _,_,69,_, 65,_,64,_, 62,_,61,_,
+  62,_,_,_, _,_,57,_, 61,_,_,_, 62,_,_,_
+];
+const CAVE_ROOTS = [38,38,34,33, 38,41,43,33];
+const CAVE_BASS = [0,_,_,12, _,_,0,_, 7,_,_,10, _,_,0,_];
+const TRACKS = {
+  lab:  { bpm:()=> Math.min(CFG.BPM_MAX, CFG.BPM + CFG.BPM_PER_ROUND*S.rounds) },
+  cave: { bpm:()=> Math.min(CFG.CAVE_BPM_MAX, CFG.CAVE_BPM + CFG.CAVE_BPM_PER_ROUND*Math.max(0, S.rounds-CFG.ASSISTANT_FROM_ROUND)) }
+};
 function musInit(){
   if (!actx || MUS.gain) return;
   MUS.gain=actx.createGain(); MUS.gain.gain.value=0; MUS.gain.connect(actx.destination);
   const N=24, re=new Float32Array(N), im=new Float32Array(N);
   for (let n=1;n<N;n++) re[n]=(2/(n*Math.PI))*Math.sin(n*Math.PI*0.25);
   MUS.pulse=actx.createPeriodicWave(re,im);
+  const re2=new Float32Array(N);
+  for (let n=1;n<N;n++) re2[n]=(2/(n*Math.PI))*Math.sin(n*Math.PI*0.125);   // thinner 12.5% pulse for the cave lead
+  MUS.thin=actx.createPeriodicWave(re2,im);
   MUS.noise=actx.createBuffer(1, Math.floor(actx.sampleRate*0.25), actx.sampleRate);
   const ch=MUS.noise.getChannelData(0); for (let i=0;i<ch.length;i++) ch[i]=Math.random()*2-1;
 }
@@ -975,15 +1013,31 @@ function hit(t,dur,vol,hp){
   g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
   s.connect(f); f.connect(g); g.connect(MUS.gain); s.start(t); s.stop(t+dur+0.03);
 }
+function tom(t){
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type='triangle'; o.frequency.setValueAtTime(130,t); o.frequency.exponentialRampToValueAtTime(70,t+0.18);
+  g.gain.setValueAtTime(0.35,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+  o.connect(g); g.connect(MUS.gain); o.start(t); o.stop(t+0.25);
+}
 function kick(t){
   const o=actx.createOscillator(), g=actx.createGain();
   o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(45,t+0.12);
   g.gain.setValueAtTime(0.55,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.16);
   o.connect(g); g.connect(MUS.gain); o.start(t); o.stop(t+0.18);
 }
-const bpm = () => Math.min(CFG.BPM_MAX, CFG.BPM + CFG.BPM_PER_ROUND*S.rounds) * (S.extra?0.9:1);
+const bpm = () => TRACKS[MUS.track].bpm() * (S.extra?0.9:1);
 function playStep(s,t,sx){
-  const bar=s>>4, i=s&15, root=ROOTS[bar];
+  const bar=s>>4, i=s&15;
+  if (MUS.track==='cave'){
+    const n=CAVE_LEAD[s], root=CAVE_ROOTS[bar], b=CAVE_BASS[i];
+    if (n!=null){ voice(midi(n), t, sx*1.4, 0.07, MUS.thin); voice(midi(n), t+sx*3, sx*1.2, 0.025, MUS.thin); }   // note + cave echo
+    if (b!=null) voice(midi(root+b), t, sx*0.9, 0.2, null, 'triangle');
+    if (i===0 || i===10) tom(t);
+    if (i===6 || i===14) kick(t);
+    if (i%4===2) hit(t,0.025,0.06,8000);
+    return;
+  }
+  const root=ROOTS[bar];
   if (LEAD[s]!=null) voice(midi(LEAD[s]+12), t, sx*1.7, 0.06, MUS.pulse);
   if (i%2===0) voice(midi(root+BASSPAT[i>>1]), t, sx*1.7, 0.16, null, 'triangle');
   if (i===0 || i===8 || i===10) kick(t);
@@ -1005,13 +1059,19 @@ function musLevel(){
 }
 function musStart(){ musInit(); if (!MUS.gain) return; if (!MUS.playing){ MUS.playing=true; MUS.step=0; MUS.nextT=actx.currentTime+0.05; } musLevel(); }
 function musStop(){ MUS.playing=false; musLevel(); }
+function musTrack(name){
+  if (MUS.track===name) return;
+  MUS.track=name; MUS.step=0;
+  if (actx) MUS.nextT=actx.currentTime+0.35;
+  if (name==='cave') [784,659,523,392,330,262,196].forEach((f,i)=>beep(f,.09,'square',.04,0,i*.05));   // heading-down jingle
+}
 
 /* ================= Flow ================= */
 function buildQueue(mode){
   const core=ELS.filter(e=>!e.adv), adv=ELS.filter(e=>e.adv);
   // warm-up: a few small atoms, then period 3, then one of K/Ca; after that, random picks
   const ramp=[...shuffle(core.filter(e=>e.period<=2)).slice(0,3), ...shuffle(core.filter(e=>e.period===3)).slice(0,3), ...shuffle(core.filter(e=>e.period===4)).slice(0,1)];
-  if (mode==='core') return {ramp, pool:core, partner:null};
+  if (mode==='basic') return {ramp, pool:core, partner:null};
   if (mode==='adv') return {ramp:[], pool:adv, partner:null};
   return {ramp, pool:ELS, partner:null};
 }
@@ -1040,8 +1100,16 @@ function scaffold(type){
   return m < CFG.SCAFFOLD_FULL_UNTIL ? 2 : m < CFG.SCAFFOLD_TABLE_UNTIL ? 1 : 0;
 }
 const curScaffold = () => Math.min(2, scaffold(S.task.type) + (S.task.missed>=2 ? 1 : 0));
-const fallSpeed = () => (CFG.FALL_BASE + CFG.FALL_PER_ROUND*Math.min(S.rounds,CFG.FALL_MAX_ROUNDS)) * (S.extra?CFG.EXTRA_FALL:1);
-const dropInterval = () => Math.max(CFG.DROP_INT_MIN, CFG.DROP_INT_BASE - CFG.DROP_INT_PER_ROUND*S.rounds) * (S.extra?CFG.EXTRA_DROP:1);
+// a new phase (5th choice, 2nd mole + 6th choice) eases the pace for a few rounds so difficulty never spikes
+function phaseRelief(r){
+  let k=1;
+  for (const p of new Set([CFG.FIVE_FROM_ROUND, CFG.SIX_FROM_ROUND, CFG.ASSISTANT_FROM_ROUND]))
+    if (r>=p && r<p+CFG.PHASE_EASE_ROUNDS) k *= 1 - CFG.PHASE_RELIEF*(1-(r-p)/CFG.PHASE_EASE_ROUNDS);
+  return k;
+}
+const fallSpeed = () => (CFG.FALL_BASE + CFG.FALL_PER_ROUND*Math.min(S.rounds,CFG.FALL_MAX_ROUNDS)) * phaseRelief(S.rounds) * (S.extra?CFG.EXTRA_FALL:1);
+const dropInterval = () => Math.max(CFG.DROP_INT_MIN, CFG.DROP_INT_BASE - CFG.DROP_INT_PER_ROUND*S.rounds) / phaseRelief(S.rounds)
+  * (assistantOn() ? CFG.ASSIST_SPACING : 1) * (S.extra?CFG.EXTRA_DROP:1);
 const pts = n => Math.round(n * (S.extra?CFG.EXTRA_POINTS:1));
 
 function startGame(){
@@ -1049,7 +1117,8 @@ function startGame(){
   try{ actx && actx.resume && actx.resume(); }catch(e){}
   Object.assign(S, { score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[], recent:[], sawTransition:false,
     items:[], particles:[], flyers:[], floaters:[], mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0,fill1:0,fill2:0},
-    log:[], tally:{}, tasksDone:0, firstTryDone:0, prevRim:null, peaks:0, superReady:false });
+    log:[], tally:{}, tasksDone:0, firstTryDone:0, prevRim:null, peaks:0, superReady:false, bag:null });
+  MUS.track='lab';
   S.mastery = Object.assign(S.mastery, B.mastery||{});   // hints keep fading from where this student left off
   saveState=''; syncProfile();
   S.queue = buildQueue(S.mode);
@@ -1062,10 +1131,13 @@ function startGame(){
 function nextRound(){
   const pat = (S.mode==='adv' || (S.mode==='mixed' && !S.queue.ramp.length)) ? CFG.ROUND_PATTERN_ADV : CFG.ROUND_PATTERN;
   S.kind = pat[S.rounds % pat.length];
-  if (S.rounds>0 && S.rounds===CFG.FIVE_FROM_ROUND) floater(L().ui.lvl5, W/2, H*0.47, '#ffe27a', 3);
+  let fy = H*0.47;
+  if (S.rounds>0 && S.rounds===CFG.FIVE_FROM_ROUND){ floater(L().ui.lvl5, W/2, fy, '#ffe27a', 3); fy += 28; }
+  if (S.rounds>0 && S.rounds===CFG.SIX_FROM_ROUND){ floater(L().ui.lvl6, W/2, fy, '#ffe27a', 3); fy += 28; }
   if (S.rounds>0 && S.rounds===CFG.ASSISTANT_FROM_ROUND && !assistantOn()){
     const h=makeMole('helper'); h.x=h.lastX=W+40; newVessel(h); moles.push(h);
-    floater(L().ui.helper, W/2, H*0.47 + (S.rounds===CFG.FIVE_FROM_ROUND?28:0), '#ffb3f0', 3);
+    floater(L().ui.helper, W/2, fy, '#ffb3f0', 3);
+    musTrack('cave');      // the music drops "underground" for the harder half of the game
   }
   S.el = pickNext();
   S.recent = [S.el.sym, ...S.recent].slice(0,4);
@@ -1100,22 +1172,30 @@ function startTask(retry){
     renderQuestion(); musLevel(); return;
   }
   S.correct = answerFor(S.el, S.task);
-  const vals = shuffle([{v:S.correct, tag:'correct'}, ...pickDistractors(S.el, S.task, S.correct)]);
-  const lo=moleMin(), hi=moleMax(), n=vals.length, slot=(hi-lo)/n;
-  let xs = shuffle([...Array(n).keys()]).map(k => lo + (k+0.5)*slot + (Math.random()-0.5)*slot*(n>4?0.2:0.4));
+  // vals are listed in drop order. The correct answer's place in that order comes from a shuffle bag,
+  // so 1st, 2nd, ... last each come up equally often, even over a short game.
+  const wrong = shuffle(pickDistractors(S.el, S.task, S.correct)), n = wrong.length+1;
+  if (!S.bag || S.bag.n!==n || !S.bag.left.length) S.bag = { n, left: shuffle([...Array(n).keys()]) };
+  const k = S.bag.left.pop();
+  const vals = [...wrong.slice(0,k), {v:S.correct, tag:'correct'}, ...wrong.slice(k)];
+  const lo=moleMin(), hi=moleMax(), slot=(hi-lo)/n, two=assistantOn(), nl=Math.ceil(n/2), nr=n-nl;
+  const jit = () => (Math.random()-0.5)*slot*(n>4?0.2:0.4);
+  let left = [...Array(nl).keys()].map(i => lo+(i+0.5)*slot+jit()), right = [...Array(nr).keys()].map(i => lo+(nl+i+0.5)*slot+jit());
   if (S.task.type==='reverse'){
     // keep the falling answers out of the model's column when there's room, so it stays countable
-    const gap=ringR(S.el.period-1)+28, L0=lo, L1=W/2-gap, R0=W/2+gap, R1=hi, nl=Math.ceil(n/2), nr=n-nl;
-    if ((L1-L0)/nl >= 60 && (R1-R0)/Math.max(1,nr) >= 60){
-      const side=(a,b,k)=>[...Array(k).keys()].map(i=>a+(i+0.5)*(b-a)/k);
-      const pos=shuffle([...side(L0,L1,nl), ...side(R0,R1,nr)]);
-      xs = pos;
+    const gap=ringR(S.el.period-1)+28, L1=W/2-gap, R0=W/2+gap;
+    if ((L1-lo)/nl >= 60 && (hi-R0)/Math.max(1,nr) >= 60){
+      const side=(a,b,c)=>[...Array(c).keys()].map(i=>a+(i+0.5)*(b-a)/c);
+      left = side(lo,L1,nl); right = side(R0,hi,nr);
     }
   }
+  // one mole: any slot, any order. Two moles: they take turns (main, helper, main...), main on the left half, helper on the right.
+  let xs;
+  if (!two) xs = shuffle([...left, ...right]);
+  else { shuffle(left); shuffle(right); xs = vals.map((_,i) => i%2===0 ? left[i>>1] : right[i>>1]); }
   S.wave = { vals, xs, resolved:false };
-  const mid=(lo+hi)/2;
   moles.forEach((m,j)=>{ m.pour=null; m.tilt=0; m.cd = 0.1 + j*dropInterval()*0.5;
-    m.queue = vals.map((_,i)=>i).filter(i => !assistantOn() || (m.kind==='main' ? xs[i] < mid : xs[i] >= mid)); });
+    m.queue = vals.map((_,i)=>i).filter(i => !two || (m.kind==='main' ? i%2===0 : i%2===1)); });
   S.items = [];
   const sc = curScaffold();
   S.thinkDur = S.thinkT = ((retry ? CFG.THINK_RETRY : CFG.THINK) + (sc>=1 && !retry ? CFG.THINK_SCAFFOLD_BONUS : 0) + (S.task.type==='reverse' && !retry ? CFG.THINK_REVERSE_BONUS : 0)) * (S.extra ? CFG.EXTRA_THINK : 1);
@@ -1134,7 +1214,7 @@ function onCatch(it){
     const first = t.attempts===0;
     let p = first ? CFG.PTS_FIRST + CFG.PTS_STREAK*Math.min(S.streak,CFG.STREAK_CAP) : CFG.PTS_RETRY;
     if (t.missed) p = Math.round(p/2);
-    // higher catch = answered sooner: up to +50% at the top of a jump (+65% on a super jump)
+    // higher catch = answered sooner: up to +25% at the top of a jump (+32% on a super jump)
     const h = jumpHeight(), peak = h >= 1 - CFG.PEAK_ZONE;
     p = Math.round(pts(p) * (1 + CFG.HEIGHT_BONUS * clamp(h, 0, CFG.SUPER_JUMP)));
     S.score += p; S.streak++; S.bestStreak=Math.max(S.bestStreak,S.streak);
@@ -1143,12 +1223,15 @@ function onCatch(it){
     const superCatch = player.superJump && h > 1;
     floater(`+${p} ⚛${superCatch ? ' '+L().ui.superCatch : peak ? ' '+L().ui.peak : ''}`, it.x, cy-20, peak ? '#ffe27a' : '#7dffb2', peak ? 1.4 : 1);
     if (peak){
-      S.peaks++; burst(it.x, cy, '#ffe27a', superCatch ? 34 : 20); burst(it.x, cy, '#ffffff', 10);
-      if (S.peaks >= CFG.PEAKS_FOR_SUPER && !S.superReady){
-        S.superReady = true; S.peaks = 0; sfx.power();
-        floater(L().ui.superReady, W/2, H*0.5, '#ffe27a', 2.4);
+      burst(it.x, cy, '#ffe27a', superCatch ? 34 : 20); burst(it.x, cy, '#ffffff', 10);
+      if (!S.superReady){
+        S.peaks++;
+        if (S.peaks >= CFG.PEAKS_FOR_SUPER){
+          S.superReady = true; S.peaks = 0; sfx.power();
+          floater(L().ui.superReady, W/2, H*0.5, '#ffe27a', 2.4);
+        }
       }
-    }
+    } else S.peaks = 0;      // peak catches have to come in a row
     addPoints(p); recordAnswer(t.type, true, first);
     sfx.good();
     setMood(-1,1.2);
@@ -1161,8 +1244,8 @@ function onCatch(it){
     const lvl = levelKey(t); if (lvl) S.mastery[lvl] = Math.max(0, Math.min((S.mastery[lvl]||0)-1, CFG.AUTOFILL_AFTER-1));   // back into the builds
     const k = normTag(it.tag); S.tally[k] = (S.tally[k]||0)+1;
     recordAnswer(t.type, false, false, it.tag);
-    S.lives--; S.peaks = 0;
-    S.particles.push({type:'basket', x:player.x, y:cy+8, vx:(Math.random()<.5?-1:1)*140, vy:-260, rot:0, vr:7, life:1.6});
+    S.lives--; S.peaks = 0; if (CFG.LOSE_SUPER_ON_MISS) S.superReady = false;
+    S.particles.push({type:'basket', x:player.x, y:cy+8, vx:(Math.random()<.5?-1:1)*140, vy:-260, rot:0, vr:7, life:1.6, tier:basketTier()});
     burst(it.x, cy, '#ff6b80', 14);
     if (!reduceMotion) S.shake = 0.35;
     sfx.bad();
@@ -1207,12 +1290,24 @@ function renderBanner(){
   b.querySelector('.c').textContent = k==='quick' ? T.banner.quickC(x) : S.el.shells.join(' – ');
   b.querySelector('.s').textContent = (k==='reverse' ? T.banner.revS(x)+' ' : '') + `+${S.bonus}${S.clean?T.banner.clean:''}`;
 }
+// letting every answer fall is never a free skip: it costs a basket and the peak streak, like a wrong catch
 function waveExhausted(){
+  const t=S.task, cy=catchY();
   S.wave.resolved = true;
-  S.task.missed++;
-  floater(L().cv.gotAway, W/2, H*0.55, '#ffe27a', 1.6);
+  t.missed++; t.attempts++; S.clean=false; S.streak=0;
+  S.log.push({ el:S.el.sym, round:S.kind, task:t.type+(t.type==='fill'?(t.shell+1):''), caught:null, correct:S.correct, tag:'noCatch', attempt:t.attempts, ok:false });
+  S.mastery[t.type] = Math.max(0, S.mastery[t.type]-1);
+  const lvl = levelKey(t); if (lvl) S.mastery[lvl] = Math.max(0, Math.min((S.mastery[lvl]||0)-1, CFG.AUTOFILL_AFTER-1));
+  S.tally.noCatch = (S.tally.noCatch||0)+1;
+  recordAnswer(t.type, false, false, 'noCatch');
+  S.lives--; S.peaks = 0; if (CFG.LOSE_SUPER_ON_MISS) S.superReady = false;
+  S.particles.push({type:'basket', x:player.x, y:cy+8, vx:(Math.random()<.5?-1:1)*140, vy:-260, rot:0, vr:7, life:1.6, tier:basketTier()});
+  if (!reduceMotion) S.shake = 0.25;
   sfx.miss();
-  startTask(true);
+  setMood(1,2.5);
+  S.lastWrong = { v:null, tag:'noCatch' };
+  showFeedback();
+  renderStats();
 }
 function showFeedback(){
   S.state='feedback';
@@ -1225,6 +1320,15 @@ function showFeedback(){
 function renderFeedback(){
   const it=S.lastWrong; if (!it || !S.el) return;
   const T=L(), x=ctxFor(LANG,S.el,S.task,it.v,S.correct);
+  if (it.tag==='noCatch'){
+    // no answer revealed here: just the hint, so the retry still makes them think
+    const hintIn = lang => { const Tl=LANGS[lang]; return isoN(Tl.ui.hintLabel + (Tl.ui.hintLabel.endsWith('：')?'':' ') + Tl.hint[S.task.type](ctxFor(lang,S.el,S.task,null,S.correct))); };
+    $('#fbHead').textContent = T.ui.noCatch;
+    $('#fbBody').textContent = hintIn(LANG);
+    $('#fbEn').textContent = LANG==='en' ? '' : LANGS.en.ui.noCatch + ' ' + hintIn('en');
+    $('#fbNext').textContent = S.lives>0 ? T.ui.tryAgain(S.lives) : T.ui.results;
+    return;
+  }
   $('#fbHead').textContent = T.fbHead(x);
   $('#fbBody').textContent = explainIn(LANG, it.tag, S.el, S.task, it.v, S.correct);
   $('#fbEn').textContent = LANG==='en' ? '' : explainIn('en', it.tag, S.el, S.task, it.v, S.correct);
@@ -1444,7 +1548,7 @@ function summaryB(){   // what the teacher sees in the Ka-BOHR tab (always Engli
   Object.entries(TYPE_COL).forEach(([k,col])=>{const t=B.stats[k];c[col]=t?pctStr(t.r,t.r+t.w):''});
   c['Most missed']=Object.entries(B.tally).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,n])=>`${LANGS.en.tags[k]||k} (${n})`).join(', ');
   c['Extra time']=B.extra?'On':'';
-  c['Language']={en:'English',es:'Spanish',zh:'Chinese (Traditional)',ar:'Arabic'}[B.lang]||'';
+  c['Language']={en:'English',es:'Spanish',zh:'Chinese (Hong Kong)',ar:'Arabic'}[B.lang]||'';
   return c;
 }
 async function flushB(){
@@ -1659,7 +1763,7 @@ function update(dt){
 }
 
 /* ================= Draw ================= */
-const FONT = "'Atkinson Hyperlegible', 'Noto Sans TC', 'Noto Sans Arabic', 'Segoe UI', system-ui, sans-serif";
+const FONT = "'Atkinson Hyperlegible', 'Noto Sans HK', 'Noto Sans TC', 'Noto Sans Arabic', 'Segoe UI', system-ui, sans-serif";
 function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function circle(x,y,r){ ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); }
 function text(str,x,y,dir){ ctx.direction = dir || 'ltr'; ctx.fillText(str,x,y); ctx.direction='ltr'; }
@@ -1685,7 +1789,7 @@ function draw(){
   for (const f of S.flyers) drawFlyer(f);
   drawPlayer();
   for (const p of S.particles){
-    if (p.type==='basket'){ ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.globalAlpha=clamp(p.life,0,1); drawBasket(0,0); ctx.restore(); }
+    if (p.type==='basket'){ ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.globalAlpha=clamp(p.life,0,1); drawBasket(0,0,p.tier||0); ctx.restore(); }
     else { ctx.globalAlpha=clamp(p.life/p.max,0,1); ctx.fillStyle=p.color; circle(p.x,p.y,p.r); ctx.fill(); }
   }
   ctx.globalAlpha=1;
@@ -1905,11 +2009,27 @@ function drawFlyer(f){
   ctx.fillStyle='#1d1340'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font=`700 ${Math.round(22*s)}px ${FONT}`;
   ctx.fillText(String(f.v),x,y); ctx.textBaseline='alphabetic';
 }
-function drawBasket(x,y){
-  ctx.fillStyle='#c98a4b'; ctx.beginPath(); ctx.moveTo(x-38,y); ctx.lineTo(x+38,y); ctx.lineTo(x+29,y+15); ctx.lineTo(x-29,y+15); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle='#8a5526'; ctx.lineWidth=2; ctx.stroke();
+// basket finish shows the peak-catch streak: 0 brown wicker · 1 copper · 2 silver · 3 gold (super jump ready)
+const BASKET = [
+  { body:['#a8743f','#8c5d30'], line:'#5e3b1a', rim:'#c99560' },
+  { body:['#f0a074','#b8572a'], line:'#7a3214', rim:'#ffc09a' },
+  { body:['#e6ebef','#7f8c99'], line:'#4a545e', rim:'#f2f5f7' },
+  { body:['#fff0a0','#d9a20f'], line:'#8a6205', rim:'#fff6c8' }
+];
+const basketTier = () => S.superReady ? 3 : clamp(S.peaks|0, 0, 2);
+function drawBasket(x,y,tier=0,studs=0){
+  const c=BASKET[tier]||BASKET[0];
+  const g=ctx.createLinearGradient(x-38,y,x+38,y+15);
+  g.addColorStop(0,c.body[0]); g.addColorStop(tier?0.45:1,c.body[1]); g.addColorStop(1,c.body[tier?0:1]);
+  ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(x-38,y); ctx.lineTo(x+38,y); ctx.lineTo(x+29,y+15); ctx.lineTo(x-29,y+15); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=c.line; ctx.lineWidth=2; ctx.stroke();
   ctx.beginPath(); for (let k=-24;k<=24;k+=12){ ctx.moveTo(x+k,y+2); ctx.lineTo(x+k*0.8,y+14); } ctx.stroke();
-  ctx.fillStyle='#e3a865'; rr(x-40,y-3,80,6,3); ctx.fill();
+  ctx.fillStyle=c.rim; rr(x-40,y-3,80,6,3); ctx.fill();
+  // studs on the front of the top basket: the same count as the color, so it doesn't depend on color alone
+  for (let i=0;i<studs;i++){
+    const sx=x+(i-(studs-1)/2)*14, sy=y+8;
+    ctx.fillStyle=c.rim; circle(sx,sy,4); ctx.fill(); ctx.strokeStyle=c.line; ctx.lineWidth=1.5; ctx.stroke();
+  }
 }
 function drawPlayer(){
   const x=player.x, air=player.jy<0, sw=air?0:Math.sin(player.walk)*(Math.abs(player.vx)>10?1:0);
@@ -1931,20 +2051,14 @@ function drawPlayer(){
     ctx.fillStyle=buddyOf(B.buddy).col; circle(x,gy-47,23); ctx.fill();
     ctx.fillStyle='#fff'; ctx.font=`800 15px ${FONT}`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(buddyOf(B.buddy).s,x,gy-41); ctx.textBaseline='alphabetic';
   }
-  for (let k=0;k<S.lives;k++) drawBasket(x, gy-90-16*(k+1)+1);
+  const tier = basketTier();
+  for (let k=0;k<S.lives;k++) drawBasket(x, gy-90-16*(k+1)+1, tier, k===S.lives-1 ? tier : 0);
   const topY = gy-90-16*Math.max(1,S.lives)+1;
   // sweet spot: the rim glows while the baskets are in the peak zone
   if (jumpHeight() >= 1-CFG.PEAK_ZONE){ ctx.strokeStyle='rgba(255,226,122,.95)'; ctx.lineWidth=4; rr(x-42,topY-5,84,9,4); ctx.stroke(); }
-  // super jump charged: pulsing halo around the stack
-  if (S.superReady){
-    const a=0.35+0.25*Math.sin(S.time*8);
-    ctx.strokeStyle=`rgba(255,226,122,${a})`; ctx.lineWidth=5; ctx.beginPath(); ctx.ellipse(x, topY+20, 54, 30, 0, 0, Math.PI*2); ctx.stroke();
-    if (Math.random()<0.25) S.particles.push({type:'dot', x:x+(Math.random()-.5)*90, y:topY+(Math.random()-.5)*30, vx:0, vy:-40, life:.5, max:.5, color:'#ffe27a', r:2});
-  }
-  // peak catches toward the next super jump
-  if (S.peaks>0 && !S.superReady){
-    for (let i=0;i<CFG.PEAKS_FOR_SUPER;i++){ ctx.fillStyle = i<S.peaks ? '#ffe27a' : 'rgba(255,255,255,.25)'; circle(x+50, topY+4+i*11, 4); ctx.fill(); }
-  }
+  // super jump charged: gold baskets throw off sparkles
+  if (S.superReady && !reduceMotion && Math.random()<0.3)
+    S.particles.push({type:'dot', x:x+(Math.random()-.5)*90, y:topY+Math.random()*16*Math.max(1,S.lives), vx:0, vy:-40, life:.5, max:.5, color:Math.random()<.6?'#ffe27a':'#ffffff', r:2});
 }
 
 /* ================= Loop ================= */
@@ -2012,13 +2126,13 @@ $('#btnMute').addEventListener('click', e=>{ sfxOn=!sfxOn; e.currentTarget.textC
 $('#btnMusic').addEventListener('click', e=>{ MUS.on=!MUS.on; e.currentTarget.setAttribute('aria-pressed', String(MUS.on)); musLevel(); });
 window.addEventListener('resize', resize);
 
-buildTable($('#cardTable')); buildTable($('#dockTable'));
+buildTable($('#cardTable')); buildTable($('#dockTable')); $('#ver').textContent=VERSION;
 applyLang('en');
 resize(); renderStats(); renderAcct();
 if (NET.on && who) setTimeout(syncProfile, 0);
 requestAnimationFrame(frame);
 
-window.__kabohr = { S, player, moles, NET, getB:()=>B, getWho:()=>who, input, ELS, BY, CFG, LANGS, explainIn, candidates, pickDistractors, electronAngles, catchY, startGame, applyLang, jump };
+window.__kabohr = { tick:(d)=>update(d), fallSpeed:()=>fallSpeed(), dropInterval:()=>dropInterval(), MUS, S, player, moles, NET, getB:()=>B, getWho:()=>who, input, ELS, BY, CFG, LANGS, explainIn, candidates, pickDistractors, electronAngles, catchY, startGame, applyLang, jump };
 })();
 </script>
 </body></html>
