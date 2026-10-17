@@ -305,7 +305,7 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
 'use strict';
 
 /* ================= Tunables ================= */
-const VERSION = 'Version: Oct 17, 2026, update 4';
+const VERSION = 'Version: Oct 17, 2026, update 5';
 const CFG = {
   LIVES: 3, ITEMS_PER_WAVE: 4,
   // pace rises a little every round, all the way up (no sudden jumps)
@@ -662,7 +662,7 @@ ar: {
     busy:'قائمة الصف مشغولة. حاول بعد دقيقة.', badCode:'هذا الرابط ينقصه رمز الصف. استخدم الرابط الذي شاركه معلمك.', network:'تعذّر الوصول إلى قائمة الصف. تحقق من الإنترنت وحاول مرة أخرى.',
     period:n=>`الحصة ${n}`, total:n=>`المجموع ${n} ⚛`, saving:'جارٍ الحفظ…', saved:n=>`تم الحفظ! لديك الآن ${n} ⚛.`, saveFail:'لم يتم الحفظ بعد. ستتم المحاولة مرة أخرى.',
     guestSave:'سجّل الدخول لتحتفظ بـ ⚛.', earned:n=>`+${n} ⚛ في هذه اللعبة`,
-    score:'النقاط', streak:'التتابع', rounds:'الجولات', jump:'اقفز', ready:'جاهز؟ اضغط Enter أو المس هنا لتبدأ.', peak:'القمة!', superCatch:'التقاط خارق!', superReady:'القفزة الخارقة جاهزة! قفزتك التالية أعلى.', lvl5:'مستوى جديد: الآن 5 خيارات!', helper:'مساعد مختبر ينضم إلى الخُلد!', lvl6:'مستوى جديد: الآن 6 خيارات!', noCatch:'لم تلتقط شيئًا! ترك كل الإجابات تسقط يكلّفك سلة.', hintLabel:'تلميح:', warpWhy:{streak:n=>`${n} إجابة صحيحة متتالية من أول محاولة!`, jump:n=>`${n} ${arForm(n,'قفزة خارقة','قفزات خارقة','قفزة خارقة')} متتالية!`}, warpEarned:'ربحت بوابة القفز!', warpCatch:'التقطها لتتقدّم.', warped:n=>`قفزة! +${n} ${arForm(n,'جولة','جولات','جولة')}`, bonusBasket:'+1 سلة!',
+    score:'النقاط', streak:'التتابع', rounds:'الجولات', jump:'اقفز', ready:'جاهز؟ اضغط Enter أو المس هنا لتبدأ.', peak:'القمة!', superCatch:'التقاط خارق!', superReady:'القفزة الخارقة جاهزة! قفزتك التالية أعلى.', lvl5:'مستوى جديد: الآن 5 خيارات!', helper:'مساعد مختبر ينضم إلى الخُلد!', lvl6:'مستوى جديد: الآن 6 خيارات!', noCatch:'لم تلتقط شيئًا! ترك كل الإجابات تسقط يكلّفك سلة.', hintLabel:'تلميح:', warpWhy:{streak:n=>`${n} إجابة صحيحة متتالية من أول محاولة!`, jump:n=> n===2 ? 'قفزتان خارقتان متتاليتان!' : `${n} قفزات خارقة متتالية!`}, warpEarned:'ربحت بوابة القفز!', warpCatch:'التقطها لتتقدّم.', warped:n=> n===1 ? 'قفزة! +جولة واحدة' : n===2 ? 'قفزة! +جولتان' : `قفزة! +${n} جولات`, bonusBasket:'+1 سلة!',
     lede:'الخُلد يُسقط أرقامًا. التقط الرقم الصحيح لتبني نموذج بور لكل ذرة، وتتعرّف على الذرات الغامضة، وتجيب عن أسئلة سريعة. كل التقاط خاطئ يكلّفك سلة.',
     language:'اللغة', elements:'العناصر', mBasic:'أساسي', mAdv:'متقدم', mMixed:'مختلط', mMixedSub:'الأساسي ثم المتقدم',
     extra:'وقت إضافي', extraSub:'سقوط أبطأ ووقت أطول للتفكير. تُعدَّل النقاط.', start:'ابدأ',
@@ -897,7 +897,7 @@ const S = {
   mode:'basic', extra:false, state:'menu', time:0,
   score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[],
   queue:null, recent:[], kind:'build', el:null, tasks:[], taskIdx:0, task:null, correct:0, sawTransition:false,
-  wave:null, items:[], particles:[], flyers:[], floaters:[], model:null, lastWrong:null, prevRim:null,
+  wave:null, items:[], particles:[], flyers:[], floaters:[], ann:[], model:null, lastWrong:null, prevRim:null,
   mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0,fill1:0,fill2:0},
   thinkT:0, thinkDur:1, resolveT:0, celebrateT:0, shake:0, fbReadyAt:0, pausedFrom:null,
   log:[], tally:{}, tasksDone:0, firstTryDone:0, clean:true
@@ -1145,7 +1145,7 @@ function startGame(){
   Object.assign(S, { score:0, streak:0, bestStreak:0, lives:CFG.LIVES, rounds:0, built:[], recent:[], sawTransition:false,
     items:[], particles:[], flyers:[], floaters:[], mastery:{shells:0,valence:0,fill:0,core:0,total:0,reverse:0,fill1:0,fill2:0},
     log:[], tally:{}, tasksDone:0, firstTryDone:0, prevRim:null, peaks:0, superReady:false, bag:null,
-    ftRun:0, superChain:0, warpReady:false, warps:0, saw5:false, saw6:false, warpT:0, warpDur:1 });
+    ftRun:0, superChain:0, warpReady:false, ann:[], warps:0, saw5:false, saw6:false, warpT:0, warpDur:1 });
   MUS.track='lab';
   S.mastery = Object.assign(S.mastery, B.mastery||{});   // hints keep fading from where this student left off
   saveState=''; syncProfile();
@@ -1159,14 +1159,15 @@ function startGame(){
 function nextRound(){
   const pat = (S.mode==='adv' || (S.mode==='mixed' && !S.queue.ramp.length)) ? CFG.ROUND_PATTERN_ADV : CFG.ROUND_PATTERN;
   S.kind = pat[S.rounds % pat.length];
-  let fy = H*0.47;
-  if (S.rounds>=CFG.FIVE_FROM_ROUND && !S.saw5){ S.saw5=true; if (S.rounds>0 && S.rounds<CFG.SIX_FROM_ROUND){ floater(L().ui.lvl5, W/2, fy, '#ffe27a', 3); fy += 28; } }
-  if (S.rounds>=CFG.SIX_FROM_ROUND && !S.saw6){ S.saw6=true; if (S.rounds>0){ floater(L().ui.lvl6, W/2, fy, '#ffe27a', 3); fy += 28; } }
+  const news=[];
+  if (S.rounds>=CFG.FIVE_FROM_ROUND && !S.saw5){ S.saw5=true; if (S.rounds>0 && S.rounds<CFG.SIX_FROM_ROUND) news.push([L().ui.lvl5,'#ffe27a']); }
+  if (S.rounds>=CFG.SIX_FROM_ROUND && !S.saw6){ S.saw6=true; if (S.rounds>0) news.push([L().ui.lvl6,'#ffe27a']); }
   if (S.rounds>0 && S.rounds>=CFG.ASSISTANT_FROM_ROUND && !assistantOn()){
     const h=makeMole('helper'); h.x=h.lastX=W+40; newVessel(h); moles.push(h);
-    floater(L().ui.helper, W/2, fy, '#ffb3f0', 3);
+    news.push([L().ui.helper,'#ffb3f0']);
     musTrack('cave');      // the music drops "underground" for the harder half of the game
   }
+  if (news.length) announce(news, 3);
   S.el = pickNext();
   S.recent = [S.el.sym, ...S.recent].slice(0,4);
   const full = S.kind==='reverse';
@@ -1265,7 +1266,7 @@ function onCatch(it){
         if (S.peaks >= CFG.PEAKS_FOR_SUPER){
           S.superReady = true; S.peaks = 0; sfx.power();
           if (++S.superChain >= CFG.WARP_SUPER_CHAIN){ S.superChain=0; earnWarp('jump', CFG.WARP_SUPER_CHAIN); }
-          floater(L().ui.superReady, W/2, H*0.5, '#ffe27a', 2.4);
+          announce([[L().ui.superReady,'#ffe27a']], 2.2);
         }
       }
     } else { S.peaks = 0; S.superChain = 0; }     // peak catches have to come in a row
@@ -1299,14 +1300,14 @@ function onCatch(it){
 const warpRounds = () => Math.max(0, Math.min(CFG.WARP_ROUNDS, CFG.WARP_MAX_ROUND - S.rounds));
 function earnWarp(why, n){
   if (!CFG.WARP_ON) return;
-  const T=L().ui;
-  floater(T.warpWhy[why](n), W/2, H*0.40, '#c9a8ff', 2.6);
+  S.ftRun = 0; S.superChain = 0;        // earning a warp either way restarts the count for both triggers
+  const T=L().ui, why1=[T.warpWhy[why](n),'#c9a8ff'];
   if (warpRounds()>0){
     if (S.warpReady) return;
     S.warpReady = true; sfx.power();
-    floater(T.warpEarned, W/2, H*0.40+26, '#ffe27a', 2.6); floater(T.warpCatch, W/2, H*0.40+52, '#ffffff', 2.6);
-  } else if (S.lives < CFG.LIVES){ S.lives++; floater(T.bonusBasket, W/2, H*0.40+26, '#7dffb2', 2.2); }
-  else { const b=pts(CFG.WARP_BONUS_PTS); S.score+=b; addPoints(b); floater(`+${b} ⚛`, W/2, H*0.40+26, '#7dffb2', 2.2); }
+    announce([why1, [T.warpEarned,'#ffe27a'], [T.warpCatch,'#ffffff']], 3);
+  } else if (S.lives < CFG.LIVES){ S.lives++; announce([why1, [T.bonusBasket,'#7dffb2']], 2.4); }
+  else { const b=pts(CFG.WARP_BONUS_PTS); S.score+=b; addPoints(b); announce([why1, [`+${b} ⚛`,'#7dffb2']], 2.4); }
 }
 function catchPortal(){
   const k=warpRounds();
@@ -1320,7 +1321,7 @@ function catchPortal(){
 function finishWarp(){
   const k=S.warpK||0;
   S.rounds += k; if (S.queue && S.queue.ramp) S.queue.ramp.splice(0, k);   // skip the easiest warm-up atoms
-  floater(L().ui.warped(k), W/2, H*0.47, '#c9a8ff', 2.4);
+  announce([[L().ui.warped(k),'#c9a8ff']], 2);
   renderStats(); nextRound();
 }
 // which inner-level skill a fill question checks: n = 1 when it isn't the outer level, n = 2 when it's an inner 8
@@ -1409,7 +1410,7 @@ function continueFromFeedback(){
   startTask(true);
 }
 function gameOver(){
-  S.state='over'; musStop();
+  S.state='over'; S.ann=[]; musStop();
   finishGameB();
   renderOver();
   $('#over').classList.remove('hidden');
@@ -1434,7 +1435,7 @@ function setPaused(on){
   else if (!on && S.state==='paused'){ S.state=S.pausedFrom; $('#pauseOv').classList.add('hidden'); musLevel(); }
 }
 function toMenu(){
-  S.state='menu'; S.el=null; S.items=[]; musStop();
+  S.state='menu'; S.el=null; S.items=[]; S.ann=[]; musStop();
   ['#over','#pauseOv','#feedback','#banner','#lesson'].forEach(id=>$(id).classList.add('hidden'));
   $('#menu').classList.remove('hidden');
   renderQuestion(); renderStats();
@@ -1508,7 +1509,7 @@ function renderQuestion(){
   $('#qtext').textContent=full;
   $('#qtextEn').textContent = LANG==='en' ? '' : LANGS.en.q[t.type](ctxFor('en', el, t, null, null))[0];
   $('#qhint').textContent=hint; $('#qcount').textContent=count;
-  card.classList.toggle('hidden', S.state!=='think');
+  card.classList.toggle('hidden', S.state!=='think' || S.ann.length>0);
   card.classList.toggle('low', t.type==='reverse');
   ct.classList.toggle('hidden', !table);
   const docked = S.state!=='think';
@@ -1553,6 +1554,24 @@ function burst(x,y,color,n){
     S.particles.push({type:'dot',x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.5+Math.random()*.4,max:.9,color,r:2+Math.random()*2.5}); }
 }
 function floater(text,x,y,color,life=1){ S.floaters.push({text,x,y,color,life,max:life}); }
+/* Big news (super jump ready, warp earned, new level) shows one message at a time on a dark panel,
+   so two pieces of news never land on top of each other. */
+function announce(lines, life=2.4){ S.ann.push({lines, life, max:life}); if (S.ann.length>3) S.ann.splice(1,1); renderQuestion(); }
+function drawAnn(){
+  const a=S.ann[0]; if (!a) return;
+  ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);
+  const t=a.max-a.life, alpha=clamp(Math.min(t/0.15, a.life/0.3),0,1), T=L();
+  let fs=21; ctx.font=`700 ${fs}px ${FONT}`;
+  let mw=Math.max(...a.lines.map(l=>ctx.measureText(l[0]).width));
+  if (mw > W-60){ fs=Math.max(13, Math.floor(fs*(W-60)/mw)); ctx.font=`700 ${fs}px ${FONT}`; mw=Math.max(...a.lines.map(l=>ctx.measureText(l[0]).width)); }
+  const lh=fs*1.45, w=mw+36, h=a.lines.length*lh+18, x=W/2-w/2, y=H*0.42-h/2;
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle='rgba(18,9,40,.88)'; rr(x,y,w,h,14); ctx.fill();
+  ctx.strokeStyle='rgba(201,168,255,.7)'; ctx.lineWidth=2; ctx.stroke();
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  a.lines.forEach(([str,col],i)=>{ ctx.fillStyle=col; text(str, W/2, y+9+lh*(i+0.5), T.dir); });
+  ctx.textBaseline='alphabetic'; ctx.globalAlpha=1;
+}
 
 /* ================= Class accounts =================
    Same Google Sheet and Apps Script web app as iBond (see Code.gs). Students log in with the
@@ -1774,9 +1793,9 @@ function update(dt){
     }
   }
   if (S.state==='think'){
-    S.thinkT -= dt;
+    if (!S.ann.length) S.thinkT -= dt;      // the question waits while big news is on screen
     $('#thinkbar').style.width = (100*clamp(S.thinkT/S.thinkDur,0,1))+'%';
-    if (S.thinkT<=0){ S.state='drop'; renderQuestion(); }
+    if (S.thinkT<=0 && !S.ann.length){ S.state='drop'; renderQuestion(); }
   } else if (S.state==='drop'){
     const w=S.wave;
     for (const m of moles){
@@ -1834,6 +1853,7 @@ function update(dt){
     if (p.life<=0) S.particles.splice(S.particles.indexOf(p),1);
   }
   for (const f of S.floaters.slice()){ f.life-=dt; f.y-=40*dt; if (f.life<=0) S.floaters.splice(S.floaters.indexOf(f),1); }
+  if (S.ann.length){ S.ann[0].life-=dt; if (S.ann[0].life<=0){ S.ann.shift(); if (!S.ann.length) renderQuestion(); } }
   if (S.shake>0) S.shake-=dt;
 }
 
@@ -1875,6 +1895,7 @@ function draw(){
   }
   ctx.globalAlpha=1;
   if (S.state==='warp' || (S.state==='paused' && S.pausedFrom==='warp')) warpFX();
+  drawAnn();
 }
 
 /* --- lab glassware: grip point at (0,0), drawn upright --- */
@@ -2198,7 +2219,7 @@ window.addEventListener('keydown', e=>{
     else if (k===' ' && S.state==='feedback') e.preventDefault();   // Space never skips feedback (mashing jump)
   }
   else if (k==='Enter'){
-    if (S.state==='think'){ e.preventDefault(); S.thinkT=0; }
+    if (S.state==='think'){ e.preventDefault(); if (S.ann.length){ S.ann.shift(); if (!S.ann.length) renderQuestion(); } else S.thinkT=0; }
     else if (S.state==='feedback'){ e.preventDefault(); continueFromFeedback(); }
     else if (S.state==='lesson'){ e.preventDefault(); closeLesson(); }
     else if (S.state==='paused'){ e.preventDefault(); setPaused(false); }
@@ -2239,7 +2260,7 @@ resize(); renderStats(); renderAcct();
 if (NET.on && who) setTimeout(syncProfile, 0);
 requestAnimationFrame(frame);
 
-window.__kabohr = { tick:(d)=>update(d), draw:()=>draw(), fallSpeed:()=>fallSpeed(), dropInterval:()=>dropInterval(), MUS, S, player, moles, NET, getB:()=>B, getWho:()=>who, input, ELS, BY, CFG, LANGS, explainIn, candidates, pickDistractors, electronAngles, catchY, startGame, applyLang, jump };
+window.__kabohr = { tick:(d)=>update(d), draw:()=>draw(), announce, fallSpeed:()=>fallSpeed(), dropInterval:()=>dropInterval(), MUS, S, player, moles, NET, getB:()=>B, getWho:()=>who, input, ELS, BY, CFG, LANGS, explainIn, candidates, pickDistractors, electronAngles, catchY, startGame, applyLang, jump };
 })();
 </script>
 </body></html>
