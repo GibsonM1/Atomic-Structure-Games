@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ka-BOHR! · Bohr model catch (iBond sandbox)</title>
+<title>Ka-BOHR! · Bohr model catch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bungee&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+HK:wght@400;700&display=swap" rel="stylesheet">
@@ -167,6 +167,22 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
 .acerr{color:var(--bad);font-size:14px;margin:6px 0 0;min-height:1em}
 .linkbtn{background:none;border:none;color:var(--violet);text-decoration:underline;padding:6px 0;font-size:14px}
 .saveline{margin:4px 0 0;font-size:15px}
+#acUser{letter-spacing:0;width:100%;font-size:18px}
+.achint{display:block;color:var(--muted);font-size:13px;margin:3px 0 0}
+.acbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+.acct .btn.slim,.acct .ghost.slim{min-height:44px}
+.acct .acrow .ghost.slim{white-space:nowrap}
+.seg.two{grid-template-columns:repeat(2,1fr)}
+#boardOv{background:rgba(20,10,40,.55);border-radius:16px}
+#boardOv .seg button{min-height:44px}
+.lb{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;min-height:120px}
+.lb li{display:grid;grid-template-columns:28px 30px minmax(0,1fr) auto;align-items:center;gap:8px;padding:3px 8px;border-radius:10px}
+.lb li.me{background:color-mix(in srgb,var(--gold) 30%,transparent);outline:2px solid var(--gold)}
+.lb .rk{font-weight:700;color:var(--muted);text-align:end}
+.lb .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .nm small{font-weight:400;color:var(--muted);margin-inline-start:6px}
+.lb .pt{font-weight:700;font-variant-numeric:tabular-nums;direction:ltr}
+.lb li.gap,.lb li.empty{display:block;text-align:center;color:var(--muted);padding:2px 0}
 .saveline span{color:var(--muted)}
 .sprite{flex:none}
 @media (max-width:440px){
@@ -250,7 +266,7 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
 
     <div id="menu" class="overlay">
       <div class="sheet">
-        <h1>Ka-BOHR!</h1>
+        <h1><bdi>Ka-BOHR!</bdi></h1>
         <p class="lede" data-k="ui.lede"></p>
         <div id="acct" class="acct hidden" aria-live="polite"></div>
         <div class="label" data-k="ui.language"></div>
@@ -268,7 +284,7 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
         </div>
         <label class="toggle"><input type="checkbox" id="extraTime"><span><span data-k="ui.extra"></span><small data-k="ui.extraSub"></small></span></label>
         <button class="go" id="btnStart" data-k="ui.start"></button>
-        <p class="fine"><span data-k="ui.controls"></span><br><span data-k="ui.sandbox"></span><br><span id="ver"></span></p>
+        <p class="fine"><span data-k="ui.controls"></span><br><span data-k="ui.sandbox" id="sandboxNote"></span><br><span id="ver"></span></p>
       </div>
     </div>
 
@@ -295,17 +311,29 @@ h2{font-weight:700;font-size:22px;line-height:1.2;margin:0 0 8px;color:var(--vio
         <div class="label" data-k="ui.finished"></div>
         <div id="chips"></div>
         <button class="go" id="btnAgain" data-k="ui.again"></button>
+        <button class="ghost hidden" id="btnBoardOver" data-k="ui.board"></button>
         <button class="ghost" id="btnMenu" data-k="ui.settings"></button>
+      </div>
+    </div>
+
+    <div id="boardOv" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="bdHead">
+      <div class="sheet">
+        <h2 id="bdHead" data-k="ui.board"></h2>
+        <div class="seg" id="bdGame" role="group" aria-label="Game"></div>
+        <div class="seg two" id="bdPer" role="group" aria-label="Period" style="margin-top:6px"></div>
+        <ol class="lb" id="bdList" aria-live="polite"></ol>
+        <button class="go" id="bdClose" data-k="ui.close"></button>
       </div>
     </div>
   </main>
 </div>
+<script src="https://gibsonm1.github.io/theme/login-v1.js"></script>
 <script>
 (() => {
 'use strict';
 
 /* ================= Tunables ================= */
-const VERSION = 'Version: Oct 17, 2026, update 5';
+const VERSION = 'Version: Oct 17, 2026, update 6';
 const CFG = {
   LIVES: 3, ITEMS_PER_WAVE: 4,
   // pace rises a little every round, all the way up (no sudden jumps)
@@ -368,8 +396,9 @@ en: {
   names:{H:'Hydrogen',He:'Helium',Li:'Lithium',Be:'Beryllium',B:'Boron',C:'Carbon',N:'Nitrogen',O:'Oxygen',F:'Fluorine',Ne:'Neon',Na:'Sodium',Mg:'Magnesium',Al:'Aluminum',Si:'Silicon',P:'Phosphorus',S:'Sulfur',Cl:'Chlorine',Ar:'Argon',K:'Potassium',Ca:'Calcium',Ga:'Gallium',Ge:'Germanium',As:'Arsenic',Se:'Selenium',Br:'Bromine',Kr:'Krypton'},
   gl: g => `Group ${g} (${AG[g]})`,
   E: n => `${n} electron${n===1?'':'s'}`, EL: n => `${n} energy level${n===1?'':'s'}`, V: n => `${n} valence electron${n===1?'':'s'}`,
-  ui:{ logIn:'Log in', logOut:'Log out', guest:'Playing as guest', idLabel:'Last 5 digits of your student ID', next:'Next', isYou:'Is this you?', notMe:"That's not me",
-    enter5:'Enter all 5 digits.', noMatch:'No match for that number. Check it, or ask your teacher.', checkAgain:"Check your number and try again. If it still isn't you, tell your teacher.",
+  ui:{ logIn:'Log in', logOut:'Log out', guest:'Playing as guest', idLabel:'Last 5 digits of your student number', userLabel:'School username', userHint:'The first part of your school email, before the @', show:'Show', hide:'Hide', cancel:'Cancel',
+    enter5:'Enter all 5 digits.', needUser:'Type your school username.', badLogin:"That username and number don't match. Check both, or ask your teacher.", tooMany:'Too many tries. Wait 10 minutes, or ask your teacher.', signedOut:'You were logged out. Log in again to keep your ⚛.',
+    board:'🏆 Leaderboard', allGames:'All games', allPeriods:'All periods', you:'you', boardEmpty:'No points yet. Play to get on the board!', loading:'Loading…', close:'Close',
     busy:'The class list is busy. Try again in a minute.', badCode:'This link is missing the class code. Use the game link your teacher shared.', network:'Couldn’t reach the class list. Check the internet and try again.',
     period:n=>`Period ${n}`, total:n=>`${n} ⚛ total`, saving:'Saving…', saved:n=>`Saved! You have ${n} ⚛ in all.`, saveFail:'Couldn’t save yet. It will try again.',
     guestSave:'Log in to keep your ⚛.', earned:n=>`+${n} ⚛ this game`,
@@ -464,8 +493,9 @@ es: {
   names:{H:'Hidrógeno',He:'Helio',Li:'Litio',Be:'Berilio',B:'Boro',C:'Carbono',N:'Nitrógeno',O:'Oxígeno',F:'Flúor',Ne:'Neón',Na:'Sodio',Mg:'Magnesio',Al:'Aluminio',Si:'Silicio',P:'Fósforo',S:'Azufre',Cl:'Cloro',Ar:'Argón',K:'Potasio',Ca:'Calcio',Ga:'Galio',Ge:'Germanio',As:'Arsénico',Se:'Selenio',Br:'Bromo',Kr:'Kriptón'},
   gl: g => `grupo ${g} (${AG[g]})`,
   E: n => `${n} ${n===1?'electrón':'electrones'}`, EL: n => `${n} ${n===1?'nivel de energía':'niveles de energía'}`, V: n => `${n} ${n===1?'electrón de valencia':'electrones de valencia'}`,
-  ui:{ logIn:'Iniciar sesión', logOut:'Cerrar sesión', guest:'Jugando como invitado', idLabel:'Últimos 5 dígitos de tu número de estudiante', next:'Siguiente', isYou:'¿Eres tú?', notMe:'No soy yo',
-    enter5:'Escribe los 5 dígitos.', noMatch:'No hay nadie con ese número. Revísalo o pregúntale a tu maestro.', checkAgain:'Revisa tu número e inténtalo de nuevo. Si todavía no eres tú, avísale a tu maestro.',
+  ui:{ logIn:'Iniciar sesión', logOut:'Cerrar sesión', guest:'Jugando como invitado', idLabel:'Últimos 5 dígitos de tu número de estudiante', userLabel:'Usuario de la escuela', userHint:'La primera parte de tu correo escolar, antes de la @', show:'Mostrar', hide:'Ocultar', cancel:'Cancelar',
+    enter5:'Escribe los 5 dígitos.', needUser:'Escribe tu usuario de la escuela.', badLogin:'El usuario y el número no coinciden. Revisa los dos o pregúntale a tu maestro.', tooMany:'Demasiados intentos. Espera 10 minutos o pregúntale a tu maestro.', signedOut:'Se cerró tu sesión. Inicia sesión otra vez para guardar tus ⚛.',
+    board:'🏆 Clasificación', allGames:'Todos los juegos', allPeriods:'Todos los periodos', you:'tú', boardEmpty:'Todavía no hay puntos. ¡Juega para aparecer en la tabla!', loading:'Cargando…', close:'Cerrar',
     busy:'La lista de la clase está ocupada. Inténtalo en un minuto.', badCode:'A este enlace le falta el código de la clase. Usa el enlace que compartió tu maestro.', network:'No se pudo conectar con la lista de la clase. Revisa el internet e inténtalo de nuevo.',
     period:n=>`Periodo ${n}`, total:n=>`${n} ⚛ en total`, saving:'Guardando…', saved:n=>`¡Guardado! Tienes ${n} ⚛ en total.`, saveFail:'Todavía no se pudo guardar. Se intentará de nuevo.',
     guestSave:'Inicia sesión para guardar tus ⚛.', earned:n=>`+${n} ⚛ en esta partida`,
@@ -560,8 +590,9 @@ zh: {
   names:{H:'氫',He:'氦',Li:'鋰',Be:'鈹',B:'硼',C:'碳',N:'氮',O:'氧',F:'氟',Ne:'氖',Na:'鈉',Mg:'鎂',Al:'鋁',Si:'硅',P:'磷',S:'硫',Cl:'氯',Ar:'氬',K:'鉀',Ca:'鈣',Ga:'鎵',Ge:'鍺',As:'砷',Se:'硒',Br:'溴',Kr:'氪'},
   gl: g => `第 ${g} 族（${AG[g]}）`,
   E: n => `${n} 個電子`, EL: n => `${n} 個能級`, V: n => `${n} 個價電子`,
-  ui:{ logIn:'登入', logOut:'登出', guest:'以訪客身分遊玩', idLabel:'學號的最後 5 位數字', next:'下一步', isYou:'這是你嗎？', notMe:'這不是我',
-    enter5:'請輸入全部 5 位數字。', noMatch:'找不到這個號碼。請檢查一下，或問老師。', checkAgain:'請檢查號碼再試一次。如果還是不對，請告訴老師。',
+  ui:{ logIn:'登入', logOut:'登出', guest:'以訪客身分遊玩', idLabel:'學號的最後 5 位數字', userLabel:'學校用戶名稱', userHint:'學校電郵 @ 前面的部分', show:'顯示', hide:'隱藏', cancel:'取消',
+    enter5:'請輸入全部 5 位數字。', needUser:'請輸入你的學校用戶名稱。', badLogin:'用戶名稱和號碼不相符。請兩樣都檢查一下，或問老師。', tooMany:'嘗試次數太多。請等 10 分鐘，或問老師。', signedOut:'你已被登出。請再登入，才能保存你的 ⚛。',
+    board:'🏆 排行榜', allGames:'所有遊戲', allPeriods:'所有節次', you:'你', boardEmpty:'還沒有分數。快來玩，登上排行榜！', loading:'載入中…', close:'關閉',
     busy:'班級名單忙碌中，請一分鐘後再試。', badCode:'這個連結缺少班級代碼。請使用老師分享的連結。', network:'無法連到班級名單。請檢查網絡後再試。',
     period:n=>`第 ${n} 節`, total:n=>`共 ${n} ⚛`, saving:'儲存中…', saved:n=>`已儲存！你現在共有 ${n} ⚛。`, saveFail:'還沒存好，稍後會再試。',
     guestSave:'登入才能保存你的 ⚛。', earned:n=>`這局 +${n} ⚛`,
@@ -657,8 +688,9 @@ ar: {
   E: n => `${n} ${arForm(n,'إلكترون','إلكترونات','إلكترونًا')}`,
   EL: n => `${n} ${arForm(n,'مستوى طاقة','مستويات طاقة','مستوى طاقة')}`,
   V: n => `${n} ${arForm(n,'إلكترون تكافؤ','إلكترونات تكافؤ','إلكترون تكافؤ')}`,
-  ui:{ logIn:'تسجيل الدخول', logOut:'تسجيل الخروج', guest:'تلعب كضيف', idLabel:'آخر 5 أرقام من رقم الطالب', next:'التالي', isYou:'هل هذا أنت؟', notMe:'هذا ليس أنا',
-    enter5:'أدخل الأرقام الخمسة كلها.', noMatch:'لا يوجد طالب بهذا الرقم. تحقق منه أو اسأل معلمك.', checkAgain:'تحقق من رقمك وحاول مرة أخرى. إذا لم يكن هذا أنت، أخبر معلمك.',
+  ui:{ logIn:'تسجيل الدخول', logOut:'تسجيل الخروج', guest:'تلعب كضيف', idLabel:'آخر 5 أرقام من رقم الطالب', userLabel:'اسم المستخدم في المدرسة', userHint:'الجزء الأول من بريدك المدرسي، قبل @', show:'إظهار', hide:'إخفاء', cancel:'إلغاء',
+    enter5:'أدخل الأرقام الخمسة كلها.', needUser:'اكتب اسم المستخدم المدرسي.', badLogin:'اسم المستخدم والرقم غير متطابقين. تحقق منهما أو اسأل معلمك.', tooMany:'محاولات كثيرة جدًا. انتظر 10 دقائق أو اسأل معلمك.', signedOut:'تم تسجيل خروجك. سجّل الدخول مرة أخرى لتحتفظ بـ ⚛.',
+    board:'🏆 لوحة المتصدرين', allGames:'كل الألعاب', allPeriods:'كل الحصص', you:'أنت', boardEmpty:'لا توجد نقاط بعد. العب لتظهر في اللوحة!', loading:'جارٍ التحميل…', close:'إغلاق',
     busy:'قائمة الصف مشغولة. حاول بعد دقيقة.', badCode:'هذا الرابط ينقصه رمز الصف. استخدم الرابط الذي شاركه معلمك.', network:'تعذّر الوصول إلى قائمة الصف. تحقق من الإنترنت وحاول مرة أخرى.',
     period:n=>`الحصة ${n}`, total:n=>`المجموع ${n} ⚛`, saving:'جارٍ الحفظ…', saved:n=>`تم الحفظ! لديك الآن ${n} ⚛.`, saveFail:'لم يتم الحفظ بعد. ستتم المحاولة مرة أخرى.',
     guestSave:'سجّل الدخول لتحتفظ بـ ⚛.', earned:n=>`+${n} ⚛ في هذه اللعبة`,
@@ -1465,7 +1497,7 @@ function applyLang(code){
   renderQuestion(); renderLessonRows();
   if (S.state==='feedback') renderFeedback();
   if (S.state==='over') renderOver();
-  renderAcct();
+  renderAcct(); renderBoard();
   if (S.state==='celebrate') renderBanner();
 }
 
@@ -1574,39 +1606,25 @@ function drawAnn(){
 }
 
 /* ================= Class accounts =================
-   Same Google Sheet and Apps Script web app as iBond (see Code.gs). Students log in with the
-   last 5 digits of their ID; points, sprite and hat are shared across the whole suite, and this
-   game's stats go in the Sheet's "Ka-BOHR" tab. Leave API_URL blank for guest-only. */
-const API_URL='https://script.google.com/macros/s/AKfycbyQdG9xrv-ba_5Jae5hy0ZN4oyEvXCrSL85F4MCrT52W6zLdIMHcpxmf3dKMPHoA7h1/exec';
+   Shared login from theme/login-v1.js (the back end address lives there, not here).
+   Students log in with their district username + the last 5 digits of their student number.
+   ⚛ points, sprite and hat are shared by every game; this game's stats go in the Sheet's "Ka-BOHR" tab.
+   If login-v1.js can't load (no internet, Claude preview), the game simply runs in guest mode. */
+const GL=window.GibsonLogin||null;
 const GAME_ID='bohr';
-const NET={on:false,code:''};
-try{
-  const q=new URLSearchParams(location.search).get('code');
-  if(q)localStorage.setItem('ibond-code',q);            // same key as iBond, so one link sets it for both
-  NET.code=q||localStorage.getItem('ibond-code')||'';
-}catch(e){}
-const viaRun=()=>!!(window.google&&google.script&&google.script.run);
-const inClaude=/claude\.ai$|claudeusercontent\.com$|anthropic\.com$/.test(location.hostname)||!!(window.claude&&(window.claude.use||window.claude.complete));
-NET.on=(viaRun()||!!API_URL)&&!inClaude;                // the Claude preview can't reach the Sheet: guest only
-function call(action,body={}){
-  const req=JSON.stringify(Object.assign({action,code:NET.code,game:GAME_ID},body));
-  if(viaRun())return new Promise((res,rej)=>google.script.run
-    .withSuccessHandler(t=>{let r;try{r=JSON.parse(t)}catch(e){r={error:'server'}}r.error?rej(r):res(r)})
-    .withFailureHandler(()=>rej({error:'network'})).apiRun(req));
-  if(!API_URL)return Promise.reject({error:'offline'});
-  // a plain-text POST is a "simple" request, so the browser doesn't need a CORS preflight
-  return fetch(API_URL,{method:'POST',body:req}).then(r=>r.json(),()=>{throw {error:'network'}}).then(r=>{if(r.error)throw r;return r});
-}
-const errText=e=>{const u=L().ui;return e&&e.error==='bad_code'?u.badCode:e&&e.error==='busy'?u.busy:u.network};
+const GAME_NAMES={all:null, bohr:'Ka-BOHR!', ibond:'iBond'};   // leaderboard tabs (null = translated "All games")
+const NET={on:!!(GL&&GL.on())};
+const call=(action,body={})=>GL?GL.call(action,body,GAME_ID):Promise.reject({error:'offline'});
+const errText=e=>{const u=L().ui,k=e&&e.error;return k==='bad_login'?u.badLogin:k==='wait'?u.tooMany:k==='busy'?u.busy:k==='bad_code'?u.badCode:k==='bad_token'?u.signedOut:u.network};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const whoName=r=>`${r.first||'?'} ${r.init?r.init+'.':''}`.trim();
 
 // ---- this game's saved data (cached on this computer, synced to the Sheet) ----
 const BBLANK=()=>({games:0,best:0,bestRounds:0,warps:0,stats:{},ft:{r:0,n:0},tally:{},mastery:{},extra:false,lang:'en',
   buddy:'H',hat:'',points:0,pending:0,inflight:null,updated:0});
-let who=null;
-try{const w=localStorage.getItem('ibond-who');if(w)who=JSON.parse(w)}catch(e){}   // logged in to iBond on this computer = logged in here
-const bkey=()=>who?'kabohr-stu-'+who.rid:'kabohr-guest';
+const sessWho=s=>s?{user:s.user,first:s.first,init:s.init,period:s.period}:null;
+let who=NET.on?sessWho(GL.session()):null;   // logged in on any of the games on this computer = logged in here
+const bkey=()=>who?'kabohr-stu-'+who.user:'kabohr-guest';
 function loadB(k){try{const raw=localStorage.getItem(k);if(raw)return Object.assign(BBLANK(),JSON.parse(raw))}catch(e){}return BBLANK()}
 function guestLook(b){try{const g=JSON.parse(localStorage.getItem('ibond-v1')||'null');if(g){b.buddy=g.buddy||'H';b.hat=g.hat||''}}catch(e){}return b}
 let B=who?loadB(bkey()):guestLook(loadB(bkey()));
@@ -1646,21 +1664,26 @@ async function flushB(){
   dirtyB=false; setSave('saving');
   // points go up in numbered batches; a batch that may have arrived is resent with the same id, never re-counted
   if(!B.inflight)B.inflight={sid:Math.random().toString(36).slice(2,12),amt:B.pending||0};
-  const sent=B.inflight.amt, sid=B.inflight.sid;
+  const sent=B.inflight.amt, sid=B.inflight.sid, mine=bkey();
   const data=JSON.parse(JSON.stringify(B));['pending','inflight','points','buddy','hat'].forEach(k=>delete data[k]);
-  flushingB=call('save',{rid:who.rid,sid,delta:sent,profile:{buddy:B.buddy,hat:B.hat},data,summary:summaryB()}).then(r=>{
+  flushingB=call('save',{sid,delta:sent,profile:{buddy:B.buddy,hat:B.hat},data,summary:summaryB()}).then(r=>{
+    if(bkey()!==mine)return;                    // logged out while this was sending
     B.pending=Math.max(0,(B.pending||0)-sent); B.inflight=null;
     B.points=(+r.points||0)+B.pending;          // the Sheet keeps the running total, shared by every game in the suite
     try{localStorage.setItem(bkey(),JSON.stringify(B))}catch(e){}
     setSave(dirtyB?'saving':'saved'); renderAcct();
-  }).catch(()=>{dirtyB=true;setSave('fail');syncB=setTimeout(()=>flushB(),20000)}).finally(()=>{flushingB=null});
+  }).catch(e=>{
+    if(e&&e.error==='bad_token'){setSave('fail');return}   // login ran out: points wait on this computer until they log in again
+    dirtyB=true;setSave('fail');syncB=setTimeout(()=>flushB(),20000);
+  }).finally(()=>{flushingB=null});
   await flushingB;
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushB()});
+window.addEventListener('online',()=>{if(who&&(B.pending||B.inflight)){dirtyB=true;flushB()}});
 
 // combine what the Sheet has with anything this computer saved but hadn't sent yet
-function mergedB(r,rid){
-  const cached=loadB('kabohr-stu-'+rid), remote=r.data?Object.assign(BBLANK(),r.data):null;
+function mergedB(r,user){
+  const cached=loadB('kabohr-stu-'+user), remote=r.data?Object.assign(BBLANK(),r.data):null;
   const sv=remote&&(remote.updated||0)>=(cached.updated||0)?remote:(cached.updated?cached:(remote||BBLANK()));
   sv.pending=cached.pending||0; sv.inflight=cached.inflight||null;
   sv.points=(r.profile?+r.profile.points||0:0)+sv.pending;
@@ -1669,79 +1692,146 @@ function mergedB(r,rid){
 }
 async function syncProfile(){        // picks up a sprite or hat changed in iBond since this page loaded
   if(!who||!NET.on)return;
+  const me=who.user;
   try{
-    const r=await call('login',{rid:who.rid});
-    const keep=B; B=mergedB(r,who.rid);
+    const r=await call('load');
+    if(!who||who.user!==me)return;
+    const keep=B; B=mergedB(r,me);
     if(keep.updated>B.updated){ Object.assign(keep,{points:B.points,buddy:B.buddy,hat:B.hat}); B=keep; }
     try{localStorage.setItem(bkey(),JSON.stringify(B))}catch(e){}
     refreshSprite(); renderAcct();
-    if(B.pending){dirtyB=true;flushB()}
+    if(B.pending||B.inflight){dirtyB=true;flushB()}
   }catch(e){}
 }
 
+// someone logged in or out in another tab or game, or the login ran out
+let loggingIn=false;
+window.addEventListener('gibson-session',e=>{
+  if(loggingIn)return;
+  const nw=sessWho(e.detail);
+  if((nw&&nw.user)===(who&&who.user))return;
+  const lost=!!who&&!nw;
+  if(who)try{localStorage.setItem(bkey(),JSON.stringify(B))}catch(_e){}
+  who=nw; B=who?loadB(bkey()):guestLook(loadB(bkey()));
+  acct={step:'idle',err:lost?L().ui.signedOut:''}; boardRows=null;
+  refreshSprite(); renderAcct(); renderSaveNote(); if(!who)closeBoard();
+  if(who)syncProfile();
+});
+
 // ---- login panel (on the start screen) ----
-let acct={step:'idle',err:'',matches:[]};
+let acct={step:'idle',err:'',user:'',id:''};
 function renderAcct(){
   const box=$('#acct'); if(!box)return;
   if(!NET.on){box.classList.add('hidden');return}
   box.classList.remove('hidden');
   const u=L().ui, st=acct;
   if(who){
-    box.innerHTML=`<div class="acrow">${sprite(B.buddy,B.hat,44)}<div class="acwho"><b>${esc(whoName(who))}</b><small>${esc(u.period(who.period))} · ${esc(u.total(B.points.toLocaleString()))}</small></div><button class="ghost slim" id="acOut">${esc(u.logOut)}</button></div>`;
-    $('#acOut').addEventListener('click',logoutB); return;
+    box.innerHTML=`<div class="acrow">${sprite(B.buddy,B.hat,44)}<div class="acwho"><b><bdi>${esc(whoName(who))}</bdi></b><small>${esc(u.period(who.period))} · ${esc(u.total(B.points.toLocaleString()))}</small></div><button class="ghost slim" id="acOut">${esc(u.logOut)}</button></div>`+
+      `<button class="ghost" id="acBoard" style="min-height:44px">${esc(u.board)}</button>`;
+    $('#acOut').addEventListener('click',logoutB);
+    $('#acBoard').addEventListener('click',e=>openBoard(e.currentTarget)); return;
   }
   if(st.step==='idle'){
-    box.innerHTML=`<div class="acrow">${sprite(B.buddy,B.hat,44)}<div class="acwho"><b>${esc(u.guest)}</b><small>${esc(u.guestSave)}</small></div><button class="btn slim" id="acIn">${esc(u.logIn)}</button></div>`;
-    $('#acIn').addEventListener('click',()=>{acct={step:'id',err:'',matches:[]};renderAcct();$('#acId')?.focus()}); return;
+    box.innerHTML=`<div class="acrow">${sprite(B.buddy,B.hat,44)}<div class="acwho"><b>${esc(u.guest)}</b><small>${esc(u.guestSave)}</small></div><button class="btn slim" id="acIn">${esc(u.logIn)}</button></div>`+
+      (st.err?`<p class="acerr" role="alert">${esc(st.err)}</p>`:'');
+    $('#acIn').addEventListener('click',()=>{acct={step:'form',err:'',user:'',id:''};renderAcct();$('#acUser')?.focus()}); return;
   }
-  if(st.step==='id'){
-    box.innerHTML=`<label for="acId" class="label" style="margin-top:0">${esc(u.idLabel)}</label><div class="acrow"><input id="acId" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="12345"><button class="btn slim" id="acNext">${esc(u.next)}</button></div><p class="acerr" aria-live="polite">${esc(st.err)}</p>`;
-    const i=$('#acId'); i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'').slice(0,5)});
-    i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.stopPropagation();lookupB()}});
-    $('#acNext').addEventListener('click',lookupB); return;
-  }
-  if(st.step==='confirm'){
-    box.innerHTML=`<div class="label" style="margin-top:0">${esc(u.isYou)}</div><div class="acpick">`+
-      st.matches.map((m,i)=>`<button class="ghost slim" data-m="${i}">${esc(whoName(m))}<small> · ${esc(u.period(m.period))}</small></button>`).join('')+
-      `</div><button class="linkbtn" id="acBack">${esc(u.notMe)}</button><p class="acerr" aria-live="polite">${esc(st.err)}</p>`;
-    box.querySelectorAll('[data-m]').forEach(b=>b.addEventListener('click',()=>chooseB(st.matches[+b.dataset.m])));
-    $('#acBack').addEventListener('click',()=>{acct={step:'id',err:u.checkAgain,matches:[]};renderAcct()});
-  }
+  // step 'form': username + last 5 digits
+  box.innerHTML=`<label for="acUser" class="label" style="margin-top:0;display:block">${esc(u.userLabel)}</label>`+
+    `<input id="acUser" dir="ltr" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="64" aria-describedby="acHint">`+
+    `<small class="achint" id="acHint">${esc(u.userHint)}</small>`+
+    `<label for="acId" class="label" style="display:block">${esc(u.idLabel)}</label>`+
+    `<div class="acrow"><input id="acId" dir="ltr" type="${st.show?'text':'password'}" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="5" placeholder="•••••">`+
+    `<button class="ghost slim" id="acShow" aria-pressed="${!!st.show}">${esc(st.show?u.hide:u.show)}</button></div>`+
+    `<p class="acerr" id="acErr" aria-live="polite">${esc(st.err)}</p>`+
+    `<div class="acbtns"><button class="ghost slim" id="acCancel">${esc(u.cancel)}</button><button class="btn slim" id="acGo">${esc(u.logIn)}</button></div>`;
+  const iu=$('#acUser'), ii=$('#acId');
+  iu.value=st.user; ii.value=st.id;
+  iu.addEventListener('input',()=>{st.user=iu.value});
+  ii.addEventListener('input',()=>{ii.value=ii.value.replace(/\D/g,'').slice(0,5);st.id=ii.value});
+  iu.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ii.focus()}});
+  ii.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();loginB()}});
+  $('#acShow').addEventListener('click',()=>{st.show=!st.show;renderAcct();$('#acId')?.focus()});
+  $('#acCancel').addEventListener('click',()=>{acct={step:'idle',err:'',user:'',id:''};renderAcct()});
+  $('#acGo').addEventListener('click',loginB);
 }
-async function lookupB(){
-  const v=$('#acId').value, u=L().ui;
-  if(!/^\d{5}$/.test(v)){acct.err=u.enter5;renderAcct();return}
-  $('#acNext').disabled=true;
-  try{
-    const r=await call('lookup',{last5:v});
-    const m=(r.matches||[]).filter(x=>x.rid&&x.first);
-    acct = m.length ? {step:'confirm',err:'',matches:m} : {step:'id',err:u.noMatch,matches:[]};
-  }catch(e){acct.err=errText(e)}
-  renderAcct();
-}
-async function chooseB(m){
+const acErr=msg=>{acct.err=msg;const p=$('#acErr');if(p)p.textContent=msg};
+async function loginB(){
+  const u=L().ui, user=GL.normUser(acct.user), id=acct.id;
+  if(!user){acErr(u.needUser);$('#acUser')?.focus();return}
+  if(!/^\d{5}$/.test(id)){acErr(u.enter5);$('#acId')?.focus();return}
+  const go=$('#acGo'); go.disabled=true; acErr(u.loading);
   let r;
-  try{r=await call('login',{rid:m.rid})}catch(e){acct.err=errText(e);renderAcct();return}
-  who={rid:m.rid,first:String(m.first),init:String(m.init||''),period:String(m.period)};
-  try{localStorage.setItem('ibond-who',JSON.stringify(who))}catch(e){}
-  B=mergedB(r,m.rid);
+  loggingIn=true;
+  try{r=await GL.login(user,id,GAME_ID)}
+  catch(e){loggingIn=false;go.disabled=false;acErr(errText(e));return}
+  loggingIn=false;
+  who=sessWho(GL.session());
+  B=mergedB(r,who.user);
   try{localStorage.setItem(bkey(),JSON.stringify(B))}catch(e){}
-  acct={step:'idle',err:'',matches:[]};
-  refreshSprite(); renderAcct();
-  if(B.pending){dirtyB=true;flushB()}
+  acct={step:'idle',err:'',user:'',id:''}; boardRows=null;
+  refreshSprite(); renderAcct(); renderSaveNote();
+  if(B.pending||B.inflight){dirtyB=true;flushB()}
 }
 async function logoutB(){
   await flushB();
-  who=null; try{localStorage.removeItem('ibond-who')}catch(e){}
-  B=guestLook(loadB(bkey())); acct={step:'idle',err:'',matches:[]};
-  refreshSprite(); renderAcct();
+  who=null; GL.logout();
+  B=guestLook(loadB(bkey())); acct={step:'idle',err:'',user:'',id:''}; boardRows=null;
+  refreshSprite(); renderAcct(); renderSaveNote(); closeBoard();
 }
 function setSave(s){ saveState=s; renderSaveNote(); }
 function renderSaveNote(){
+  const ob=$('#btnBoardOver'); if(ob)ob.classList.toggle('hidden',!(NET.on&&who));
   const n=$('#oSave'); if(!n)return; const u=L().ui;
   $('#oEarned').textContent=u.earned(S.score.toLocaleString());
   n.textContent = !NET.on ? '' : !who ? u.guestSave : saveState==='saving' ? u.saving : saveState==='fail' ? u.saveFail : u.saved(B.points.toLocaleString());
 }
+
+// ---- leaderboard: total ⚛ (all games) or ⚛ earned in one game × all periods or my period ----
+let boardRows=null, boardGames=['ibond','bohr'], boardAt=0, boardErr='', boardOpener=null;
+const BD={game:'all', per:'all'};
+async function pullBoard(){
+  if(!who)return;
+  if(boardRows&&Date.now()-boardAt<20000)return renderBoard();
+  boardErr=''; renderBoard();
+  try{ const r=await call('board'); boardRows=r.rows||[]; boardGames=r.games||boardGames; boardAt=Date.now(); }
+  catch(e){ boardErr=errText(e); }
+  renderBoard();
+}
+function openBoard(from){
+  if(!who)return;
+  boardOpener=from||null;
+  $('#boardOv').classList.remove('hidden');
+  pullBoard();
+  setTimeout(()=>$('#bdGame button[aria-pressed="true"]')?.focus(),0);
+}
+function closeBoard(){
+  const ov=$('#boardOv'); if(!ov||ov.classList.contains('hidden'))return;
+  ov.classList.add('hidden');
+  if(boardOpener&&document.body.contains(boardOpener))boardOpener.focus();
+}
+function renderBoard(){
+  const ov=$('#boardOv'); if(!ov||ov.classList.contains('hidden'))return;
+  const u=L().ui;
+  const games=['all'].concat(boardGames.filter(g=>GAME_NAMES[g]));
+  if(!games.includes(BD.game))BD.game='all';
+  $('#bdGame').style.gridTemplateColumns=`repeat(${games.length},1fr)`;
+  $('#bdGame').innerHTML=games.map(g=>`<button data-g="${g}" aria-pressed="${g===BD.game}"${g==='all'?'':' lang="en" dir="ltr"'}>${esc(g==='all'?u.allGames:GAME_NAMES[g])}</button>`).join('');
+  $('#bdPer').innerHTML=`<button data-p="all" aria-pressed="${BD.per==='all'}">${esc(u.allPeriods)}</button><button data-p="mine" aria-pressed="${BD.per==='mine'}">${esc(u.period(who?who.period:''))}</button>`;
+  const list=$('#bdList');
+  if(!boardRows){ list.innerHTML=`<li class="empty">${esc(boardErr||u.loading)}</li>`; return; }
+  const val=r=>BD.game==='all'?(+r.points||0):(+(r.g&&r.g[BD.game])||0);
+  const rows=boardRows.filter(r=>val(r)>0&&(BD.per==='all'||String(r.period)===String(who.period))).sort((a,b)=>val(b)-val(a));
+  if(!rows.length){ list.innerHTML=`<li class="empty">${esc(u.boardEmpty)}</li>`; return; }
+  let rank=0,prev=null;
+  rows.forEach((r,i)=>{ if(val(r)!==prev){rank=i+1;prev=val(r)} r._rk=rank; });
+  const top=rows.slice(0,10), meI=rows.findIndex(r=>r.me);
+  const li=r=>`<li class="${r.me?'me':''}"><span class="rk">${r._rk}</span>${sprite(r.buddy,r.hat,26)}<span class="nm"><bdi>${esc(whoName(r))}</bdi>${r.me?` <small>(${esc(u.you)})</small>`:''}${BD.per==='all'?`<small>${esc(u.period(r.period))}</small>`:''}</span><span class="pt">${val(r).toLocaleString()} ⚛</span></li>`;
+  list.innerHTML=top.map(li).join('')+(meI>=10?`<li class="gap">⋮</li>`+li(rows[meI]):'');
+}
+$('#bdGame').addEventListener('click',e=>{const b=e.target.closest('button');if(b){BD.game=b.dataset.g;renderBoard()}});
+$('#bdPer').addEventListener('click',e=>{const b=e.target.closest('button');if(b){BD.per=b.dataset.p;renderBoard()}});
+$('#boardOv').addEventListener('pointerdown',e=>{if(e.target.id==='boardOv')closeBoard()});
 
 // ---- the student's iBond sprite (atom buddy + hat), same drawing as iBond ----
 const BUDDIES=[{s:'H',col:'#8E9AAF'},{s:'Na',col:'#E85A4F'},{s:'Cl',col:'#3AA76D'},{s:'O',col:'#2BB3CF'},{s:'Mg',col:'#B07CC6'},{s:'Ca',col:'#E08E3C'},
@@ -2212,6 +2302,8 @@ cv.addEventListener('pointerup', ()=>{ input.swipe=null; });
 $('#btnJump').addEventListener('pointerdown', e=>{ e.preventDefault(); e.stopPropagation(); jump(); });
 window.addEventListener('keydown', e=>{
   const k=e.key;
+  if (!$('#boardOv').classList.contains('hidden')){ if (k==='Escape'){ e.preventDefault(); closeBoard(); } return; }
+  if (e.target && e.target.closest && e.target.closest('input,textarea,select')) return;
   if (k==='ArrowLeft'||k==='a'||k==='A'){ input.left=true; e.preventDefault(); }
   else if (k==='ArrowRight'||k==='d'||k==='D'){ input.right=true; e.preventDefault(); }
   else if (k===' '||k==='ArrowUp'||k==='w'||k==='W'){
@@ -2244,6 +2336,8 @@ $('#extraTime').addEventListener('change', e=>{ S.extra=e.target.checked; });
 $('#btnStart').addEventListener('click', startGame);
 $('#btnAgain').addEventListener('click', startGame);
 $('#btnMenu').addEventListener('click', toMenu);
+$('#btnBoardOver').addEventListener('click', e=>openBoard(e.currentTarget));
+$('#bdClose').addEventListener('click', closeBoard);
 $('#btnQuit').addEventListener('click', toMenu);
 $('#btnResume').addEventListener('click', ()=>setPaused(false));
 $('#btnPause').addEventListener('click', ()=> S.state==='paused' ? setPaused(false) : setPaused(true));
@@ -2258,9 +2352,10 @@ buildTable($('#cardTable')); buildTable($('#dockTable')); $('#ver').textContent=
 applyLang('en');
 resize(); renderStats(); renderAcct();
 if (NET.on && who) setTimeout(syncProfile, 0);
+if (NET.on) $('#sandboxNote').classList.add('hidden');
 requestAnimationFrame(frame);
 
-window.__kabohr = { tick:(d)=>update(d), draw:()=>draw(), announce, fallSpeed:()=>fallSpeed(), dropInterval:()=>dropInterval(), MUS, S, player, moles, NET, getB:()=>B, getWho:()=>who, input, ELS, BY, CFG, LANGS, explainIn, candidates, pickDistractors, electronAngles, catchY, startGame, applyLang, jump };
+window.__kabohr = { tick:(d)=>update(d), draw:()=>draw(), announce, fallSpeed:()=>fallSpeed(), dropInterval:()=>dropInterval(), MUS, S, player, moles, NET, getB:()=>B, getWho:()=>who, addPoints, flushB, gameOver, input, ELS, BY, CFG, LANGS, explainIn, candidates, pickDistractors, electronAngles, catchY, startGame, applyLang, jump };
 })();
 </script>
 </body></html>
